@@ -27,4 +27,4 @@
       - probably like LF
 
   - Substructural types
-      - ?
+    (Tov 2012, chapter 2)
