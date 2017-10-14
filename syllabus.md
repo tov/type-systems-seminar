@@ -1,30 +1,36 @@
 # Topics
 
-  - Abstract syntax and abstract binding trees
+  - Abstract syntax, binding, and substitution
 
-  - Simply-typed lambda calculus (TAPL)
-      - type safety
-      - normalization
-      - simple extensions like products, sums, records, recursion
+  - Simply-typed lambda calculus
+      - Reading: basic description from TAPL
+      - In lecture: Type safety proof.
+      - Activity: simply extensions like products, sums, records, recursion
+      - In lecture: Normalization proof.
+      - Activity: type scheme inference and cataloguing of all possible
+        type errors
 
   - System F
-      - type safety
-      - normalization
-      - Church encodings
-    (Reynolds 1974, "Towards a Theory of Type Structure"?)
+      - Reading: Reynolds 1974, "Towards a Theory of Type Structure"
+      - type safety?
+      - normalization?
+      - Activity: Church encodings
+      - Reading: F≤ (TAPL?)
 
   - Damas–Hindley–Milner type inference
-      - prenex types
-      - soundness & completeness
-    (Milner 1978, "A Theory of Type Polymorphim in Programming")
+      - Reading: Milner 1978, "A Theory of Type Polymorphim in Programming"
+      - soundness & completeness?
+      - Reading: Pottier and Rémy, "The Essence of ML Type Inference"
 
   - Qualified types
-      - à la Haskell
+      - for overloading à la Haskell
+      - for subtyping
       - evidence translation
     (Jones 1992, "A Theory of Qualified Types")
 
   - Dependent types
-      - probably like LF
+      - LF
+      - CoC
 
   - Substructural types
-    (Tov 2012, chapter 2)
+      - Reading: Tov 2012, chapter 2
