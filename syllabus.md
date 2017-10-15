@@ -34,3 +34,8 @@
 
   - Substructural types
       - Reading: Tov 2012, chapter 2
+
+To be integrated:
+
+   http://www.lucacardelli.name/Papers/TypefulProg.pdf)
+   
