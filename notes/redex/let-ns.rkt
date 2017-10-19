@@ -2,7 +2,8 @@
 
 (provide let-ns let-ns/eval ->val)
          
-(require redex)
+(require redex
+         "util.rkt")
 
 (define-language let-ns
   (e ::=
@@ -40,20 +41,36 @@
    let-ns/eval
    #:domain e
    (--> (in-hole E (+ n_1 n_2))
-        (in-hole E ,(+ (term n_1) (term n_2)))
+        (in-hole E (meta-+ n_1 n_2))
         plus)
    (--> (in-hole E (* n_1 n_2))
-        (in-hole E ,(* (term n_1) (term n_2)))
+        (in-hole E (meta-* n_1 n_2))
         times)
    (--> (in-hole E (length s))
-        (in-hole E ,(string-length (term s)))
+        (in-hole E (meta-length s))
         length)
    (--> (in-hole E (append s_1 s_2))
-        (in-hole E ,(string-append (term s_1) (term s_2)))
+        (in-hole E (meta-append s_1 s_2))
         append)
    (--> (in-hole E (let x v e))
         (in-hole E (substitute e x v))
         let)))
+
+(define-lifted-metafunction let-ns/eval
+  meta-+ : n_1 n_2 -> n
+  +)
+
+(define-lifted-metafunction let-ns/eval
+  meta-* : n_1 n_2 -> n
+  *)
+
+(define-lifted-metafunction let-ns/eval
+  meta-length : s -> n
+  string-length)
+
+(define-lifted-metafunction let-ns/eval
+  meta-append : s_1 s_2 -> s
+  string-append)
 
 (default-language let-ns/eval)
 
