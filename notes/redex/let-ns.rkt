@@ -1,5 +1,7 @@
 #lang racket/base
 
+(provide let-ns let-ns/eval ->val)
+         
 (require redex)
 
 (define-language let-ns
