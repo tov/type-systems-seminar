@@ -166,7 +166,9 @@
                     (* (car (car x)) (cdr x))))
             (term 28)))
 
-; : e -> (or/c v #false)
+; fully-reduce : e -> (or/c v #false)
+; Uses the reduction relation to evaluate `e`, returning #false if reduction
+; gets stuck or is non-deterministics.
 (define (fully-reduce e)
   (define reduced (apply-reduction-relation* ->val e))
   (and (= 1 (length reduced))
@@ -176,6 +178,8 @@
         (car reduced))))
      
 ; fully-evaluate : e -> (or/c v #false)
+; Uses the big-step evaluation metafunction to evaluate `e`, returning
+; #false if the metafunction doesn't apply.
 (define (fully-evaluate e)
   (with-handlers ([exn:fail? (λ (exn) #false)])
     (term (eval () ,e))))
