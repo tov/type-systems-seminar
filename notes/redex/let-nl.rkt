@@ -42,27 +42,30 @@
   (reduction-relation
    let-nl/eval
    #:domain e
-   (--> (in-hole E (+ n_1 n_2))
-        (in-hole E (meta-+ n_1 n_2))
+   (==> (+ n_1 n_2)
+        (meta-+ n_1 n_2)
         plus)
-   (--> (in-hole E (* n_1 n_2))
-        (in-hole E (meta-* n_1 n_2))
+   (==> (* n_1 n_2)
+        (meta-* n_1 n_2)
         times)
-   (--> (in-hole E (car (cons v_1 v_2)))
-        (in-hole E v_1)
+   (==> (car (cons v_1 v_2))
+        v_1
         car)
-   (--> (in-hole E (cdr (cons v_1 v_2)))
-        (in-hole E v_2)
+   (==> (cdr (cons v_1 v_2))
+        v_2
         cdr)
-   (--> (in-hole E (car nil))
-        (in-hole E 0)
+   (==> (car nil)
+        0
         car-nil)
-   (--> (in-hole E (cdr nil))
-        (in-hole E nil)
+   (==> (cdr nil)
+        nil
         cdr-nil)
-   (--> (in-hole E (let x v e))
-        (in-hole E (substitute e x v))
-        let)))
+   (==> (let x v e)
+        (substitute e x v)
+        let)
+   with
+   [(--> (in-hole E a) (in-hole E b))
+    (==> a b)]))
 
 (define-lifted-metafunction let-nl/eval
   meta-+ : n_1 n_2 -> n
