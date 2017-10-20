@@ -97,6 +97,7 @@
 (define-metafunction let-nl/env
   eval : ρ e -> v
   [(eval ρ n)                      n]
+  [(eval ρ nil)                    nil]
   [(eval ρ (cons e_1 e_2))         (cons v_1 v_2)
                                    (where v_1 (eval ρ e_1))
                                    (where v_2 (eval ρ e_2))]
@@ -106,8 +107,14 @@
   [(eval ρ (* e_1 e_2))            (meta-* n_1 n_2)
                                    (where n_1 (eval ρ e_1))
                                    (where n_2 (eval ρ e_2))]
-  [(eval ρ (car (cons v_1 v_2)))   v_1]
-  [(eval ρ (cdr (cons v_1 v_2)))   v_2]
+  [(eval ρ (car e))                v_1
+                                   (where (cons v_1 v_2) (eval ρ e))]
+  [(eval ρ (cdr e))                v_2
+                                   (where (cons v_1 v_2) (eval ρ e))]
+  [(eval ρ (car e))                0
+                                   (where nil (eval ρ e))]
+  [(eval ρ (cdr e))                nil
+                                   (where nil (eval ρ e))]
   [(eval ρ (car nil))              0]
   [(eval ρ (cdr nil))              nil]
   [(eval ρ x)                      (lookup ρ x)]
@@ -157,24 +164,25 @@
   (test-->> ->val
             (term (let x (cons (cons 4 nil) 7)
                     (* (car (car x)) (cdr x))))
-            (term 28))
+            (term 28)))
 
-  ; : e -> (or/c v #false)
-  (define (fully-reduce e)
-    (define reduced (apply-reduction-relation* ->val e))
-    (and (= 1 (length reduced))
-         ((term-match/single let-nl/eval
-            [v (term v)]
-            [_ #false])
-          (car reduced))))
+; : e -> (or/c v #false)
+(define (fully-reduce e)
+  (define reduced (apply-reduction-relation* ->val e))
+  (and (= 1 (length reduced))
+       ((term-match/single let-nl/eval
+          [v (term v)]
+          [_ #false])
+        (car reduced))))
      
-  ; fully-evaluate : e -> (or/c v #false)
-  (define (fully-evaluate e)
-    (with-handlers ([exn:fail? (λ (exn) #false)])
-      (term (eval () ,e))))
+; fully-evaluate : e -> (or/c v #false)
+(define (fully-evaluate e)
+  (with-handlers ([exn:fail? (λ (exn) #false)])
+    (term (eval () ,e))))
 
-  (define (dynamics-agree? e)
-    (equal? (fully-reduce e) (fully-evaluate e)))
-  
-  (redex-check let-nl/eval e dynamics-agree? #:source ->val)
-  #;(redex-check let-nl/eval e dynamics-agree? #:source eval))
+(define (dynamics-agree? e)
+  (equal? (fully-reduce e) (fully-evaluate e)))
+
+(module+ test
+  (redex-check let-nl/eval e (dynamics-agree? (term e)) #:source ->val)
+  #;(redex-check let-nl/eval e (dynamics-agree? (term e)) #:source eval))
