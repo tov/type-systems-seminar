@@ -27,33 +27,33 @@
 (define-judgment-form let-nl/t
   #:mode (types I I O)
   #:contract (types Γ e t)
-  [---- "nat"
+  [---- nat
    (types Γ n int)]
-  [---- "nil"
+  [---- nil
    (types Γ nil list)]
   [(types Γ e_1 int)
    (types Γ e_2 list)
-   ---- "cons"
+   ---- cons
    (types Γ (cons e_1 e_2) list)]
   [(types Γ e_1 int)
    (types Γ e_2 int)
-   ---- "plus"
+   ---- plus
    (types Γ (+ e_1 e_2) int)]
   [(types Γ e_1 int)
    (types Γ e_2 int)
-   ---- "times"
+   ---- times
    (types Γ (* e_1 e_2) int)]
   [(types Γ e list)
-   ---- "car"
+   ---- car
    (types Γ (car e) int)]
   [(types Γ e list)
-   ---- "cdr"
+   ---- cdr
    (types Γ (cdr e) list)]
-  [---- "var"
+  [---- var
    (types Γ x (lookup Γ x))]
   [(types Γ e_1 t_1)
    (types (extend Γ x t_1) e_2 t_2)
-   ---- "let"
+   ---- let
    (types Γ (let x e_1 e_2) t_2)])
 
 (define-syntax-rule (let-nl-match scrutinee [patt expr ...] ...)
