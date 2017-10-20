@@ -504,7 +504,7 @@ conclusion:
    @term[(--> (let x e_1 e_2) (let x e_11 e_2))] by the closure lemma.
    If @term[e_1] reduces to @term[WRONG] then
    @term[(--> (let x e_1 e_2) WRONG)] by the closure lemma.
-   Otherise, @term[e_1] is a value @term[v_1], and
+   Otherwise, @term[e_1] is a value @term[v_1], and
    @term[(--> (let x v_1 e_2) (substitute e_2 x v_1))].}
 ]
 
