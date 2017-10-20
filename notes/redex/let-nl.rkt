@@ -42,30 +42,27 @@
   (reduction-relation
    let-nl/eval
    #:domain e
-   (==> (+ n_1 n_2)
-        (meta-+ n_1 n_2)
+   (--> (in-hole E (+ n_1 n_2))
+        (in-hole E (meta-+ n_1 n_2))
         plus)
-   (==> (* n_1 n_2)
-        (meta-* n_1 n_2)
+   (--> (in-hole E (* n_1 n_2))
+        (in-hole E (meta-* n_1 n_2))
         times)
-   (==> (car (cons v_1 v_2))
-        v_1
+   (--> (in-hole E (car (cons v_1 v_2)))
+        (in-hole E v_1)
         car)
-   (==> (cdr (cons v_1 v_2))
-        v_2
+   (--> (in-hole E (cdr (cons v_1 v_2)))
+        (in-hole E v_2)
         cdr)
-   (==> (car nil)
-        0
+   (--> (in-hole E (car nil))
+        (in-hole E 0)
         car-nil)
-   (==> (cdr nil)
-        nil
+   (--> (in-hole E (cdr nil))
+        (in-hole E nil)
         cdr-nil)
-   (==> (let x v e)
-        (substitute e x v)
-        let)
-   with
-   [(--> (in-hole E a) (in-hole E b))
-    (==> a b)]))
+   (--> (in-hole E (let x v e))
+        (in-hole E (substitute e x v))
+        let)))
 
 (define-lifted-metafunction let-nl/eval
   meta-+ : n_1 n_2 -> n
@@ -152,3 +149,9 @@
 (test-->> ->val
           (term (car (cons (+ 3 4) nil)))
           (term 7))
+
+; it's untyped:
+(test-->> ->val
+          (term (let x (cons (cons 4 nil) 7)
+                  (* (car (car x)) (cdr x))))
+          (term 28))
