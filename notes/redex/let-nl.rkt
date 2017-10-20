@@ -72,6 +72,8 @@
   meta-* : n_1 n_2 -> n
   *)
 
+
+
 ;;
 ;; Big-step evaluator
 ;;
@@ -112,46 +114,67 @@
   [(eval ρ (let x e_1 e_2))        (eval (extend ρ x v_1) e_2)
                                    (where v_1 (eval ρ e_1))])
 
-;;
+
 ;; Tests
 ;;
 
-(default-language let-nl/eval)
+(module+ test
+  (default-language let-nl/eval)
 
-(test-->> ->val
-          (term 4)
-          (term 4))
+  (test-->> ->val
+            (term 4)
+            (term 4))
 
-(test-->> ->val
-          (term (+ 4 5))
-          (term 9))
+  (test-->> ->val
+            (term (+ 4 5))
+            (term 9))
 
-(test-->> ->val
-          (term (+ 2 (+ 3 4)))
-          (term 9))
+  (test-->> ->val
+            (term (+ 2 (+ 3 4)))
+            (term 9))
 
-(test-->> ->val
-          (term (+ (+ 2 3) 4))
-          (term 9))
+  (test-->> ->val
+            (term (+ (+ 2 3) 4))
+            (term 9))
 
-(test-->> ->val
-          (term (+ (+ 2 3) (+ 4 5)))
-          (term 14))
+  (test-->> ->val
+            (term (+ (+ 2 3) (+ 4 5)))
+            (term 14))
 
-(test-->> ->val
-          (term (let x 5 (+ x x)))
-          (term 10))
+  (test-->> ->val
+            (term (let x 5 (+ x x)))
+            (term 10))
 
-(test-->> ->val
-          (term (car nil))
-          (term 0))
+  (test-->> ->val
+            (term (car nil))
+            (term 0))
 
-(test-->> ->val
-          (term (car (cons (+ 3 4) nil)))
-          (term 7))
+  (test-->> ->val
+            (term (car (cons (+ 3 4) nil)))
+            (term 7))
 
-; it's untyped:
-(test-->> ->val
-          (term (let x (cons (cons 4 nil) 7)
-                  (* (car (car x)) (cdr x))))
-          (term 28))
+  ; it's untyped:
+  (test-->> ->val
+            (term (let x (cons (cons 4 nil) 7)
+                    (* (car (car x)) (cdr x))))
+            (term 28))
+
+  ; : e -> (or/c v #false)
+  (define (fully-reduce e)
+    (define reduced (apply-reduction-relation* ->val e))
+    (and (= 1 (length reduced))
+         ((term-match/single let-nl/eval
+            [v (term v)]
+            [_ #false])
+          (car reduced))))
+     
+  ; fully-evaluate : e -> (or/c v #false)
+  (define (fully-evaluate e)
+    (with-handlers ([exn:fail? (λ (exn) #false)])
+      (term (eval () ,e))))
+
+  (define (dynamics-agree? e)
+    (equal? (fully-reduce e) (fully-evaluate e)))
+  
+  (redex-check let-nl/eval e dynamics-agree? #:source ->val)
+  #;(redex-check let-nl/eval e dynamics-agree? #:source eval))
