@@ -195,8 +195,8 @@ stuck terms—in our programs. To show that it does this, we will prove
 one of:
 @;
 @itemlist[
-  @item{It will reduce in some number of steps to a value @term[v] such
-        that that has type @term[t].}
+  @item{It will reduce in some number of steps to a value @term[v] that also
+        has type @term[t].}
   @item{It will reduce in some number of steps to @term[WRONG].}
   @item{It will reduce forever.}
 ]

@@ -10,11 +10,10 @@
          redex/pict
          scribble/base
          (only-in racket/match match-define match-lambda)
-         (only-in redex default-language)
-         syntax/parse/define
-         (for-syntax syntax/parse))
+         (only-in redex default-language))
 
-(define-simple-macro (with-rewriters expr:expr ...+)
+#;
+(define (with-rewriters/thunk thunk)
   (with-compound-rewriters
    (['lookup (match-lambda [`(,_ ,_ ,Γ ,x ,_) (list "" Γ "(" x ")")])]
     ['extend (match-lambda [(list _ _ Γ x t _) (list "" Γ ", " x ":" t)])]
@@ -22,7 +21,21 @@
      (match-lambda [(list _ _ e x v _) (list "" e "[" x ":=" v "]")])]
     ['types* (match-lambda [(list _ _ e t _) (list "" e " : " t)])]
     ['types  (match-lambda [(list _ _ Γ e t _) (list "" Γ " ⊢ " e " : " t)])])
-   (with-atomic-rewriter 't "τ" (begin expr ...))))
+   (with-atomic-rewriter 't "τ" (thunk))))
+
+#;
+(define-syntax-rule (with-rewriters expr0 expr ...)
+  (with-rewriters/thunk (λ () (expr0 expr ...))))
+
+(define-syntax-rule (with-rewriters expr0 expr ...)
+  (with-compound-rewriters
+   (['lookup (match-lambda [`(,_ ,_ ,Γ ,x ,_) (list "" Γ "(" x ")")])]
+    ['extend (match-lambda [(list _ _ Γ x t _) (list "" Γ ", " x ":" t)])]
+    ['substitute
+     (match-lambda [(list _ _ e x v _) (list "" e "[" x ":=" v "]")])]
+    ['types* (match-lambda [(list _ _ e t _) (list "" e " : " t)])]
+    ['types  (match-lambda [(list _ _ Γ e t _) (list "" Γ " ⊢ " e " : " t)])])
+   (with-atomic-rewriter 't "τ" (begin expr0 expr ...))))
 
 (define-syntax-rule (term e)
   (with-rewriters (render-term (default-language) e)))
@@ -44,3 +57,4 @@
 (define-syntax-rule (render-nonterminals lang nt ...)
   (parameterize ([render-language-nts '(nt ...)])
     (with-rewriters (centered (render-language lang)))))
+
