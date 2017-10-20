@@ -3,7 +3,7 @@
 (require redex
          "let-nl.rkt")
 
-(provide let-nl/t)
+(provide let-nl/t types types*)
 
 (define-extended-language let-nl/t let-nl/eval
   (t ::=
@@ -55,6 +55,33 @@
    (types (extend Γ x t_1) e_2 t_2)
    ---- let
    (types Γ (let x e_1 e_2) t_2)])
+
+; This is a broken version of `types` that doesn't use an environment:
+(define-judgment-form let-nl/t
+  #:mode (types* I O)
+  #:contract (types* e t)
+  [---- nat
+   (types* n int)]
+  [---- nil
+   (types* nil list)]
+  [(types* e_1 int)
+   (types* e_2 list)
+   ---- cons
+   (types* (cons e_1 e_2) list)]
+  [(types* e_1 int)
+   (types* e_2 int)
+   ---- plus
+   (types* (+ e_1 e_2) int)]
+  [(types* e_1 int)
+   (types* e_2 int)
+   ---- times
+   (types* (* e_1 e_2) int)]
+  [(types* e list)
+   ---- car
+   (types* (car e) int)]
+  [(types* e list)
+   ---- cdr
+   (types* (cdr e) list)])
 
 (define-syntax-rule (let-nl-match scrutinee [patt expr ...] ...)
   ((term-match/single let-nl/t

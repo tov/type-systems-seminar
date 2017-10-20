@@ -36,12 +36,15 @@
      (* v E)
      (car E)
      (cdr E)
-     (let x E e)))
+     (let x E e))
+  (C ::=
+     e
+     WRONG))
 
 (define ->val
   (reduction-relation
    let-nl/eval
-   #:domain e
+   #:domain C
    (--> (in-hole E (+ n_1 n_2))
         (in-hole E (meta-+ n_1 n_2))
         plus)
@@ -55,10 +58,10 @@
         (in-hole E v_2)
         cdr)
    (--> (in-hole E (car nil))
-        (in-hole E 0)
+        WRONG
         car-nil)
    (--> (in-hole E (cdr nil))
-        (in-hole E nil)
+        WRONG
         cdr-nil)
    (--> (in-hole E (let x v e))
         (in-hole E (substitute e x v))
@@ -111,9 +114,9 @@
                                    (where (cons v_1 v_2) (eval ρ e))]
   [(eval ρ (cdr e))                v_2
                                    (where (cons v_1 v_2) (eval ρ e))]
-  [(eval ρ (car e))                0
+  [(eval ρ (car e))                WRONG ; this violates eval's contract
                                    (where nil (eval ρ e))]
-  [(eval ρ (cdr e))                nil
+  [(eval ρ (cdr e))                WRONG ; this violates eval's contract
                                    (where nil (eval ρ e))]
   [(eval ρ (car nil))              0]
   [(eval ρ (cdr nil))              nil]
@@ -154,7 +157,7 @@
 
   (test-->> ->val
             (term (car nil))
-            (term 0))
+            (term WRONG))
 
   (test-->> ->val
             (term (car (cons (+ 3 4) nil)))
