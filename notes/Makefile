@@ -1,5 +1,9 @@
 doc: let-nl.scrbl
 	raco make -j 4 $<
-	scribble --dest $@ --html ++convert svg $<
+	scribble --dest doc --html ++convert svg $<
 
-.PHONY: doc
+pdf: let-nl.scrbl
+	raco make -j 4 $<
+	scribble --dest doc --pdf $<
+
+.PHONY: doc pdf
