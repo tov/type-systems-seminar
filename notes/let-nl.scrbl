@@ -59,26 +59,15 @@ These say that if we have a cons (pair) of values @term[(cons v_1 v_2)] then
 @term[car] extracts the first value @term[v_1] and @term[cdr] extracts the
 second value @term[v_2].
 
-There are also two rules that say what @term[car] and @term[cdr] do when given
-@term[nil], the empty list:
-@;
-@render-reduction-rules[r:->val car-nil cdr-nil]
-@;
-These are errors! When applied to the empty list, @term[car] and @term[cdr]
-discard their context and reduce to a special configuration @term[WRONG].
-
-Finally, the rule for @term[let] involves substituting the value for the
-variable in the body:
+Finally (for now), the rule for @term[let] involves substituting the value for
+the variable in the body:
 @;
 @render-reduction-rules[r:->val let]
 
 In order to describe where evaluation can happen when when it is finished, we
-extend our syntax with values @term[v], evaluation contexts @term[E], and
-configurations @term[C]:
-
-@centered{
- @render-language[r:let-nl/eval]
-}
+extend our syntax with values @term[v] and evaluation contexts @term[E]:
+@;
+@render-nonterminals[r:let-nl/eval v E]
 
 We define values—final results—to include numbers @term[n], the empty list
 @term[nil], and pairs of values @term[(cons v_1 v_2)].
@@ -115,13 +104,17 @@ defined as:
 
 @subsection{Errors}
 
-@let-nl has two explicit error cases, @term[(car nil)] and @term[(cdr nil)],
-which both reduce to @term[WRONG]. Are there any other ways @let-nl programs
-can go wrong?
+Can @let-nl programs experience errors? What does it mean for a reduction
+semantics to have an error? Right now, there are no explicit, checked errors,
+but there are programs that don't make sense. For example, @term[(car 5)].
+What do these non-sense terms do right now? They get @emph{stuck}! That is,
+a term that has @term[(car 5)] in the hole won't reduce any further.
 
-Indeed, there are terms that do not reduce. In particular:
-
+Indeed, there several classes of terms that get stuck in our definition of
+@let-nl thus far:
+@;
 @itemlist[
+  @item{@term[(car nil)] and @term[(cdr nil)].}
   @item{@term[(car n)] and @term[(cdr n)], where @term[n] is an integer.}
   @item{@term[(+ v_1 v_2)] or @term[(* v_1 v_2)] where @term[v_1] or @term[v_2]
          is not an integer.}
@@ -129,12 +122,29 @@ Indeed, there are terms that do not reduce. In particular:
             @term[let].}
 ]
 
-Currently, our model gets @italic{stuck} on these erroneous kinds of terms.
-This might correspond to a real language executing an invalid instruction
-or in some other kind of undefined behavior. There are two main ways we could
-solve the problem. First, we could add transition rules that detect all bad
-states and transition them to @term[WRONG], thus flagging them as errors.
-Or second, we could impose a type system, which rules out programs with
+What do these stuck states mean? They might correspond to
+a real language executing an invalid instruction or some other kind of
+undefined behavior. This is no good, but there are several ways we could
+solve the problem.
+
+First, we could make such programs defined by adding
+transition rules. For example, we could add a rule that the car of a number
+is 0. Another way to make the programs defined, without sanctioning non-sense,
+is to add an error state. We do this by extending terms @term[e] to
+configurations @term[C]:
+@;
+@render-nonterminals[r:let-nl/eval C]
+@;
+Then we add transition rules that detect all bad states and transition them
+to @term[WRONG], thus flagging them as errors.
+@;
+@render-reduction-rules[r:->val car-nil cdr-nil]
+@;
+This approach is equivalent to adding errors or exceptions to our programming
+language.
+
+A second way to rule out stuck states is to impose a type system,
+which rules out programs with
 some kinds of errors. We can then prove that no programs admitted by the
 type system get stuck.
 
@@ -142,7 +152,7 @@ type system get stuck.
 
 With a type system, we assign types to (some) terms to classify them by
 what kind of value they compute. In our first, simple type system, we
-will have only two types of values:
+will have only two types:
 @;
 @render-nonterminals[r:let-nl/t t]
 @;
