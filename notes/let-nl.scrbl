@@ -99,6 +99,8 @@ we decompose into the evaluation context @term[hole] and the redex
 Configurations specify what we actually reduce over: expressions @term[e] or
 the special error token @term[WRONG].
 
+@bold{Exercise.} 
+
 @subsection{Errors}
 
 @let-nl has two explicit error cases, @term[(car nil)] and @term[(cdr nil)],
@@ -430,11 +432,20 @@ Before we can prove progress, we need to classify values by their types.
 
 QED.
 
-@bold{Lemma} (Closure)@bold{.} If @term[(--> e_1 e_2)] then
+@bold{Lemma} (Context replacement)@bold{.} If @term[(--> e_1 e_2)] then
 @term[(--> (in-hole E e_1) (in-hole E e_2))]. If @term[(--> e_1 WRONG)]
 then @term[(--> (in-hole E e_1) WRONG)].
 
-@bold{Proof.} By induction on the structure of @term[E].
+@bold{Proof.} If @term[(--> e_1 e_2)] then @term[e_1] must be some redex
+in a hole: @term[(in-hole E_1 e_11)]. Furthermore, it must take a step to some
+@term[(in-hole E_1 e_22)] = @term[e_2]. Then the same redex @term[e_11]
+reduces to the same reductum @term[e_22] in any evaluation context, including
+@term[(in-hole E E_1)].
+
+If @term[(--> e_1 WRONG)] then @term[e_1] must be some redex in a hole:
+@term[(in-hole E_1 e_11)] which reduces to @term[WRONG]. Then that same redex
+reduces to @term[WRONG] in any evaluation context, including
+@term[(in-hole E E_1)].
 
 @bold{Lemma} (Progress)@bold{.} If @term[(types () e t)] then
 term @term[e] either reduces or is a value.
@@ -450,15 +461,15 @@ conclusion:
    and @term[(types () e_2 list)].
    By the induction hypothesis, term @term[e_1] either reduces, or is a value.
    If @term[e_1] reduces to some term @term[e_11], then
-   @term[(--> (cons e_1 e_2) (cons e_11 e_2))] by the closure lemma.
+   @term[(--> (cons e_1 e_2) (cons e_11 e_2))] by the context replacement lemma.
    If @term[e_1] reduces to @term[WRONG], then
-   @term[(--> (cons e_1 e_1) WRONG)] by the closure lemma.
+   @term[(--> (cons e_1 e_1) WRONG)] by the context replacement lemma.
    If @term[e_1] is a value @term[v_1], then consider @term[e_2], which by
    the induction hypothesis either reduces or is a value.
    If @term[e_2] reduces to a term @term[e_22], then
-   @term[(--> (cons v_1 e_2) (cons v_1 e_22))] by the closure lemma.
+   @term[(--> (cons v_1 e_2) (cons v_1 e_22))] by the context replacement lemma.
    If @term[e_2] reduces to @term[WRONG], then
-   @term[(--> (cons v_1 e_2) WRONG)] by the closure lemma.
+   @term[(--> (cons v_1 e_2) WRONG)] by the context replacement lemma.
    Finally, if @term[e_2] is a value @term[v_2] then @term[e]
    is a value @term[(cons v_1 v_2)].
  }
@@ -467,15 +478,15 @@ conclusion:
    and @term[(types () e_2 int)].
    By the induction hypothesis, @term[e_1] either reduces or is a value.
    If @term[e_1] reduces to a term @term[e_11], then
-   @term[(--> (+ e_1 e_2) (+ e_11 e_2))] by the closure lemma.
+   @term[(--> (+ e_1 e_2) (+ e_11 e_2))] by the context replacement lemma.
    If @term[e_1] reduces to @term[WRONG] then
-   @term[(--> (+ e_1 e_2) WRONG)] by the closure lemma.
+   @term[(--> (+ e_1 e_2) WRONG)] by the context replacement lemma.
    If @term[e_1] is a value @term[v_1], then consider @term[e_1], which by
    the induction hypothesis either reduces or is a value.
    If @term[e_2] reduces to a term @term[e_22], then
-   @term[(--> (+ v_1 e_2) (+ v_1 e_22))] by the closure lemma.
+   @term[(--> (+ v_1 e_2) (+ v_1 e_22))] by the context replacement lemma.
    If @term[e_2] reduces to @term[WRONG], then
-   @term[(--> (+ v_1 e_2) WRONG)] by the closure lemma.
+   @term[(--> (+ v_1 e_2) WRONG)] by the context replacement lemma.
    Otherwise, @term[e_2] is a value @term[v_2]. By the canonical forms lemma,
    @term[v_1] is an integer @term[n_1] and @term[v_2] is an integer
    @term[n_2]. Thus, we can take the step
@@ -486,9 +497,9 @@ conclusion:
    Then @term[(types () e_1 list)].
    By the induction hypothesis, @term[e_1] either reduces or is a value.
    If it reduces to a term @term[e_11], then
-   @term[(--> (car e_1) (car e_11))] by the closure lemma.
+   @term[(--> (car e_1) (car e_11))] by the context replacement lemma.
    If it reduces to @term[WRONG], then
-   @term[(--> (car e_1) WRONG)] by the closure lemma.
+   @term[(--> (car e_1) WRONG)] by the context replacement lemma.
    Otherwise, @term[e_1] is a value. By the canonical forms lemma,
    it has the form @term[(cons v_1 v_2)], so we can take a step
    @term[(--> (car (cons v_1 v_2)) v_1)].
@@ -501,11 +512,110 @@ conclusion:
    and @term[(types ([x t_x]) e_2 t)] for some @term[t_x].
    Then by the induction hypothesis, @term[e_1] either reduces or is a value.
    If @term[e_1] reduces to a term @term[e_11], then
-   @term[(--> (let x e_1 e_2) (let x e_11 e_2))] by the closure lemma.
+   @term[(--> (let x e_1 e_2) (let x e_11 e_2))] by the context replacement lemma.
    If @term[e_1] reduces to @term[WRONG] then
-   @term[(--> (let x e_1 e_2) WRONG)] by the closure lemma.
+   @term[(--> (let x e_1 e_2) WRONG)] by the context replacement lemma.
    Otherwise, @term[e_1] is a value @term[v_1], and
    @term[(--> (let x v_1 e_2) (substitute e_2 x v_1))].}
+]
+
+QED.
+
+Now let’s prove a rather strong property.
+
+We're going to do induction on @emph{the size of terms} rather than
+the structure of terms, and we're going to use a particular size function,
+defined as:
+@centered{
+  @with-rewriters[@render-metafunction[r:size]]
+}
+
+@bold{Lemma} (Size of values)@bold{.} For all values, @term[(size v)] = 0.
+
+@bold{Proof.} Exercise.
+
+@bold{Theorem} (Size is work)@bold{.} Suppose @term[(types () e t)] and
+@term[(size e)] = k. Then @term[e] either reduces to a value or goes wrong in
+k or fewer steps.
+
+@bold{Proof}. By induction on k. By cases on terms:
+
+@itemlist[
+ @item{@term[n]: Then k = 0, and @term[e] reduces to value @term[n] in 0 steps.}
+ @item{@term[nil]: Also k = 0.}
+ @item{@term[(cons e_1 e_2)]. Then by inversion of @rulename[cons],
+        @term[(types () e_1 int)] and @term[(types () e_2 list)].
+        Let j be the size of @term[e_1]; then the size of @term[e_2] is
+        k – j.
+        Then by the induction hypothesis, @term[e_1] reduces to a value
+        @term[v_1] or to @term[WRONG] in j or fewer steps.
+        If it reduces to @term[WRONG] then
+        by the context replacement lemma, @term[(cons e_1 e_2)] also reduces
+        to @term[WRONG] in j or fewer steps.
+        Otherwise, consider the induction hypothesis on
+        @term[e_2] (size k – j);
+        it must reduce to a value @term[v_2] or to @term[WRONG] in k – j or
+        fewer steps.
+        If @term[WRONG], then the whole thing goes wrong by context replacement.
+        Otherwise, @term[(cons e_1 e_2)] goes to @term[(cons v_1 v_2)] in
+        k or fewer steps.}
+ @item{@term[(+ e_1 e_2)]. Then by inversion of the typing rule @term[int], both
+        subterms have type @term[int]. Let j be the size of @term[e_1]; then
+        the size of @term[e_1] is k – j – 1.
+        Then by the induction hypothesis, each
+        reduces to a value or goes wrong, in at most j and k - j - 1 steps
+        respectively. If either goes wrong, then the whole
+        term goes wrong because both @term[(+ hole e_2)] and @term[(+ v_1 hole)]
+        are evaluation contexts. Otherwise, by the canonical values lemma both
+        values must be numbers @term[n_1] and @term[n_2]. Because
+        @term[(-->* e_1 n_1)] in j or fewer steps, by context replacement
+        @term[(-->* (+ e_1 e_2) (+ n_1 e_2))] in j or fewer steps.
+        And because
+        @term[(-->* e_2 n_2)] in k - j - 1 or fewer steps,
+        by context replacement again
+        @term[(-->* (+ n_1 e_2) (+ n_1 n_2))]
+        in k – j – 1 or fewer steps.
+        Then in one more step
+        @term[(--> (+ n_1 n_2) (meta-+ n_1 n_2))], which is a value.
+        The total number of steps has been k or fewer.}
+ @item{@term[(* e_1 e_2)]: As in the previous case, m.m.}
+ @item{@term[(car e_1)] and @term[(cdr e_1)]: In either case, the subterm
+        @term[e_1] must have type @term[list] by inversion of the typing rule.
+        Furthermore, the size of @term[e_1] must be k – 1.
+        Then by the induction hypothesis, @term[e_1] either reduces to a value
+        or goes wrong in k – 1 or fewer steps.
+        If it goes wrong then the whole term goes wrong.
+        If it reduces to a value, then by preservation, that value also has
+        type @term[list]. (Note also that it also reduces to a value in the
+        evaluation context @term[(car hole)].)
+        Then by the canonical values lemma, that value
+        must be either @term[nil] or @term[(cons v_1 v_2)] for some values
+        @term[v_1] and @term[v_2]. If the former then the whole term goes to
+        @term[WRONG] in one more step by rule @rulename[car-nil] or rule
+        @rulename[cdr-nil],
+        respectively. If the latter, then it take one more step to
+        @term[v_1] or @term[v_2], respectively. In either case, k steps have
+        transpired.}
+  @item{@term[x]: Vacuous because open terms don't type.}
+  @item{@term[(let x e_1 e_2)]: By inversion, we know that
+        @term[(types () e_1 t_x)] for some type @term[t_x]. And we know that
+        @term[(types ([x t_x]) e_2 t)].
+        Let j be the size of @term[e_1]; then the size of @term[e_2] is
+        k – j – 1. By the induction hypothesis on term @term[e_1],
+        we have that @term[e_1] reduces to a value or goes wrong in j or fewer
+        steps. If it goes wrong then the whole term goes wrong. If it reduces to
+        a value @term[v_1], then by context replacement (and induction on the
+        length of the reduction sequence), the whole term reduces
+        @term[(-->* (let x e_1 e_2) (let x v_1 e_2))] in j or fewer steps.
+        Then in one more step,
+        @term[(--> (let x v_1 e_2) (substitute e_2 x v_1))].
+        Note that because the size of a variable is 0 and so is the size of
+        a value, the size of @term[(substitute e_2 x v_1)] is the same as
+        the size of @term[e_2], k – j – 1. Further note that by preservation,
+        @term[(types () (substituted e_1 x v_1) t)]. So we an apply the
+        induction hypothesis to @term[(substituted e_1 x v_1)], learning that
+        it goes wrong or reaches a value in k – j – 1 or fewer steps.
+        This yields a total of k or fewer steps.}
 ]
 
 QED.
