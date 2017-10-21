@@ -1,7 +1,7 @@
 #lang racket/base
 
-(provide let-nl let-nl/eval ->val)
-         
+(provide let-nl let-nl/eval ->val size)
+
 (require redex
          "util.rkt")
 
@@ -75,7 +75,23 @@
   meta-* : n_1 n_2 -> n
   *)
 
-
+(define-metafunction let-nl
+  size : e -> n
+  [(size n) 0]
+  [(size nil) 0]
+  [(size (cons e_1 e_2))
+   (meta-+ (size e_1) (size e_2))]
+  [(size (+ e_1 e_2))
+   (meta-+ 1 (meta-+ (size e_1) (size e_2)))]
+  [(size (* e_1 e_2))
+   (meta-+ 1 (meta-+ (size e_1) (size e_2)))]
+  [(size (car e_1))
+   (meta-+ 1 (size e_1))]
+  [(size (cdr e_1))
+   (meta-+ 1 (size e_1))]
+  [(size x) 0]
+  [(size (let x e_1 e_2))
+   (meta-+ 1 (meta-+ (size e_1) (size e_2)))])
 
 ;;
 ;; Big-step evaluator
