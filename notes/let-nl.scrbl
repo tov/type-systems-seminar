@@ -99,7 +99,9 @@ we decompose into the evaluation context @term[hole] and the redex
 Configurations specify what we actually reduce over: expressions @term[e] or
 the special error token @term[WRONG].
 
-@bold{Exercise.} 
+@exercise{Extend the language with Booleans. Besides Boolean literals, what
+          do you think are essential operations? Extend the dynamic semantics
+          with the necessary reduction rule(s) and evaluation context(s).}
 
 @subsection{Errors}
 
@@ -189,6 +191,14 @@ expression:
 @;
 @render-judgment-rules[r:types let]
 
+@exercise{Extend the type system to your language with Booleans.}
+
+@exercise[#:name "Generic lists"]{
+ Modify the type system as follows: instead of a single type
+ @term[list] for lists of @term[int]s, allow @term[(list int)],
+ @term[(list (list int))], @term[(list (list (list int)))] and so on.
+ How do you have to change the syntax of @term[t]? The typing rules?}
+
 @subsection{Type Safety}
 
 The goal of our type system is to prevent undetected errors—that is,
@@ -224,14 +234,14 @@ reduction relation and showing that each preserves the type. Alas, each rule
 involves evaluation contexts @term[E] in the way of the action. Consequently,
 we’ll have to prove a lemma about evaluation contexts.
 
-@bold{Lemma} (Replacement)@bold{.} If
+@lemma[#:name "Replacement"]{If
 @term[(types () (in-hole E e_1) t)], then there exists some type
 @term[t_e] such that
 @term[(types () e_1 t_e)]. Furthermore, for any other term @term[e_2]
 such that @term[(types () e_2 t_e)], it is the case that
-@term[(types () (in-hole E e_2) t)].
+@term[(types () (in-hole E e_2) t)].}
 
-@bold{Proof.} By induction on the structure of @term[E]:
+@proof[] By induction on the structure of @term[E]:
 
 @itemlist[
   @item{If @term[E] is @term[hole], then @term[e] = @term[(in-hole E e_1)],
@@ -291,11 +301,11 @@ QED.
 
 There’s one more standard lemma we need before we can prove preservation:
 
-@bold{Lemma} (Substitution)@bold{.} If @term[(extend Γ x t_x)] ⊢ @term[e] :
+@lemma[#:name "Substitution"]{If @term[(extend Γ x t_x)] ⊢ @term[e] :
 @term[t] and @term[Γ] ⊢ @term[v] : @term[t_x] then
-@term[Γ] ⊢ @term[(substitute e x v)] : @term[t].
+@term[Γ] ⊢ @term[(substitute e x v)] : @term[t].}
 
-@bold{Proof}. By induction on the typing deriviation for @term[e]; by cases
+@proof[]. By induction on the typing deriviation for @term[e]; by cases
 on the conclusion:
 
 @itemlist[
@@ -363,10 +373,10 @@ QED.
 
 Now we are ready to prove preservation:
 
-@bold{Lemma} (Preservation)@bold{.} If @term[(types () e_1 t)] and
+@lemma[#:name "Preservation"] If @term[(types () e_1 t)] and
 @term[(--> e_1 e_2)] then @term[(types () e_2 t)].
 
-@bold{Proof.} By cases on the reduction relation:
+@proof[] By cases on the reduction relation:
 
 @itemlist[
  @item{@term[(--> (in-hole E (+ n_1 n_2)) (in-hole E (meta-+ n_1 n_2)))]:
@@ -405,8 +415,9 @@ QED.
 
 Before we can prove progress, we need to classify values by their types.
 
-@bold{Lemma} (Canonical forms)@bold{.} If @term[v] has type @term[t], then:
+@lemma[#:name "Canonical forms"]
 
+If @term[v] has type @term[t], then:
 @itemlist[
  @item{If @term[t] is @term[int] then @term[v] is an integer literal
           @term[n].}
@@ -415,7 +426,7 @@ Before we can prove progress, we need to classify values by their types.
           @term[v_1] has type @term[int] and @term[v_2] has type @term[list].}
 ]
 
-@bold{Proof.} By induction on the typing derivation of
+@proof[] By induction on the typing derivation of
 @term[(types () v t)]:
 
 @itemlist[
@@ -432,11 +443,11 @@ Before we can prove progress, we need to classify values by their types.
 
 QED.
 
-@bold{Lemma} (Context replacement)@bold{.} If @term[(--> e_1 e_2)] then
+@lemma[#:name "Context replacement"]{If @term[(--> e_1 e_2)] then
 @term[(--> (in-hole E e_1) (in-hole E e_2))]. If @term[(--> e_1 WRONG)]
-then @term[(--> (in-hole E e_1) WRONG)].
+then @term[(--> (in-hole E e_1) WRONG)].}
 
-@bold{Proof.} If @term[(--> e_1 e_2)] then @term[e_1] must be some redex
+@proof[] If @term[(--> e_1 e_2)] then @term[e_1] must be some redex
 in a hole: @term[(in-hole E_1 e_11)]. Furthermore, it must take a step to some
 @term[(in-hole E_1 e_22)] = @term[e_2]. Then the same redex @term[e_11]
 reduces to the same reductum @term[e_22] in any evaluation context, including
@@ -447,10 +458,10 @@ If @term[(--> e_1 WRONG)] then @term[e_1] must be some redex in a hole:
 reduces to @term[WRONG] in any evaluation context, including
 @term[(in-hole E E_1)].
 
-@bold{Lemma} (Progress)@bold{.} If @term[(types () e t)] then
-term @term[e] either reduces or is a value.
+@lemma[#:name "Progress"]{If @term[(types () e t)] then
+term @term[e] either reduces or is a value.}
 
-@bold{Proof.} By induction on the typing derivation; by cases on the
+@proof[] By induction on the typing derivation; by cases on the
 conclusion:
 
 @itemlist[
@@ -521,7 +532,18 @@ conclusion:
 
 QED.
 
-Now let’s prove a rather strong property.
+@exercise{Prove progress and preservation for your language extended with
+          Booleans.}
+
+@exercise{Prove progress and preservation for your language extended with
+          generic lists.}
+
+@exercise{Are the previous two exercises orthogonal? How do they interact
+          or avoid interaction?}
+
+@section{Termination}
+
+Now let’s prove a rather strong property about a rather weak language.
 
 We're going to do induction on @emph{the size of terms} rather than
 the structure of terms, and we're going to use a particular size function,
@@ -530,15 +552,17 @@ defined as:
   @with-rewriters[@render-metafunction[r:size]]
 }
 
-@bold{Lemma} (Size of values)@bold{.} For all values, @term[(size v)] = 0.
+@lemma[#:name "Size of values"]{For all values, @term[(size v)] = 0.}
 
-@bold{Proof.} Exercise.
+@proof[] Exercise.
 
-@bold{Theorem} (Size is work)@bold{.} Suppose @term[(types () e t)] and
+@theorem[#:name "Size is work"]{
+Suppose @term[(types () e t)] and
 @term[(size e)] = k. Then @term[e] either reduces to a value or goes wrong in
 k or fewer steps.
+}
 
-@bold{Proof}. By induction on k. By cases on terms:
+@proof[] By induction on k. By cases on terms:
 
 @itemlist[
  @item{@term[n]: Then k = 0, and @term[e] reduces to value @term[n] in 0 steps.}

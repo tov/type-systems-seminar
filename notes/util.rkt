@@ -2,7 +2,7 @@
 
 (provide with-rewriters
          term langname rulename
-         theorem lemma exercise
+         theorem lemma exercise proof
          render-reduction-rules
          render-judgment-rules types/r
          render-nonterminals)
@@ -71,10 +71,17 @@
   (parameterize ([render-language-nts '(nt ...)])
     (with-rewriters (centered (render-language lang)))))
 
+#;
 (define (theorem-like/thunk kind name body)
   (if name
-      (list (bold kind) " (" name ")." (body))
-      (list (bold kind ".") (body))))
+      (list* (bold (symbol->string kind)) " (" name ")." (body))
+      (list* (bold (symbol->string kind) ".") (body))))
+
+#;
+(define-syntax (theorem-like stx)
+  (syntax-parse stx
+    [(_ kind:id :opt-name body:expr ...)
+     #'(theorem-like/thunk 'kind name (λ () "" body ...))]))
 
 (begin-for-syntax
   (define-splicing-syntax-class opt-name
@@ -82,19 +89,21 @@
     [pattern (~seq)
              #:with name #'#false]))
 
-(define-syntax (theorem-like stx)
-  (syntax-parse stx
-    [(_ kind:id :opt-name body:expr ...)
-     #'(theorem-like/thunk 'kind name (λ () "" body ...))]))
-
 (define-syntax (define-theorem-like stx)
   (syntax-parse stx
     [(_ fun:id kind:id)
      #'(define-syntax (fun stx1)
          (syntax-parse stx1
-           [(_ :opt-name body:expr (... ...))
-            #'(theorem-like kind #:name name body (... ...))]))]))
+           [(_ kind-name:opt-name body:expr (... ...))
+            #'(let ([name kind-name.name])
+                (if name
+                    (list (bold (symbol->string 'kind))
+                          " (" name "). "
+                          (emph body (... ...)))
+                    (list (bold (symbol->string 'kind) ". ")
+                          (emph body (... ...)))))]))]))
 
 (define-theorem-like theorem Theorem)
 (define-theorem-like lemma Lemma)
 (define-theorem-like exercise Exercise)
+(define-theorem-like proof Proof)
