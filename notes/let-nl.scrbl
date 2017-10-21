@@ -103,6 +103,16 @@ the special error token @term[WRONG].
           do you think are essential operations? Extend the dynamic semantics
           with the necessary reduction rule(s) and evaluation context(s).}
 
+Later we're going to do induction on @emph{the size of terms} rather than
+the structure of terms, and we're going to use a particular size function,
+defined as:
+@;
+@centered{
+  @with-rewriters[@render-metafunction[r:size]]
+}
+
+@exercise{Prove that for all values, @term[(size v)] = 0.}
+
 @subsection{Errors}
 
 @let-nl has two explicit error cases, @term[(car nil)] and @term[(cdr nil)],
@@ -544,17 +554,6 @@ QED.
 @section{Termination}
 
 Now let’s prove a rather strong property about a rather weak language.
-
-We're going to do induction on @emph{the size of terms} rather than
-the structure of terms, and we're going to use a particular size function,
-defined as:
-@centered{
-  @with-rewriters[@render-metafunction[r:size]]
-}
-
-@lemma[#:name "Size of values"]{For all values, @term[(size v)] = 0.}
-
-@proof[] Exercise.
 
 @theorem[#:name "Size is work"]{
 Suppose @term[(types () e t)] and
