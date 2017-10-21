@@ -16,16 +16,19 @@
 #;
 (define (with-rewriters/thunk thunk)
   (with-compound-rewriters
-   (['size   (match-lambda [(list _ _ e _)       (list "|" e "|")])]
+   (['->     (match-lambda [(list _ _ e_1 e_2 _) (list "(→ " e_1 " " e_2 ")")])]
+    ['-->    (match-lambda [(list _ _ e_1 e_2 _) (list "" e_1 " → " e_2)])]
+    ['extend (match-lambda [(list _ _ Γ x t _)   (list "" Γ ", " x ":" t)])]
+    ['lookup (match-lambda [(list _ _ Γ x _)     (list "" Γ "(" x ")")])]
     ['meta-+ (match-lambda [(list _ _ e_1 e_2 _) (list "" e_1 " + " e_2)])]
     ['meta-* (match-lambda [(list _ _ e_1 e_2 _) (list "" e_1 " × " e_2)])]
-    ['-->    (match-lambda [(list _ _ e_1 e_2 _) (list "" e_1 " → " e_2)])]
-    ['lookup (match-lambda [(list _ _ Γ x _)     (list "" Γ "(" x ")")])]
-    ['extend (match-lambda [(list _ _ Γ x t _)   (list "" Γ ", " x ":" t)])]
+    ['size   (match-lambda [(list _ _ e _)       (list "|" e "|")])]
     ['substitute
              (match-lambda [(list _ _ e x v _)   (list "" e "[" x ":=" v "]")])]
-    ['types* (match-lambda [(list _ _ e t _)     (list "" e " : " t)])]
-    ['types  (match-lambda [(list _ _ Γ e t _)   (list "" Γ " ⊢ " e " : " t)])])
+    ['types  (match-lambda [(list _ _ Γ e t _)   (list "" Γ " ⊢ " e " : " t)])]
+    ['types/rec
+             (match-lambda [(list _ _ Γ e t _)   (list "" Γ " ⊢ " e " : " t)])]
+    ['types* (match-lambda [(list _ _ e t _)     (list "" e " : " t)])])
    (with-atomic-rewriter 't "τ" (thunk))))
 
 #;
@@ -34,16 +37,19 @@
 
 (define-syntax-rule (with-rewriters expr0 expr ...)
   (with-compound-rewriters
-   (['size   (match-lambda [(list _ _ e _)       (list "|" e "|")])]
+   (['->     (match-lambda [(list _ _ e_1 e_2 _) (list "(→ " e_1 " " e_2 ")")])]
+    ['-->    (match-lambda [(list _ _ e_1 e_2 _) (list "" e_1 " → " e_2)])]
+    ['extend (match-lambda [(list _ _ Γ x t _)   (list "" Γ ", " x ":" t)])]
+    ['lookup (match-lambda [(list _ _ Γ x _)     (list "" Γ "(" x ")")])]
     ['meta-+ (match-lambda [(list _ _ e_1 e_2 _) (list "" e_1 " + " e_2)])]
     ['meta-* (match-lambda [(list _ _ e_1 e_2 _) (list "" e_1 " × " e_2)])]
-    ['-->    (match-lambda [(list _ _ e_1 e_2 _) (list "" e_1 " → " e_2)])]
-    ['lookup (match-lambda [(list _ _ Γ x _)     (list "" Γ "(" x ")")])]
-    ['extend (match-lambda [(list _ _ Γ x t _)   (list "" Γ ", " x ":" t)])]
+    ['size   (match-lambda [(list _ _ e _)       (list "|" e "|")])]
     ['substitute
              (match-lambda [(list _ _ e x v _)   (list "" e "[" x ":=" v "]")])]
-    ['types* (match-lambda [(list _ _ e t _)     (list "" e " : " t)])]
-    ['types  (match-lambda [(list _ _ Γ e t _)   (list "" Γ " ⊢ " e " : " t)])])
+    ['types  (match-lambda [(list _ _ Γ e t _)   (list "" Γ " ⊢ " e " : " t)])]
+    ['types/rec
+             (match-lambda [(list _ _ Γ e t _)   (list "" Γ " ⊢ " e " : " t)])]
+    ['types* (match-lambda [(list _ _ e t _)     (list "" e " : " t)])])
    (with-atomic-rewriter 't "τ" (begin expr0 expr ...))))
 
 (define-syntax-rule (term e)
