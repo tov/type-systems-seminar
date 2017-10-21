@@ -1,4 +1,2 @@
-default: let-nl.pdf
-
-%.pdf: %.scrbl
-	scribble --pdf $<
+doc: let-nl.scrbl
+	scribble --dest $@ --html ++convert svg $<
