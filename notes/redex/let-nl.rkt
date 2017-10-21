@@ -98,20 +98,17 @@
 ;;
 
 (define-extended-language let-nl/env let-nl/eval
-  (ρ ::= ([x v] ...)))
-
-(define-metafunction let-nl/env
-  extend : ρ x v -> ρ
-  [(extend ([x_i v_i] ... [x v_old] [x_j v_j] ...) x v)
-   ([x_i v_i] ... [x v] [x_j v_j] ...)]
-  [(extend ([x_i v_i] ...) x v)
-   ([x v] [x_i v_i] ...)
-   (side-condition (not (member (term x) (term (x_i ...)))))])
+  (ρ ::=
+     •
+     (extend ρ x v)))
 
 (define-metafunction let-nl/env
   lookup : ρ x -> v
-  [(lookup ([x_i v_i] ... [x v] [x_j v_j] ...) x)
-   v])
+  [(lookup (extend ρ x v) x)
+   v]
+  [(lookup (extend ρ y v) x)
+   (lookup ρ x)
+   (side-condition (not (equal? (term x) (term y))))])
 
 (define-metafunction let-nl/env
   eval : ρ e -> v
@@ -201,7 +198,7 @@
 ; #false if the metafunction doesn't apply.
 (define (fully-evaluate e)
   (with-handlers ([exn:fail? (λ (exn) #false)])
-    (term (eval () ,e))))
+    (term (eval • ,e))))
 
 (define (dynamics-agree? e)
   (equal? (fully-reduce e) (fully-evaluate e)))

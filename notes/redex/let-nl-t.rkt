@@ -9,20 +9,19 @@
   (t ::=
      int
      list)
-  (Γ ::= ([x t] ...)))
+  (Γ ::=
+     •
+     (extend Γ x t)))
 
 (default-language let-nl/t)
 
 (define-metafunction let-nl/t
-  extend : Γ x t -> Γ
-  [(extend ([x_i t_i] ...) x t)
-   ([x t] [x_i t_i] ...)])
-
-(define-metafunction let-nl/t
   lookup : Γ x -> t
-  [(lookup ([x_i t_i] ... [x t] [x_j t_j] ...) x)
-   t
-   (side-condition (not (member (term x) (term (x_i ...)))))])
+  [(lookup (extend Γ x t) x)
+   t]
+  [(lookup (extend Γ y t) x)
+   (lookup Γ x)
+   (side-condition (not (equal? (term x) (term y))))])
 
 (define-judgment-form let-nl/t
   #:mode (types I I O)
@@ -117,7 +116,7 @@
                      (type-check (term (extend ,Γ x t_1)) (term e_2))]))
 
 (define-syntax-rule (test-type-check expr type)
-  (test-equal (type-check (term ()) (term expr))
+  (test-equal (type-check (term •) (term expr))
               (term type)))
 
 (test-type-check 5 int)

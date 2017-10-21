@@ -255,46 +255,46 @@ involves evaluation contexts @term[E] in the way of the action. Consequently,
 we’ll have to prove a lemma about evaluation contexts.
 
 @lemma[#:name "Replacement"]{If
-@term[(types () (in-hole E e_1) t)], then there exists some type
+@term[(types • (in-hole E e_1) t)], then there exists some type
 @term[t_e] such that
-@term[(types () e_1 t_e)]. Furthermore, for any other term @term[e_2]
-such that @term[(types () e_2 t_e)], it is the case that
-@term[(types () (in-hole E e_2) t)].}
+@term[(types • e_1 t_e)]. Furthermore, for any other term @term[e_2]
+such that @term[(types • e_2 t_e)], it is the case that
+@term[(types • (in-hole E e_2) t)].}
 
 @proof[] By induction on the structure of @term[E]:
 
 @itemlist[
   @item{If @term[E] is @term[hole], then @term[e] = @term[(in-hole E e_1)],
-       so @term[t_e] must be @term[t]. Then since @term[(types () e_2 t_e)],
-       we have that @term[(types () (in-hole E e_2) t_e)].}
+       so @term[t_e] must be @term[t]. Then since @term[(types • e_2 t_e)],
+       we have that @term[(types • (in-hole E e_2) t_e)].}
   @item{If @term[(cons E_1 e_22)], then the only typing rule that applies
            is @rulename[cons], which means that @term[t] must be @term[list].
            Furthermore, by inversion of that rule it must be the case that
-           @term[(types () (in-hole E_1 e_1) int)]
-           and @term[(types () e_22 list)]. By the induction
+           @term[(types • (in-hole E_1 e_1) int)]
+           and @term[(types • e_22 list)]. By the induction
            hypothesis on the former, @term[e_1] has some type
            @term[t_e], and furthermore, for any term @term[e_2] that also
            has type @term[t_e], we have that
-           @term[(types () (in-hole E_1 e_2) int)]. Then by applying rule
+           @term[(types • (in-hole E_1 e_2) int)]. Then by applying rule
            @rulename[list], we have that
-           @term[(types () (in-hole (cons E_1 e_22) e_2) list)].}
+           @term[(types • (in-hole (cons E_1 e_22) e_2) list)].}
   @item{If @term[(cons e_11 E_2)], then as in the previous case, the only typing
            rule that applies is @rulename[cons], which means that @term[t]
            must be @term[list]. It also means that
            @term[(in-hole E_2 e_1)] must have type @term[list]
            and @term[e_11] must have type @term[int]. Then by IH on the former,
            @term[e_1] has a type @term[t_e], and furthermore, for any @term[e_2]
-           having type @term[t_e], @term[(types () (in-hole E_2 e_2) t_e)].
+           having type @term[t_e], @term[(types • (in-hole E_2 e_2) t_e)].
            Then by reapplying rule @rulename[cons], we have that
-           @term[(types () (in-hole E e_2) list)].}
+           @term[(types • (in-hole E e_2) list)].}
   @item{If @term[(+ E_1 e_22)], then the only typing rule that applies is
            @rulename[plus], which means that @term[t] is @term[int]. It also
            requires that @term[(in-hole E_1 e_1)] and
            @term[e_22] both have type @term[int]. Then apply IH to the former,
            yielding that @term[e_1] has some type @term[t_e]. Furthermore, by
            the IH, for any other @term[e_2] having type @term[t_e], we have that
-           @term[(types () (in-hole E_1 e_2) t_e)]. Then reapplying rule
-           @rulename[plus], we have that @term[(types () (in-hole E e_2) int)].}
+           @term[(types • (in-hole E_1 e_2) t_e)]. Then reapplying rule
+           @rulename[plus], we have that @term[(types • (in-hole E e_2) int)].}
   @item{If @term[(+ v_1 E_2)] or @term[(* E_1 e_2)] or @term[(* v_1 E_2)],
            as in the previous case, m.m.}
   @item{If @term[(car E_1)] (or @term[(cdr E_1)]) then the only typing rule
@@ -302,19 +302,19 @@ such that @term[(types () e_2 t_e)], it is the case that
            that @term[t] is @term[int] (resp. @term[list]).
            Furthermore, rule @rulename[car] (resp. @rulename[cdr])
            requires that @term[(in-hole E_1 e_1)] must have type @term[list].
-           Then apply IH to get that @term[(types () (in-hole E_1 e_2) list)]
-           as well. Then @term[(types () (in-hole E e_2) list)] as well.
+           Then apply IH to get that @term[(types • (in-hole E_1 e_2) list)]
+           as well. Then @term[(types • (in-hole E e_2) list)] as well.
            Then apply rule @rulename[car] (resp. @rulename[cdr]) to get that
            @term[(in-hole E e_2)] has type @term[int] (resp. @term[list]).}
   @item{If @term[(let x E_1 e_22)], then the only rule that applies is
            @rulename[let]. By that rule, @term[(in-hole E_1 e_1)] must have
            some type @term[t_1], and @term[(types ([x t_1]) e_22 t)].
-           Then by the IH on the former, @term[(types () e_1 t_e)] for some
+           Then by the IH on the former, @term[(types • e_1 t_e)] for some
            @term[t_e]. Furthermore, for any other @term[e_2] having type
            @term[t_e], the IH tells us that
-           @term[(types () (in-hole E_1 e_2) t_1)] as
+           @term[(types • (in-hole E_1 e_2) t_1)] as
            well. Then we can reapply rule @rulename[let] to get
-           @term[(types () (in-hole (let x E_1 e_22) e_2) t)].}
+           @term[(types • (in-hole (let x E_1 e_22) e_2) t)].}
 ]
 
 QED.
@@ -325,7 +325,7 @@ There’s one more standard lemma we need before we can prove preservation:
 @term[t] and @term[Γ] ⊢ @term[v] : @term[t_x] then
 @term[Γ] ⊢ @term[(substitute e x v)] : @term[t].}
 
-@proof[]. By induction on the typing deriviation for @term[e]; by cases
+@proof[] By induction on the typing deriviation for @term[e]; by cases
 on the conclusion:
 
 @itemlist[
@@ -393,8 +393,8 @@ QED.
 
 Now we are ready to prove preservation:
 
-@lemma[#:name "Preservation"] If @term[(types () e_1 t)] and
-@term[(--> e_1 e_2)] then @term[(types () e_2 t)].
+@lemma[#:name "Preservation"] If @term[(types • e_1 t)] and
+@term[(--> e_1 e_2)] then @term[(types • e_2 t)].
 
 @proof[] By cases on the reduction relation:
 
@@ -403,30 +403,30 @@ Now we are ready to prove preservation:
         By the replacement lemma, @term[(+ n_1 n_2)] must have some type,
         and by inversion, that type must be @term[int]. The result of the
         addition metafunction is also an integer with type @term[int]. Then
-        by replacement, @term[(types () (in-hole E (meta-+ n_1 n_2)) t)].}
+        by replacement, @term[(types • (in-hole E (meta-+ n_1 n_2)) t)].}
  @item{@term[(--> (in-hole E (* n_1 n_2)) (in-hole E (meta-* n_1 n_2)))]:
         as in the previous case.}
  @item{@term[(--> (in-hole E (car (cons v_1 v_2))) (in-hole E v_1))]:
-        By the replacement lemma, @term[(types () (car (cons v_1 v_2)) t_e)]
+        By the replacement lemma, @term[(types • (car (cons v_1 v_2)) t_e)]
         for some type @term[t_e]. The only rule that applies is @rulename[car],
         which requires that @term[t_e] = @term[int] and
-        @term[(types () (cons v_1 v_2) list)]. This types only by rule
-        @rulename[cons], which requires that @term[(types () v_1 int)].
-        Then by replacement, @term[(types () (in-hole E v_1) t)].}
+        @term[(types • (cons v_1 v_2) list)]. This types only by rule
+        @rulename[cons], which requires that @term[(types • v_1 int)].
+        Then by replacement, @term[(types • (in-hole E v_1) t)].}
  @item{@term[(--> (in-hole E (cdr (cons v_1 v_2))) (in-hole E v_2))]:
-        By the replacement lemma, @term[(types () (cdr (cons v_1 v_2)) t_e)]
+        By the replacement lemma, @term[(types • (cdr (cons v_1 v_2)) t_e)]
         for some type @term[t_e]. The only rule that applies is @rulename[cdr],
         which requires that @term[t_e] = @term[list] and
-        @term[(types () (cons v_1 v_2) list)]. This types only by rule
-        @rulename[cons], which requires that @term[(types () v_2 list)].
-        Then by replacement, @term[(types () (in-hole E v_2) t)].}
+        @term[(types • (cons v_1 v_2) list)]. This types only by rule
+        @rulename[cons], which requires that @term[(types • v_2 list)].
+        Then by replacement, @term[(types • (in-hole E v_2) t)].}
  @item{@term[(--> (in-hole E (let x v_1 e_22)) (in-hole E (substitute e_22 x v_1)))]:
-        By the replacement lemma, @term[(types () (let x v_1 e_22) t_e)]
+        By the replacement lemma, @term[(types • (let x v_1 e_22) t_e)]
         for some types @term[t_e]. The only rule that applies is @rulename[let],
-        which requires that @term[(types () v_1 t_x)] for some @term[t_x] such
+        which requires that @term[(types • v_1 t_x)] for some @term[t_x] such
         that @term[(types ([x t_x]) e_22 t_e)]. Then by the substitution lemma,
-        @term[(types () (substitute e_22 x v_1) t_e)]. Then by replacement,
-        @term[(types () (in-hole E (substitute e_22 x v_1)) t)].}
+        @term[(types • (substitute e_22 x v_1) t_e)]. Then by replacement,
+        @term[(types • (in-hole E (substitute e_22 x v_1)) t)].}
 ]
 
 QED.
@@ -447,16 +447,16 @@ If @term[v] has type @term[t], then:
 ]
 
 @proof[] By induction on the typing derivation of
-@term[(types () v t)]:
+@term[(types • v t)]:
 
 @itemlist[
- @item{@term[(types () n int)]: Then @term[v] is an integer literal.}
- @item{@term[(types () nil list)]: Then @term[v] is the empty list.}
- @item{@term[(types () (cons e_1 e_2) list)]: By the syntax of values
+ @item{@term[(types • n int)]: Then @term[v] is an integer literal.}
+ @item{@term[(types • nil list)]: Then @term[v] is the empty list.}
+ @item{@term[(types • (cons e_1 e_2) list)]: By the syntax of values
         it must be the case that @term[e_1] is a value @term[v_1] having type
         @term[int], and @term[e_2] is a value @term[v_2] having type
         @term[list].}
- @item{@term[(types () (+ e_1 e_2) int)]: Vacuous, because not a value.}
+ @item{@term[(types • (+ e_1 e_2) int)]: Vacuous, because not a value.}
  @item{The remaining cases are all vacuous because they do not allow for
   value forms.}
 ]
@@ -478,18 +478,18 @@ If @term[(--> e_1 WRONG)] then @term[e_1] must be some redex in a hole:
 reduces to @term[WRONG] in any evaluation context, including
 @term[(in-hole E E_1)].
 
-@lemma[#:name "Progress"]{If @term[(types () e t)] then
+@lemma[#:name "Progress"]{If @term[(types • e t)] then
 term @term[e] either reduces or is a value.}
 
 @proof[] By induction on the typing derivation; by cases on the
 conclusion:
 
 @itemlist[
- @item{@term[(types () n int)]: Then @term[e] is a value.}
- @item{@term[(types () nil list)]: Then @term[e] is a value.}
- @item{@term[(types () (cons e_1 e_2) list)]:
-   Then @term[(types () e_1 int)]
-   and @term[(types () e_2 list)].
+ @item{@term[(types • n int)]: Then @term[e] is a value.}
+ @item{@term[(types • nil list)]: Then @term[e] is a value.}
+ @item{@term[(types • (cons e_1 e_2) list)]:
+   Then @term[(types • e_1 int)]
+   and @term[(types • e_2 list)].
    By the induction hypothesis, term @term[e_1] either reduces, or is a value.
    If @term[e_1] reduces to some term @term[e_11], then
    @term[(--> (cons e_1 e_2) (cons e_11 e_2))] by the context replacement lemma.
@@ -504,9 +504,9 @@ conclusion:
    Finally, if @term[e_2] is a value @term[v_2] then @term[e]
    is a value @term[(cons v_1 v_2)].
  }
- @item{@term[(types () (+ e_1 e_2) int)]:
-   Then @term[(types () e_1 int)]
-   and @term[(types () e_2 int)].
+ @item{@term[(types • (+ e_1 e_2) int)]:
+   Then @term[(types • e_1 int)]
+   and @term[(types • e_2 int)].
    By the induction hypothesis, @term[e_1] either reduces or is a value.
    If @term[e_1] reduces to a term @term[e_11], then
    @term[(--> (+ e_1 e_2) (+ e_11 e_2))] by the context replacement lemma.
@@ -523,9 +523,9 @@ conclusion:
    @term[n_2]. Thus, we can take the step
    @term[(--> (+ n_1 n_2) (meta-+ n_1 n_2))].
  }
- @item{@term[(types () (* e_1 e_2) int)]: As in the previous case.}
- @item{@term[(types () (car e_1) int)]:
-   Then @term[(types () e_1 list)].
+ @item{@term[(types • (* e_1 e_2) int)]: As in the previous case.}
+ @item{@term[(types • (car e_1) int)]:
+   Then @term[(types • e_1 list)].
    By the induction hypothesis, @term[e_1] either reduces or is a value.
    If it reduces to a term @term[e_11], then
    @term[(--> (car e_1) (car e_11))] by the context replacement lemma.
@@ -535,11 +535,11 @@ conclusion:
    it has the form @term[(cons v_1 v_2)], so we can take a step
    @term[(--> (car (cons v_1 v_2)) v_1)].
  }
- @item{@term[(types () (cdr e_1) list)]: As in the previous case,
+ @item{@term[(types • (cdr e_1) list)]: As in the previous case,
    but reducing to @term[v_2].}
- @item{@term[(types () x t)]: Vacuous.}
- @item{@term[(types () (let x e_1 e_2) t)]:
-   Then @term[(types () e_1 t_x)]
+ @item{@term[(types • x t)]: Vacuous.}
+ @item{@term[(types • (let x e_1 e_2) t)]:
+   Then @term[(types • e_1 t_x)]
    and @term[(types ([x t_x]) e_2 t)] for some @term[t_x].
    Then by the induction hypothesis, @term[e_1] either reduces or is a value.
    If @term[e_1] reduces to a term @term[e_11], then
@@ -566,7 +566,7 @@ QED.
 Now let’s prove a rather strong property about a rather weak language.
 
 @theorem[#:name "Size is work"]{
-Suppose @term[(types () e t)] and
+Suppose @term[(types • e t)] and
 @term[(size e)] = k. Then @term[e] either reduces to a value or goes wrong in
 k or fewer steps.
 }
@@ -577,7 +577,7 @@ k or fewer steps.
  @item{@term[n]: Then k = 0, and @term[e] reduces to value @term[n] in 0 steps.}
  @item{@term[nil]: Also k = 0.}
  @item{@term[(cons e_1 e_2)]. Then by inversion of @rulename[cons],
-        @term[(types () e_1 int)] and @term[(types () e_2 list)].
+        @term[(types • e_1 int)] and @term[(types • e_2 list)].
         Let j be the size of @term[e_1]; then the size of @term[e_2] is
         k – j.
         Then by the induction hypothesis, @term[e_1] reduces to a value
@@ -631,7 +631,7 @@ k or fewer steps.
         transpired.}
   @item{@term[x]: Vacuous because open terms don't type.}
   @item{@term[(let x e_1 e_2)]: By inversion, we know that
-        @term[(types () e_1 t_x)] for some type @term[t_x]. And we know that
+        @term[(types • e_1 t_x)] for some type @term[t_x]. And we know that
         @term[(types ([x t_x]) e_2 t)].
         Let j be the size of @term[e_1]; then the size of @term[e_2] is
         k – j – 1. By the induction hypothesis on term @term[e_1],
@@ -645,7 +645,7 @@ k or fewer steps.
         Note that because the size of a variable is 0 and so is the size of
         a value, the size of @term[(substitute e_2 x v_1)] is the same as
         the size of @term[e_2], k – j – 1. Further note that by preservation,
-        @term[(types () (substituted e_1 x v_1) t)]. So we an apply the
+        @term[(types • (substituted e_1 x v_1) t)]. So we an apply the
         induction hypothesis to @term[(substituted e_1 x v_1)], learning that
         it goes wrong or reaches a value in k – j – 1 or fewer steps.
         This yields a total of k or fewer steps.}
