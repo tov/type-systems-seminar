@@ -3,7 +3,7 @@
 (provide stlc ->val types
          stlc/rec ->val/rec types/rec)
 
-(require redex
+(require redex/reduction-semantics
          "util.rkt")
 
 (define-language stlc
@@ -51,16 +51,21 @@
 (define-judgment-form stlc
   #:mode (types I I O)
   #:contract (types Γ e t)
+  
   [---- var
    (types Γ x (lookup Γ x))]
+  
   [---- zero
    (types Γ z nat)]
+  
   [(types Γ e nat)
    ---- succ
    (types Γ (s e) nat)]
+  
   [(types (extend Γ x t_x) e t)
    ---- abs
    (types Γ (λ x t_x e) (-> t_x t))]
+  
   [(types Γ e_1 (-> t_2 t))
    (types Γ e_2 t_2)
    ---- app

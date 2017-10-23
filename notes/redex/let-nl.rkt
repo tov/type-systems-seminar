@@ -2,7 +2,7 @@
 
 (provide let-nl let-nl/eval ->val size)
 
-(require redex
+(require redex/reduction-semantics
          "util.rkt")
 
 (define-language let-nl

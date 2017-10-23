@@ -3,7 +3,7 @@
 @(require (prefix-in r: "redex/let-nl.rkt")
           (prefix-in r: "redex/let-nl-t.rkt")
           "util.rkt"
-          (only-in redex default-language)
+          (only-in redex/reduction-semantics default-language)
           redex/pict)
 
 @(default-language r:let-nl)

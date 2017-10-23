@@ -10,7 +10,7 @@
 (require redex/pict
          scribble/base
          (only-in racket/match match-define match-lambda)
-         (only-in redex default-language)
+         (only-in redex/reduction-semantics default-language)
          (for-syntax racket/base syntax/parse))
 
 #;

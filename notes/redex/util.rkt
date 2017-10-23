@@ -2,7 +2,7 @@
 
 (provide define-lifted-metafunction)
 
-(require redex
+(require redex/reduction-semantics
          (for-syntax racket/base
                      syntax/parse))
 

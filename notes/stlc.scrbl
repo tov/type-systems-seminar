@@ -2,7 +2,7 @@
 
 @(require (prefix-in r: "redex/stlc.rkt")
           "util.rkt"
-          (only-in redex default-language)
+          (only-in redex/reduction-semantics default-language)
           redex/pict)
 
 @(default-language r:stlc)

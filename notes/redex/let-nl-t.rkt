@@ -1,6 +1,6 @@
 #lang racket/base
 
-(require redex
+(require redex/reduction-semantics
          "let-nl.rkt")
 
 (provide let-nl/t types types*)
