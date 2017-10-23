@@ -205,4 +205,4 @@
 
 (module+ test
   (redex-check let-nl/eval e (dynamics-agree? (term e)) #:source ->val)
-  #;(redex-check let-nl/eval e (dynamics-agree? (term e)) #:source eval))
+  (redex-check let-nl/env (ρ e) (dynamics-agree? (term e)) #:source eval))
