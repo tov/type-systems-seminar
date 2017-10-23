@@ -2,7 +2,7 @@
 
 @(require (prefix-in r: "redex/stlc.rkt")
           "util.rkt"
-          (only-in redex/reduction-semantics default-language)
+          (only-in redex default-language)
           redex/pict)
 
 @(default-language r:stlc)
@@ -95,7 +95,26 @@ of the operand:
 @itemlist[
  @item{@term[(types (extend Γ x t_1) y t_2)]: If @term[x] = @term[y] then
         @term[t_1] = @term[t_2], and @term[(substitute y x e_1)] =
-        @term[e_1]. TODO...}
+        @term[e_1], which has type @term[t_1]. If @term[x] ≠ @term[y],
+        then @term[(substitute y x e_1)] = @term[y], which must type
+        in @term[Γ].}
+ @item{@term[(types (extend Γ x t_1) z nat)]: This types in an environment.}
+ @item{@term[(types (extend Γ x t_1) (s e) nat)]: Then it must be the case
+        that @term[(types (extend Γ x t_1) e nat)]. Then by induction,
+        @term[(types Γ (substitute e x e_1) nat)], and reapplying rule
+        @rulename[succ], we have that
+        @term[(types Γ (substituted (s e) x e_1) nat)].}
+ @item{@term[ap] cases are similar.}
+ @item{@term[(types (extend Γ x t_1) (λ y t_21 e) (-> t_21 t_22))]:
+        This can be the case only if
+        @term[(types (extend (extend Γ x t_1) y t_21) e t_22)]. Without
+        loss of generality, @term[x] ≠ @term[y], so we can swap them,
+        yielding
+        @term[(types (extend (extend Γ y t_21) x t_1) e t_22)]. Then
+        by induction
+        @term[(types (extend Γ y t_21) (substitute e x e_1) t_22)].
+        Then apply rule @rulename[abs], to get
+        @term[(types Γ (substitute (λ y t_21 e) x e_1) (-> t_21 t_22))].}
 ]
 
 @lemma[#:name "Preservation"]{If @term[(types* e_1 t)] and @term[(--> e_1 e_2)]
@@ -128,8 +147,31 @@ If @term[(types* v t)] then:
  abstraction @term[(λ x t_1 e_1)].}
 ]
 
+@proof[] By induction on the structure of the typing derivation. Only three
+rules form values, and those three rules correspond to the conditions of the
+lemma.
+
 @lemma[#:name "Progress"]{If @term[(types* e_1 t)] then either @term[e_1] is a
  value or @term[(--> e_1 e_2)] for some @term[e_2].}
+
+@proof[] By induction on the structure of the typing derivation, considering
+the terms:
+
+@itemlist[
+ @item{@term[x]: Vacuous, open terms don't type.}
+ @item{@term[z]: A value.}
+ @item{@term[(s e)]: By induction, @term[e] steps or is a value of type
+  @term[nat]. If the former then the whole term steps; if the latter then
+  the whole term is a value.}
+ @item{@term[(ap e_11 e_12)]: By induction, each subterm steps or is a value.
+        If the first subterm steps, then the whole term steps.
+        If the first subterm is a value and the second steps, then the whole
+        thing steps. If both are values, then by inversion of the @rulename[app]
+        rule, @term[e_11] has a function type, and by the canonical forms lemma,
+        that means it is a lambda abstraction @term[(λ x e)].
+        Then the whole term steps to @term[(substituted e x e_12)].}
+ @item{@term[(λ x t_1 e)]: A value.}
+]
 
 @theorem[#:name "Safety"]{1) If @term[(types* e_1 t)] and @term[(--> e_1 e_2)]
  then @term[(types* e_2 t)]. 2) If @term[(types* e_1 t)] then either
@@ -159,3 +201,4 @@ There is one rule for typing the new form:
 @render-judgment-rules[r:types/rec rec]
 
 @exercise{Extend the safety theorem for the recursor.}
+
