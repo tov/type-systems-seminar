@@ -39,7 +39,7 @@
   (reduction-relation
    stlc
    #:domain e
-   (--> (in-hole E (ap (λ x e) v))
+   (--> (in-hole E (ap (λ x t e) v))
         (in-hole E (substitute e x v))
         β-val)))
 
@@ -65,9 +65,9 @@
    ---- succ
    (types Γ (s e) nat)]
   
-  [(types (extend Γ x t_x) e t)
+  [(types (extend Γ x t_1) e t_2)
    ---- abs
-   (types Γ (λ x t_x e) (-> t_x t))]
+   (types Γ (λ x t_1 e) (-> t_1 t_2))]
   
   [(types Γ e_1 (-> t_2 t))
    (types Γ e_2 t_2)

@@ -1,13 +1,13 @@
-doc: doc/stlc.html
+out: out/poly.html
 
-pdf: doc/stlc.pdf
+pdf: out/poly.pdf
 
-doc/%.html: %.scrbl util.rkt
+out/%.html: %.scrbl util.rkt
 	raco make -j 4 $<
-	scribble --dest doc --html ++convert svg $<
+	scribble --dest out --html ++convert svg $<
 
-doc/%.pdf: %.scrbl util.rkt
+out/%.pdf: %.scrbl util.rkt
 	raco make -j 4 $<
-	scribble --dest doc --pdf $<
+	scribble --dest out --pdf $<
 
-.PHONY: doc pdf
+.PHONY: out pdf

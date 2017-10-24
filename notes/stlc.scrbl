@@ -177,6 +177,18 @@ the terms:
  then @term[(types* e_2 t)]. 2) If @term[(types* e_1 t)] then either
  @term[e_1] is a value or @term[(--> e_1 e_2)] for some @term[e_2].}
 
+@exercise{Extend @stlc with a product type @term[(* t_1 t_2)].
+ You will need a form for
+ constructing products and projections for getting the components out.}
+
+@exercise{Extend @stlc with a sum type @term[(+ t_1 t_2)]. You will need two
+ injection forms @term[(inl e)] and @term[(inr e)] to create sums, and one
+ case analysis form to eliminate them,
+ @term[(match e [x e_l] [y e_r])].} The case analysis form takes a step once
+ @term[e] reduces to a sum value:
+ @term[(--> (match (inl v) [x e_l] [y e_r]) (substitute e_l x v))],
+ and similarly for @term[(inr v)].}
+
 @section{An Extension}
 
 As it stands, we can’t do much with natural numbers. We can add a limited,
@@ -336,3 +348,8 @@ But that is @term[(γ e)].
 QED.
 
 Strong normalization follows as a corollary.
+
+@exercise{Show that the @stlc with the recursor still enjoys strong
+ normalization.}
+
+

@@ -1,6 +1,6 @@
 #lang racket/base
 
-(provide with-rewriters
+(provide with-typesetting
          term langname rulename
          theorem lemma exercise proof
          render-reduction-rules
@@ -13,13 +13,17 @@
          (only-in redex/reduction-semantics default-language)
          (for-syntax racket/base syntax/parse))
 
-#;
-(define (with-rewriters/thunk thunk)
+(define (with-typesetting/thunk thunk)
   (with-compound-rewriters
    (['->     (match-lambda [(list _ _ e_1 e_2 _) (list "(→ " e_1 " " e_2 ")")])]
     ['-->    (match-lambda [(list _ _ e_1 e_2 _) (list "" e_1 " → " e_2)])]
-    ['extend (match-lambda [(list _ _ Γ x t _)   (list "" Γ ", " x ":" t)])]
+    ['extend (match-lambda [(list _ _ Γ x t _)   (list "" Γ ", " x ":" t)]
+                           [(list _ _ Δ a _)     (list "" Δ ", " a)])]
+    ['kinds  (match-lambda [(list _ _ Δ t _)     (list "" Δ " ⊢ " t)])]
+    ['kinds/env
+             (match-lambda [(list _ _ Δ Γ _)     (list "" Δ " ⊢ " Γ)])]
     ['lookup (match-lambda [(list _ _ Γ x _)     (list "" Γ "(" x ")")])]
+    ['member (match-lambda [(list _ _ a Δ _)     (list "" a " ∈ " Δ)])]
     ['meta-+ (match-lambda [(list _ _ e_1 e_2 _) (list "" e_1 " + " e_2)])]
     ['meta-* (match-lambda [(list _ _ e_1 e_2 _) (list "" e_1 " × " e_2)])]
     ['satisfies
@@ -27,37 +31,28 @@
     ['size   (match-lambda [(list _ _ e _)       (list "|" e "|")])]
     ['substitute
              (match-lambda [(list _ _ e x v _)   (list "" e "[" x ":=" v "]")])]
-    ['types  (match-lambda [(list _ _ Γ e t _)   (list "" Γ " ⊢ " e " : " t)])]
+    ['types  (match-lambda [(list _ _ Γ e t _)   (list "" Γ " ⊢ " e " : " t)]
+                           [(list _ _ Δ Γ e t _) (list "" Δ "; " Γ " ⊢ " e
+                                                       " : " t)])]
     ['types/rec
              (match-lambda [(list _ _ Γ e t _)   (list "" Γ " ⊢ " e " : " t)])]
     ['types* (match-lambda [(list _ _ e t _)     (list "" e " : " t)])])
-   (with-atomic-rewriter 't "τ" (thunk))))
+   (with-atomic-rewriter 't "τ"
+    (parameterize
+        ([label-style         "Palatino"]
+         [grammar-style       "Palatino"]
+         [paren-style         "Palatino"]
+         [non-terminal-style  (cons 'italic "Palatino")]
+         [literal-style       "Menlo"]
+         [metafunction-style  "Palatino"]
+         [default-style       "Palatino"])
+      (thunk)))))
 
-#;
-(define-syntax-rule (with-rewriters expr0 expr ...)
-  (with-rewriters/thunk (λ () (expr0 expr ...))))
-
-(define-syntax-rule (with-rewriters expr0 expr ...)
-  (with-compound-rewriters
-   (['->     (match-lambda [(list _ _ e_1 e_2 _) (list "(→ " e_1 " " e_2 ")")])]
-    ['-->    (match-lambda [(list _ _ e_1 e_2 _) (list "" e_1 " → " e_2)])]
-    ['extend (match-lambda [(list _ _ Γ x t _)   (list "" Γ ", " x ":" t)])]
-    ['lookup (match-lambda [(list _ _ Γ x _)     (list "" Γ "(" x ")")])]
-    ['meta-+ (match-lambda [(list _ _ e_1 e_2 _) (list "" e_1 " + " e_2)])]
-    ['meta-* (match-lambda [(list _ _ e_1 e_2 _) (list "" e_1 " × " e_2)])]
-    ['satisfies
-             (match-lambda [(list _ _ γ Γ _)     (list "" γ " ⊨ " Γ)])]
-    ['size   (match-lambda [(list _ _ e _)       (list "|" e "|")])]
-    ['substitute
-             (match-lambda [(list _ _ e x v _)   (list "" e "[" x ":=" v "]")])]
-    ['types  (match-lambda [(list _ _ Γ e t _)   (list "" Γ " ⊢ " e " : " t)])]
-    ['types/rec
-             (match-lambda [(list _ _ Γ e t _)   (list "" Γ " ⊢ " e " : " t)])]
-    ['types* (match-lambda [(list _ _ e t _)     (list "" e " : " t)])])
-   (with-atomic-rewriter 't "τ" (begin expr0 expr ...))))
+(define-syntax-rule (with-typesetting expr0 expr ...)
+  (with-typesetting/thunk (λ () expr0 expr ...)))
 
 (define-syntax-rule (term e)
-  (with-rewriters (render-term (default-language) e)))
+  (with-typesetting (render-term (default-language) e)))
 
 (define-syntax-rule (types/r Γ e t)
   (term (types Γ e t)))
@@ -70,16 +65,16 @@
 
 (define-syntax-rule (render-reduction-rules rel rule ...)
   (parameterize ([render-reduction-relation-rules '(rule ...)])
-    (with-rewriters (centered (render-reduction-relation
+    (with-typesetting (centered (render-reduction-relation
                                rel #:style 'horizontal)))))
 
 (define-syntax-rule (render-judgment-rules rel rule ...)
   (parameterize ([judgment-form-cases '(rule ...)])
-    (with-rewriters (centered (render-judgment-form rel)))))
+    (with-typesetting (centered (render-judgment-form rel)))))
 
 (define-syntax-rule (render-nonterminals lang nt ...)
   (parameterize ([render-language-nts '(nt ...)])
-    (with-rewriters (centered (render-language lang)))))
+    (with-typesetting (centered (render-language lang)))))
 
 #;
 (define (theorem-like/thunk kind name body)
