@@ -39,13 +39,15 @@
     ['types* (match-lambda [(list _ _ e t _)     (list "" e " : " t)])])
    (with-atomic-rewriter 't "τ"
     (parameterize
-        ([label-style         "Palatino"]
-         [grammar-style       "Palatino"]
-         [paren-style         "Palatino"]
-         [non-terminal-style  (cons 'italic "Palatino")]
-         [literal-style       "Menlo"]
-         [metafunction-style  "Palatino"]
-         [default-style       "Palatino"])
+        ([default-style                  "Palatino"]
+         [grammar-style                  "Palatino"]
+         [label-style                    "Palatino"]
+         [literal-style                  "Menlo"]
+         [metafunction-style             "Palatino"]
+         [non-terminal-style             (cons 'italic "Palatino")]
+         [non-terminal-subscript-style   (cons 'subscript "Palatino")]
+         [non-terminal-superscript-style (cons 'superscript "Palatino")]
+         [paren-style                    "Palatino"])
       (thunk)))))
 
 (define-syntax-rule (with-typesetting expr0 expr ...)
