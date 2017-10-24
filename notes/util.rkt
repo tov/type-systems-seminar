@@ -4,12 +4,12 @@
          term langname rulename
          theorem lemma exercise proof
          render-reduction-rules
-         render-judgment-rules types/r
+         render-judgment-rules
          render-nonterminals)
 
 (require redex/pict
          scribble/base
-         (only-in racket/match match-define match-lambda)
+         (only-in racket/match match-lambda)
          (only-in redex/reduction-semantics default-language)
          (for-syntax racket/base syntax/parse))
 
@@ -55,9 +55,6 @@
 
 (define-syntax-rule (term e)
   (with-typesetting (render-term (default-language) e)))
-
-(define-syntax-rule (types/r Γ e t)
-  (term (types Γ e t)))
 
 (define-syntax-rule (rulename n)
   (list "["  (symbol->string 'n) "]"))
