@@ -1,6 +1,6 @@
 #lang racket/base
 
-(provide stlc ->val types
+(provide stlc ->val types satisfies
          stlc/rec ->val/rec types/rec)
 
 (require redex/reduction-semantics
@@ -28,6 +28,9 @@
      (s E)
      (ap E e)
      (ap v E))
+  (γ ::=
+     •
+     (extend γ x v))
   (x y ::= variable-not-otherwise-mentioned)
   #:binding-forms
   (λ x t e #:refers-to x))
@@ -70,6 +73,24 @@
    (types Γ e_2 t_2)
    ---- app
    (types Γ (ap e_1 e_2) t)])
+
+(define-judgment-form stlc
+  #:mode (SN I I)
+  #:contract (SN t e)
+  [---- not-right
+   (SN nat e)])
+
+(define-judgment-form stlc
+  #:mode (satisfies I I)
+  #:contract (satisfies γ Γ)
+
+  [---- nil
+   (satisfies • •)]
+
+  [(SN t v)
+   (satisfies γ Γ)
+   ---- cons
+   (satisfies (extend γ x v) (extend Γ x t))])
 
 ; This is based on Gödel’s T via Harper in Practical Foundations:
 (define-extended-language stlc/rec stlc

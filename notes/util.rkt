@@ -22,6 +22,8 @@
     ['lookup (match-lambda [(list _ _ Γ x _)     (list "" Γ "(" x ")")])]
     ['meta-+ (match-lambda [(list _ _ e_1 e_2 _) (list "" e_1 " + " e_2)])]
     ['meta-* (match-lambda [(list _ _ e_1 e_2 _) (list "" e_1 " × " e_2)])]
+    ['satisfies
+             (match-lambda [(list _ _ γ Γ _)     (list "" γ " ⊨ " Γ)])]
     ['size   (match-lambda [(list _ _ e _)       (list "|" e "|")])]
     ['substitute
              (match-lambda [(list _ _ e x v _)   (list "" e "[" x ":=" v "]")])]
@@ -43,6 +45,8 @@
     ['lookup (match-lambda [(list _ _ Γ x _)     (list "" Γ "(" x ")")])]
     ['meta-+ (match-lambda [(list _ _ e_1 e_2 _) (list "" e_1 " + " e_2)])]
     ['meta-* (match-lambda [(list _ _ e_1 e_2 _) (list "" e_1 " × " e_2)])]
+    ['satisfies
+             (match-lambda [(list _ _ γ Γ _)     (list "" γ " ⊨ " Γ)])]
     ['size   (match-lambda [(list _ _ e _)       (list "|" e "|")])]
     ['substitute
              (match-lambda [(list _ _ e x v _)   (list "" e "[" x ":=" v "]")])]

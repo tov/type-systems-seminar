@@ -202,3 +202,137 @@ There is one rule for typing the new form:
 
 @exercise{Extend the safety theorem for the recursor.}
 
+@exercise{The recursor is currently call-by-name. To make it call-by-value
+          requires introducing an additional form. @term[let] will do. Show
+          how to add @term[let] to @stlc and how that can be used to make the
+          recursor call-by-value.}
+
+@section{Strong Normalization}
+
+We wish to show that all terms that have a type terminate. It insufficient
+to do induction on typing derivations. What we end up needing is a relation
+between terms and types, defined by induction on types,
+of the form @term[(SN t e)], as follows:
+
+@itemlist[
+  @item{@term[(SN nat e)] iff @term[(types* e nat)] and @term[(⇓ e)].}
+  @item{@term[(SN (-> t_1 t_2) e)] iff @term[(types* e (-> t_1 t_2))]
+         and @term[(⇓ e)] and for all @term[e_1] such that @term[(SN t_1 e_1)],
+         @term[(SN t_2 (ap e e_1))].}
+]
+
+@lemma[#:name "SN preserved by reduction"]
+
+Suppose that @term[(types* e_1 t)] and @term[(--> e_1 e_2)]. Then:
+
+@itemlist[
+ @item{@term[(SN t e_2)] implies @term[(SN t e_1)].}
+ @item{@term[(SN t e_1)] implies @term[(SN t e_2)].}
+]
+
+@proof[] By induction on @term[t]:
+
+@itemlist[
+ @item{@term[nat]: If @term[e_2] converges then @term[e_1] converges
+        by the same sequence. Since it has types @term[t], we have
+        @term[(SN nat e_1)]
+
+        If @term[e_1] converges then it does so via
+        @term[e_2], so @term[e_2] converges as well, and by preservation it has
+        the same type, so @term[(SN nat e_2)].}
+ @item{@term[(-> t_1 t_2)]: If @term[(SN (-> t_1 t_2) e_2)] then we know that
+        @term[e_2] converges and when applied to a good term, that converges
+        too. We need to show that @term[e_1] does that same, that is,
+        that @term[(SN t_1 e_arb)] implies that @term[(SN t_2 (ap e_1 e_arb))]
+        for arbitrary term @term[e_arb]. We know that
+        @term[(SN t_2 (ap e_2 e_arb))]. Since @term[(--> e_1 e_2)], we know that
+        @term[(--> (ap e_1 e_arb) (ap e_2 e_arb))]. Since @term[t_2] is a
+        subexpression of @term[(-> t_1 t_2)], we can apply the induction
+        hypothesis at that type, yielding @term[(SN t_2 (ap e_1 e_arb))]
+        as desired.
+
+        If @term[(SN (-> t_1 t_2) e_1)] then we know that
+        @term[e_1] converges and when applied to a good term, that converges
+        too. We need to know that @term[e_2] does the same, that is, that
+        @term[(SN t_1 e_arb)] implies that @term[(SN t_2 (ap e_2 e_arb))]
+        for arbitrary term @term[e_arb]. We know that
+        @term[(SN t_2 (ap e_1 e_arb))]. Since @term[(--> e_1 e_2)], we know that
+        @term[(--> (ap e_1 e_arb) (ap e_2 e_arb))]. Then by induction,
+        @term[(SN t_2 (ap e_2 e_arb))].}
+]
+
+QED.
+
+Next, we define substitutions, and what it means for a substitution to
+satisfy a typing environment:
+
+@render-nonterminals[r:stlc γ]
+
+@render-judgment-rules[r:satisfies nil cons]
+
+@lemma[#:name "Mass substitution"]{If @term[(types Γ e t)]
+ and @term[(satisfies γ Γ)] then
+ @term[(types • (γ e) t)].}
+
+@proof[] By induction on the length of @term[γ]. If empty, then @term[Γ] is
+empty, and the substitution has no effect. Otherwise, @term[γ] =
+@term[(extend γ_1 x v_x)], where @term[Γ] = @term[(extend Γ_1 x t_x)]
+and @term[(satisfies γ_1 Γ_1)] and @term[(NT t_x v_x)]. Then by the
+substitution lemma, @term[(types Γ_1 (substitute e x v_x) t)].
+Then by induction, @term[(types • (γ_1 (substitute e x v_x)) t)].
+But that is @term[(γ e)].
+
+@lemma[#:name "Every typed term is good"]{If @term[(types Γ e t)]
+ and @term[(satisfies γ Γ)] then @term[(NT t (γ e))].}
+
+@proof[] By induction on the typing derivation:
+
+@itemlist[
+ @item{@term[(types Γ x (lookup Γ x))]: Appling @term[γ] to @term[x]
+        gets us a @term[v] such that @term[(NT (lookup Γ x) v)].}
+ @item{@term[(types Γ z nat)]: Since @term[z] = @term[(γ z)], and
+        @term[(types • z nat)] and @term[(⇓ z)], we have that
+        @term[(NT nat z)].}
+ @item{@term[(types Γ (s e_1) nat)]: By inversion, we know that
+        @term[(types Γ e_1 nat)]. Then by induction, we have that
+        @term[(NT nat (γ e_1))]. By the definition of NT for @term[nat],
+        we have that @term[(γ e_1)] types in the empty context and reduces
+        to a natural number. Then @term[(γ (s e_1))] does as well.}
+ @item{@term[(types Γ (ap e_1 e_2) t)]: By inversion, we know that
+        @term[(types Γ e_1 (-> t_2 t))] and
+        @term[(types Γ e_2 t_2)]. By induction, we know that
+        @term[(SN (-> t_2 t) e_1)] and @term[(SN t_2 e_2)].
+        The former means that for any @term[e_arb] such that
+        @term[(SN t_2 e_arb)], we have @term[(SN t (ap e_1 e_arb))].
+        Let @term[e_arb] be @term[e_2]. Then @term[(SN t (ap e_1 e_2))].}
+ @item{@term[(types Γ (λ x t_1 e_2) (-> t_1 t_2))]:
+        Without loss of generality, let @term[x] be fresh for @term[γ].
+        So then that term equals @term[(λ x t_1 (γ e_1))].
+        We need to show that @term[(SN (-> t_1 t_2) (λ x t_1 (γ e_2)))].
+        To show this, we need to show three things:
+  @itemlist[
+    @item{To show @term[(types • (λ x t_1 (γ e_2)) (-> t_1 t_2))].
+          It suffices to show that
+          @term[(types Γ (λ x t_1 e_2) (-> t_1 t_2))] for some @term[Γ]
+          such that @term[(satisfies γ Γ)], by the mass substitution lemma.
+          That is what we have.}
+    @item{To show @term[(⇓ (λ x t_1 (γ e_2)))]. This is clear, because it is a
+          value.}
+    @item{To show that for any @term[e_1] such that @term[(SN t_1 e_1)],
+          @term[(SN t_2 (ap (λ x t_1 (γ e_2)) e_1))]. By the definition of
+          SN, we know that @term[(-->* e_1 v_1)] for some value @term[v_1].
+          Then by the lemma that SN is preserved by reduction, we know that
+          @term[(SN t_1 v_1)]. So then we can say that
+          @term[(satisifes (extend γ x v_1) (extend Γ x t_1))].
+          Then we can take a step
+          @term[(--> (ap (λ x t_1 (γ e_2)) v_1) ((extend γ x v_1) e_2))].
+          By preservation, @term[(types • ((extend γ x v_1) e_2) t_1)].
+          So we can apply the induction hypothesis to conclude that
+          @term[(SN t_2 ((extend γ x v_1) e_2))]. Then by reduction preserving
+          SN, we can conclude that @term[(SN t_2 (ap (λ x t_1 (γ e_1)) e_1))].}
+   ]}
+]
+
+QED.
+
+Strong normalization follows as a corollary.
