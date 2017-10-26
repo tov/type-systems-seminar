@@ -16,10 +16,10 @@
 The @let-nl language has expressions @term[e] defined as follows:
 
 @centered[
- (with-rewriters @render-language[r:let-nl])
+ (with-typesetting @render-language[r:let-nl])
 ]
 
-There are two kinds of literal expressions, integers @term[n] and the empty
+There are two kinds of literal expressions, integers @term[z] and the empty
 list @term[nil]. Additionally, we build longer lists with @term[(cons e_1 e_2)],
 which is our traditional cons that creates a linked list node with first and
 rest. We have two elimination forms for integers,
@@ -69,7 +69,7 @@ extend our syntax with values @term[v] and evaluation contexts @term[E]:
 @;
 @render-nonterminals[r:let-nl/eval v E]
 
-We define values—final results—to include numbers @term[n], the empty list
+We define values—final results—to include numbers @term[z], the empty list
 @term[nil], and pairs of values @term[(cons v_1 v_2)].
 
 Evaluation context @term[E] give a grammar for where evaluation can take place.
@@ -97,7 +97,7 @@ the structure of terms, and we're going to use a particular size function,
 defined as:
 @;
 @centered{
-  @with-rewriters[@render-metafunction[r:size]]
+  @with-typesetting[@render-metafunction[r:size]]
 }
 
 @exercise{Prove that for all values, @term[(size v)] = 0.}
@@ -115,7 +115,7 @@ Indeed, there several classes of terms that get stuck in our definition of
 @;
 @itemlist[
   @item{@term[(car nil)] and @term[(cdr nil)].}
-  @item{@term[(car n)] and @term[(cdr n)], where @term[n] is an integer.}
+  @item{@term[(car z)] and @term[(cdr z)], where @term[z] is an integer.}
   @item{@term[(+ v_1 v_2)] or @term[(* v_1 v_2)] where @term[v_1] or @term[v_2]
          is not an integer.}
   @item{Any open term, that is, a term with a variable that is not bound by
@@ -329,8 +329,8 @@ There’s one more standard lemma we need before we can prove preservation:
 on the conclusion:
 
 @itemlist[
- @item{@term[(types (extend Γ x t_x) n int)]: Then @term[(substitute n x v)] is
-        @term[n], and @term[(types Γ n int)].}
+ @item{@term[(types (extend Γ x t_x) z int)]: Then @term[(substitute z x v)] is
+        @term[z], and @term[(types Γ z int)].}
  @item{@term[(types (extend Γ x t_x) nil list)]: Then
         @term[(substitute nil x v)]
         is @term[nil], and @term[(types Γ nil list)].}
@@ -399,12 +399,12 @@ Now we are ready to prove preservation:
 @proof[] By cases on the reduction relation:
 
 @itemlist[
- @item{@term[(--> (in-hole E (+ n_1 n_2)) (in-hole E (meta-+ n_1 n_2)))]:
-        By the replacement lemma, @term[(+ n_1 n_2)] must have some type,
+ @item{@term[(--> (in-hole E (+ z_1 z_2)) (in-hole E (meta-+ z_1 z_2)))]:
+        By the replacement lemma, @term[(+ z_1 z_2)] must have some type,
         and by inversion, that type must be @term[int]. The result of the
         addition metafunction is also an integer with type @term[int]. Then
-        by replacement, @term[(types • (in-hole E (meta-+ n_1 n_2)) t)].}
- @item{@term[(--> (in-hole E (* n_1 n_2)) (in-hole E (meta-* n_1 n_2)))]:
+        by replacement, @term[(types • (in-hole E (meta-+ z_1 z_2)) t)].}
+ @item{@term[(--> (in-hole E (* z_1 z_2)) (in-hole E (meta-* z_1 z_2)))]:
         as in the previous case.}
  @item{@term[(--> (in-hole E (car (cons v_1 v_2))) (in-hole E v_1))]:
         By the replacement lemma, @term[(types • (car (cons v_1 v_2)) t_e)]
@@ -440,7 +440,7 @@ Before we can prove progress, we need to classify values by their types.
 If @term[v] has type @term[t], then:
 @itemlist[
  @item{If @term[t] is @term[int] then @term[v] is an integer literal
-          @term[n].}
+          @term[z].}
  @item{If @term[t] is @term[list], then either @term[v] = @term[nil]
           or @term[v] = @term[(cons v_1 v_2)] where
           @term[v_1] has type @term[int] and @term[v_2] has type @term[list].}
@@ -450,7 +450,7 @@ If @term[v] has type @term[t], then:
 @term[(types • v t)]:
 
 @itemlist[
- @item{@term[(types • n int)]: Then @term[v] is an integer literal.}
+ @item{@term[(types • z int)]: Then @term[v] is an integer literal.}
  @item{@term[(types • nil list)]: Then @term[v] is the empty list.}
  @item{@term[(types • (cons e_1 e_2) list)]: By the syntax of values
         it must be the case that @term[e_1] is a value @term[v_1] having type
@@ -485,7 +485,7 @@ term @term[e] either reduces or is a value.}
 conclusion:
 
 @itemlist[
- @item{@term[(types • n int)]: Then @term[e] is a value.}
+ @item{@term[(types • z int)]: Then @term[e] is a value.}
  @item{@term[(types • nil list)]: Then @term[e] is a value.}
  @item{@term[(types • (cons e_1 e_2) list)]:
    Then @term[(types • e_1 int)]
@@ -519,9 +519,9 @@ conclusion:
    If @term[e_2] reduces to @term[WRONG], then
    @term[(--> (+ v_1 e_2) WRONG)] by the context replacement lemma.
    Otherwise, @term[e_2] is a value @term[v_2]. By the canonical forms lemma,
-   @term[v_1] is an integer @term[n_1] and @term[v_2] is an integer
-   @term[n_2]. Thus, we can take the step
-   @term[(--> (+ n_1 n_2) (meta-+ n_1 n_2))].
+   @term[v_1] is an integer @term[z_1] and @term[v_2] is an integer
+   @term[z_2]. Thus, we can take the step
+   @term[(--> (+ z_1 z_2) (meta-+ z_1 z_2))].
  }
  @item{@term[(types • (* e_1 e_2) int)]: As in the previous case.}
  @item{@term[(types • (car e_1) int)]:
@@ -574,7 +574,7 @@ k or fewer steps.
 @proof[] By induction on k. By cases on terms:
 
 @itemlist[
- @item{@term[n]: Then k = 0, and @term[e] reduces to value @term[n] in 0 steps.}
+ @item{@term[z]: Then k = 0, and @term[e] reduces to value @term[z] in 0 steps.}
  @item{@term[nil]: Also k = 0.}
  @item{@term[(cons e_1 e_2)]. Then by inversion of @rulename[cons],
         @term[(types • e_1 int)] and @term[(types • e_2 list)].
@@ -600,16 +600,16 @@ k or fewer steps.
         respectively. If either goes wrong, then the whole
         term goes wrong because both @term[(+ hole e_2)] and @term[(+ v_1 hole)]
         are evaluation contexts. Otherwise, by the canonical values lemma both
-        values must be numbers @term[n_1] and @term[n_2]. Because
-        @term[(-->* e_1 n_1)] in j or fewer steps, by context replacement
-        @term[(-->* (+ e_1 e_2) (+ n_1 e_2))] in j or fewer steps.
+        values must be numbers @term[z_1] and @term[z_2]. Because
+        @term[(-->* e_1 z_1)] in j or fewer steps, by context replacement
+        @term[(-->* (+ e_1 e_2) (+ z_1 e_2))] in j or fewer steps.
         And because
-        @term[(-->* e_2 n_2)] in k - j - 1 or fewer steps,
+        @term[(-->* e_2 z_2)] in k - j - 1 or fewer steps,
         by context replacement again
-        @term[(-->* (+ n_1 e_2) (+ n_1 n_2))]
+        @term[(-->* (+ z_1 e_2) (+ z_1 z_2))]
         in k – j – 1 or fewer steps.
         Then in one more step
-        @term[(--> (+ n_1 n_2) (meta-+ n_1 n_2))], which is a value.
+        @term[(--> (+ z_1 z_2) (meta-+ z_1 z_2))], which is a value.
         The total number of steps has been k or fewer.}
  @item{@term[(* e_1 e_2)]: As in the previous case, m.m.}
  @item{@term[(car e_1)] and @term[(cdr e_1)]: In either case, the subterm

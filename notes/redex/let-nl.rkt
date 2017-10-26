@@ -7,7 +7,7 @@
 
 (define-language let-nl
   (e ::=
-     n
+     z
      nil
      (cons e e)
      (+ e e)
@@ -16,14 +16,14 @@
      (cdr e)
      x
      (let x e e))
-  (n ::= integer)
+  (z ::= integer)
   (x y ::= variable-not-otherwise-mentioned)
   #:binding-forms
   (let x e_1 e_2 #:refers-to x))
 
 (define-extended-language let-nl/eval let-nl
   (v ::=
-     n
+     z
      nil
      (cons v v))
   (E ::=
@@ -45,11 +45,11 @@
   (reduction-relation
    let-nl/eval
    #:domain C
-   (--> (in-hole E (+ n_1 n_2))
-        (in-hole E (meta-+ n_1 n_2))
+   (--> (in-hole E (+ z_1 z_2))
+        (in-hole E (meta-+ z_1 z_2))
         plus)
-   (--> (in-hole E (* n_1 n_2))
-        (in-hole E (meta-* n_1 n_2))
+   (--> (in-hole E (* z_1 z_2))
+        (in-hole E (meta-* z_1 z_2))
         times)
    (--> (in-hole E (car (cons v_1 v_2)))
         (in-hole E v_1)
@@ -68,16 +68,16 @@
         let)))
 
 (define-lifted-metafunction let-nl/eval
-  meta-+ : n_1 n_2 -> n
+  meta-+ : z_1 z_2 -> z
   +)
 
 (define-lifted-metafunction let-nl/eval
-  meta-* : n_1 n_2 -> n
+  meta-* : z_1 z_2 -> z
   *)
 
 (define-metafunction let-nl
-  size : e -> n
-  [(size n) 0]
+  size : e -> z
+  [(size z) 0]
   [(size nil) 0]
   [(size (cons e_1 e_2))
    (meta-+ (size e_1) (size e_2))]
@@ -112,17 +112,17 @@
 
 (define-metafunction let-nl/env
   eval : ρ e -> v
-  [(eval ρ n)                      n]
+  [(eval ρ z)                      z]
   [(eval ρ nil)                    nil]
   [(eval ρ (cons e_1 e_2))         (cons v_1 v_2)
                                    (where v_1 (eval ρ e_1))
                                    (where v_2 (eval ρ e_2))]
-  [(eval ρ (+ e_1 e_2))            (meta-+ n_1 n_2)
-                                   (where n_1 (eval ρ e_1))
-                                   (where n_2 (eval ρ e_2))]
-  [(eval ρ (* e_1 e_2))            (meta-* n_1 n_2)
-                                   (where n_1 (eval ρ e_1))
-                                   (where n_2 (eval ρ e_2))]
+  [(eval ρ (+ e_1 e_2))            (meta-+ z_1 z_2)
+                                   (where z_1 (eval ρ e_1))
+                                   (where z_2 (eval ρ e_2))]
+  [(eval ρ (* e_1 e_2))            (meta-* z_1 z_2)
+                                   (where z_1 (eval ρ e_1))
+                                   (where z_2 (eval ρ e_2))]
   [(eval ρ (car e))                v_1
                                    (where (cons v_1 v_2) (eval ρ e))]
   [(eval ρ (cdr e))                v_2

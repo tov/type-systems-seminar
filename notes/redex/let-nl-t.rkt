@@ -27,7 +27,7 @@
   #:mode (types I I O)
   #:contract (types Γ e t)
   [---- nat
-   (types Γ n int)]
+   (types Γ z int)]
   [---- nil
    (types Γ nil list)]
   [(types Γ e_1 int)
@@ -60,7 +60,7 @@
   #:mode (types* I O)
   #:contract (types* e t)
   [---- nat
-   (types* n int)]
+   (types* z int)]
   [---- nil
    (types* nil list)]
   [(types* e_1 int)
@@ -96,7 +96,7 @@
 ; type-check : Γ e -> t
 (define (type-check Γ e)
   (let-nl-match e
-    [n               (term int)]
+    [z               (term int)]
     [nil             (term list)]
     [(cons e_1 e_2)  (assert-type cons int (type-check Γ (term e_1)))
                      (assert-type cons list (type-check Γ (term e_2)))
