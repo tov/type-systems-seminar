@@ -13,6 +13,9 @@
          (only-in redex/reduction-semantics default-language)
          (for-syntax racket/base syntax/parse))
 
+(define SERIF-FONT "Palatino")
+(define MONO-FONT "Menlo")
+
 (define (with-typesetting/thunk thunk)
   (with-compound-rewriters
    (['->     (match-lambda [(list _ _ e_1 e_2 _) (list "(→ " e_1 " " e_2 ")")])]
@@ -39,15 +42,15 @@
     ['types* (match-lambda [(list _ _ e t _)     (list "" e " : " t)])])
    (with-atomic-rewriter 't "τ"
     (parameterize
-        ([default-style                  "Palatino"]
-         [grammar-style                  "Palatino"]
-         [label-style                    "Palatino"]
-         [literal-style                  "Menlo"]
-         [metafunction-style             "Palatino"]
-         [non-terminal-style             (cons 'italic "Palatino")]
-         [non-terminal-subscript-style   (cons 'subscript "Palatino")]
-         [non-terminal-superscript-style (cons 'superscript "Palatino")]
-         [paren-style                    "Palatino"])
+        ([default-style                  SERIF-FONT]
+         [grammar-style                  SERIF-FONT]
+         [label-style                    SERIF-FONT]
+         [literal-style                  MONO-FONT]
+         [metafunction-style             SERIF-FONT]
+         [non-terminal-style             (cons 'italic SERIF-FONT)]
+         [non-terminal-subscript-style   (cons 'subscript SERIF-FONT)]
+         [non-terminal-superscript-style (cons 'superscript SERIF-FONT)]
+         [paren-style                    SERIF-FONT])
       (thunk)))))
 
 (define-syntax-rule (with-typesetting expr0 expr ...)
