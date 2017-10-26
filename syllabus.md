@@ -29,6 +29,7 @@
     (Jones 1992, "A Theory of Qualified Types")
 
   - Dependent types
+      - Lambda Cube
       - LF
       - CoC
 
@@ -38,4 +39,4 @@
 To be integrated:
 
    http://www.lucacardelli.name/Papers/TypefulProg.pdf)
-   
+
