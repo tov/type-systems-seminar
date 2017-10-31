@@ -354,13 +354,13 @@ But that is @term[(γ e)].
           SN, we know that @term[(-->* e_1 v_1)] for some value @term[v_1].
           Then by the lemma that SN is preserved by reduction, we know that
           @term[(SN t_1 v_1)]. So then we can say that
-          @term[(satisifes (extend γ x v_1) (extend Γ x t_1))].
+          @term[(satisfies (extend γ x v_1) (extend Γ x t_1))].
           Then we can take a step
           @term[(--> (ap (λ x t_1 (γ e_2)) v_1) ((extend γ x v_1) e_2))].
-          By preservation, @term[(types • ((extend γ x v_1) e_2) t_1)].
+          By preservation, @term[(types • ((extend γ x v_1) e_2) t_2)].
           So we can apply the induction hypothesis to conclude that
           @term[(SN t_2 ((extend γ x v_1) e_2))]. Then by reduction preserving
-          SN, we can conclude that @term[(SN t_2 (ap (λ x t_1 (γ e_1)) e_1))].}
+          SN, we can conclude that @term[(SN t_2 (ap (λ x t_1 (γ e_2)) e_1))].}
    ]}
 ]
 
@@ -368,7 +368,7 @@ QED.
 
 Strong normalization follows as a corollary.
 
-@exercise{Show that the @stlc with the recursor still enjoys strong
+@exercise{Show that @stlc with the recursor still enjoys strong
  normalization.}
 
 
