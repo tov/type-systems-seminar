@@ -9,12 +9,22 @@
 
 (require redex/pict
          scribble/base
+         (only-in pict text hbl-append)
          (only-in racket/match match-lambda)
          (only-in redex/reduction-semantics default-language)
          (for-syntax racket/base syntax/parse))
 
 (define SERIF-FONT "Palatino")
 (define MONO-FONT "Menlo")
+
+(define (typeset-SN t e)
+  (list "("
+        (hbl-append (text "SN" MONO-FONT)
+                    (text " " SERIF-FONT))
+        t
+        " "
+        e
+        ")"))
 
 (define (with-typesetting/thunk thunk)
   (with-compound-rewriters
@@ -32,6 +42,7 @@
     ['meta-* (match-lambda [(list _ _ e_1 e_2 _) (list "" e_1 " × " e_2)])]
     ['satisfies
              (match-lambda [(list _ _ γ Γ _)     (list "" γ " ⊨ " Γ)])]
+    ['SN     (match-lambda [(list _ _ t e _)     (typeset-SN t e)])]
     ['size   (match-lambda [(list _ _ e _)       (list "|" e "|")])]
     ['substitute
              (match-lambda [(list _ _ e x v _)   (list "" e "[" x ":=" v "]")])]
