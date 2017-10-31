@@ -1,6 +1,7 @@
 #lang scribble/base
 
 @(require (prefix-in r: "redex/poly.rkt")
+          (prefix-in stlc: "redex/stlc.rkt")
           "util.rkt"
           (only-in redex default-language)
           redex/pict)
@@ -9,6 +10,25 @@
 @define[system-f]{@langname[System-F]}
 
 @title{The Polymorphic Lambda Calculus @system-f}
+
+Suppose we want to write the composition function in the simply-typed
+lambda calculus. What does it look like? Well, it depends on the types
+of the functions. We can compose two @term[(-> nat nat)] functions with this:
+@;
+@centered[
+    @term[(λ x_1 (-> nat nat) (λ x_2 (-> nat nat) (λ y nat (ap x_1 (ap x_2 y)))))]
+]
+@;
+But if the functions have different types, we will need to define a
+different composition function. This is awkward!
+
+Polymorphism lets us write one composition function that works for any types:
+@;
+@centered[
+    @term[(Lam a_1 (Lam a_2 (Lam a_3 (lam x_1 (-> a_2 a_3) (lam x_2 (-> a_1 a_2) (lam y a_1 (app x_1 (app x_2 y))))))))]
+]
+@;
+We model polymorphism with @|system-f|.
 
 @section{Syntax}
 

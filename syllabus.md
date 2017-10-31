@@ -29,7 +29,8 @@
     (Jones 1992, "A Theory of Qualified Types")
 
   - Dependent types
-      - Lambda Cube
+      - Lambda Cube: Barendregt, "Lambda Calculi with Types", §5 "Typing
+        à la Church"
       - LF
       - CoC
 
