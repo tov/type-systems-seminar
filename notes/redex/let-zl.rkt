@@ -1,11 +1,11 @@
 #lang racket/base
 
-(provide let-nl let-nl/eval ->val size)
+(provide let-zl let-zl/eval ->val size)
 
 (require redex/reduction-semantics
          "util.rkt")
 
-(define-language let-nl
+(define-language let-zl
   (e ::=
      z
      nil
@@ -21,7 +21,7 @@
   #:binding-forms
   (let x e_1 e_2 #:refers-to x))
 
-(define-extended-language let-nl/eval let-nl
+(define-extended-language let-zl/eval let-zl
   (v ::=
      z
      nil
@@ -43,7 +43,7 @@
 
 (define ->val
   (reduction-relation
-   let-nl/eval
+   let-zl/eval
    #:domain C
    (--> (in-hole E (+ z_1 z_2))
         (in-hole E (meta-+ z_1 z_2))
@@ -67,15 +67,15 @@
         (in-hole E (substitute e x v))
         let)))
 
-(define-lifted-metafunction let-nl/eval
+(define-lifted-metafunction let-zl/eval
   meta-+ : z_1 z_2 -> z
   +)
 
-(define-lifted-metafunction let-nl/eval
+(define-lifted-metafunction let-zl/eval
   meta-* : z_1 z_2 -> z
   *)
 
-(define-metafunction let-nl
+(define-metafunction let-zl
   size : e -> z
   [(size z) 0]
   [(size nil) 0]
@@ -97,12 +97,12 @@
 ;; Big-step evaluator
 ;;
 
-(define-extended-language let-nl/env let-nl/eval
+(define-extended-language let-zl/env let-zl/eval
   (ρ ::=
      •
      (extend ρ x v)))
 
-(define-metafunction let-nl/env
+(define-metafunction let-zl/env
   lookup : ρ x -> v
   [(lookup (extend ρ x v) x)
    v]
@@ -110,7 +110,7 @@
    (lookup ρ x)
    (side-condition (not (equal? (term x) (term y))))])
 
-(define-metafunction let-nl/env
+(define-metafunction let-zl/env
   eval : ρ e -> v
   [(eval ρ z)                      z]
   [(eval ρ nil)                    nil]
@@ -142,7 +142,7 @@
 ;;
 
 (module+ test
-  (default-language let-nl/eval)
+  (default-language let-zl/eval)
 
   (test-->> ->val
             (term 4)
@@ -188,7 +188,7 @@
 (define (fully-reduce e)
   (define reduced (apply-reduction-relation* ->val e))
   (and (= 1 (length reduced))
-       ((term-match/single let-nl/eval
+       ((term-match/single let-zl/eval
           [v (term v)]
           [_ #false])
         (car reduced))))
@@ -204,5 +204,5 @@
   (equal? (fully-reduce e) (fully-evaluate e)))
 
 (module+ test
-  (redex-check let-nl/eval e (dynamics-agree? (term e)) #:source ->val)
-  (redex-check let-nl/env (ρ e) (dynamics-agree? (term e)) #:source eval))
+  (redex-check let-zl/eval e (dynamics-agree? (term e)) #:source ->val)
+  (redex-check let-zl/env (ρ e) (dynamics-agree? (term e)) #:source eval))

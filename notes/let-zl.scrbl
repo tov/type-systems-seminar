@@ -1,22 +1,22 @@
 #lang scribble/base
 
-@(require (prefix-in r: "redex/let-nl.rkt")
-          (prefix-in r: "redex/let-nl-t.rkt")
+@(require (prefix-in r: "redex/let-zl.rkt")
+          (prefix-in r: "redex/let-zl-t.rkt")
           "util.rkt"
           (only-in redex/reduction-semantics default-language)
           redex/pict)
 
-@(default-language r:let-nl)
-@define[let-nl]{@langname[let-nl]}
+@(default-language r:let-zl)
+@define[let-zl]{@langname[let-zl]}
 
-@title{The @let-nl Language}
+@title{The @let-zl Language}
 
 @section{Syntax}
 
-The @let-nl language has expressions @term[e] defined as follows:
+The @let-zl language has expressions @term[e] defined as follows:
 
 @centered[
- (with-typesetting @render-language[r:let-nl])
+ (with-typesetting @render-language[r:let-zl])
 ]
 
 There are two kinds of literal expressions, integers @term[z] and the empty
@@ -67,7 +67,7 @@ the variable in the body:
 In order to describe where evaluation can happen when when it is finished, we
 extend our syntax with values @term[v] and evaluation contexts @term[E]:
 @;
-@render-nonterminals[r:let-nl/eval v E]
+@render-nonterminals[r:let-zl/eval v E]
 
 We define values—final results—to include numbers @term[z], the empty list
 @term[nil], and pairs of values @term[(cons v_1 v_2)].
@@ -104,14 +104,14 @@ defined as:
 
 @subsection{Errors}
 
-Can @let-nl programs experience errors? What does it mean for a reduction
+Can @let-zl programs experience errors? What does it mean for a reduction
 semantics to have an error? Right now, there are no explicit, checked errors,
 but there are programs that don't make sense. For example, @term[(car 5)].
 What do these non-sense terms do right now? They get @emph{stuck}! That is,
 a term that has @term[(car 5)] in the hole won't reduce any further.
 
 Indeed, there several classes of terms that get stuck in our definition of
-@let-nl thus far:
+@let-zl thus far:
 @;
 @itemlist[
   @item{@term[(car nil)] and @term[(cdr nil)].}
@@ -133,7 +133,7 @@ is 0. Another way to make the programs defined, without sanctioning non-sense,
 is to add an error state. We do this by extending terms @term[e] to
 configurations @term[C]:
 @;
-@render-nonterminals[r:let-nl/eval C]
+@render-nonterminals[r:let-zl/eval C]
 @;
 Then we add transition rules that detect all bad states and transition them
 to @term[WRONG], thus flagging them as errors.
@@ -154,7 +154,7 @@ With a type system, we assign types to (some) terms to classify them by
 what kind of value they compute. In our first, simple type system, we
 will have only two types:
 @;
-@render-nonterminals[r:let-nl/t t]
+@render-nonterminals[r:let-zl/t t]
 @;
 To keep things simple, we will limit @term[list] to be lists of integers.
 
@@ -187,7 +187,7 @@ But when we come to check a variable @term[x], we get stuck. What’s the type o
 a variable? To type check variables, we introduce type environments, which keep
 track of the type of each @term[let]-bound variable:
 @;
-@render-nonterminals[r:let-nl/t Γ]
+@render-nonterminals[r:let-zl/t Γ]
 
 We then retrofit all our rules to carry the environment @term[Γ] through. For
 example, the rule for @term[car] becomes
