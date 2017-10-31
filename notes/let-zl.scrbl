@@ -6,7 +6,7 @@
           (only-in redex/reduction-semantics default-language)
           redex/pict)
 
-@(default-language r:let-zl)
+@(default-language r:let-zl/t)
 @define[let-zl]{@langname[let-zl]}
 
 @title{The @let-zl Language}
@@ -321,9 +321,9 @@ QED.
 
 There’s one more standard lemma we need before we can prove preservation:
 
-@lemma[#:name "Substitution"]{If @term[(extend Γ x t_x)] ⊢ @term[e] :
-@term[t] and @term[Γ] ⊢ @term[v] : @term[t_x] then
-@term[Γ] ⊢ @term[(substitute e x v)] : @term[t].}
+@lemma[#:name "Substitution"]{If @term[(types (extend Γ x t_x) e t)]
+and @term[(types Γ v t_x)] then
+@term[(types Γ (substitute e x v) t)].}
 
 @proof[] By induction on the typing deriviation for @term[e]; by cases
 on the conclusion:
@@ -596,7 +596,7 @@ k or fewer steps.
         subterms have type @term[int]. Let j be the size of @term[e_1]; then
         the size of @term[e_1] is k – j – 1.
         Then by the induction hypothesis, each
-        reduces to a value or goes wrong, in at most j and k - j - 1 steps
+        reduces to a value or goes wrong, in at most j and k – j – 1 steps
         respectively. If either goes wrong, then the whole
         term goes wrong because both @term[(+ hole e_2)] and @term[(+ v_1 hole)]
         are evaluation contexts. Otherwise, by the canonical values lemma both
@@ -604,7 +604,7 @@ k or fewer steps.
         @term[(-->* e_1 z_1)] in j or fewer steps, by context replacement
         @term[(-->* (+ e_1 e_2) (+ z_1 e_2))] in j or fewer steps.
         And because
-        @term[(-->* e_2 z_2)] in k - j - 1 or fewer steps,
+        @term[(-->* e_2 z_2)] in k – j – 1 or fewer steps,
         by context replacement again
         @term[(-->* (+ z_1 e_2) (+ z_1 z_2))]
         in k – j – 1 or fewer steps.
