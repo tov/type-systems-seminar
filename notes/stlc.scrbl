@@ -10,13 +10,13 @@
 
 @title{The Simply-Typed Lambda Calculus @stlc}
 
-@section{Syntax}
+@section[#:tag "stlc-syntax"]{Syntax}
 
 The @stlc language has types @term[t] and terms @term[e] defined as follows:
 
 @render-nonterminals[r:stlc t e]
 
-@section{Dynamic Semantics}
+@section[#:tag "stlc-dynamics"]{Dynamic Semantics}
 
 To define the dynamic semantics of @stlc, we give syntax for values and
 evaluation contexts:
@@ -27,7 +27,7 @@ Then the reduction relation consists of one rule:
 
 @render-reduction-rules[r:->val β-val]
 
-@section{Static Semantics}
+@section[#:tag "stlc-statics"]{Static Semantics}
 
 To type @stlc, we define typing contexts mapping variables to types:
 
@@ -52,7 +52,7 @@ of the operand:
 @;
 @render-judgment-rules[r:types app]
 
-@subsection{Type Safety}
+@subsection[#:tag "stlc-type-safety"]{Type Safety}
 
 @lemma[#:name "Replacement"]{If @term[(types* (in-hole E e) t)] then
  @term[(types* e t_e)] for some @term[t_e]. Furthermore, for
@@ -189,7 +189,7 @@ the terms:
  @term[(--> (match (inl v) [x e_l] [y e_r]) (substitute e_l x v))],
  and similarly for @term[(inr v)].}
 
-@section{An Extension}
+@section[#:tag "stlc-an-extension"]{An Extension}
 
 As it stands, we can’t do much with natural numbers. We can add a limited,
 terminating form of recursion, as follows. We extend the syntax of terms and
@@ -219,7 +219,7 @@ There is one rule for typing the new form:
           how to add @term[let] to @stlc and how that can be used to make the
           recursor call-by-value.}
 
-@section{Strong Normalization}
+@section[#:tag "stlc-normalization"]{Strong Normalization}
 
 We wish to show that all terms that have a type terminate. It insufficient
 to do induction on typing derivations. What we end up needing is a relation

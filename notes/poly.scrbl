@@ -30,11 +30,11 @@ Polymorphism lets us write one composition function that works for any types:
 @;
 We model polymorphism with @|system-f|.
 
-@section{Syntax}
+@section[#:tag "system-f-syntax"]{Syntax}
 
 @render-nonterminals[r:system-f t e]
 
-@section{Dynamic Semantics}
+@section[#:tag "system-f-dynamics"]{Dynamic Semantics}
 
 The give the dynamic semantics of @system-f, we first define evaluation
 contexts:
@@ -46,7 +46,7 @@ applications, and one for type abstraction applications:
 
 @render-reduction-rules[r:->val β-val inst]
 
-@section{Static Semantics}
+@section[#:tag "system-f-statics"]{Static Semantics}
 
 To give the static semantics of @system-f, we have both type variable
 environments (which tell us which type variables are in scope) and

@@ -11,7 +11,7 @@
 
 @title{The @let-zl Language}
 
-@section{Syntax}
+@section[#:tag "let-zl-syntax"]{Syntax}
 
 The @let-zl language has expressions @term[e] defined as follows:
 
@@ -29,7 +29,7 @@ Additionally, we have elimination forms for lists, @term[(car e)] and
 sharing in @term[(let x e_1 e_2)], which binds @term[x] to the value of
 @term[e_1] in @term[e_2].
 
-@section{Dynamic Semantics}
+@section[#:tag "let-zl-dynamics"]{Dynamic Semantics}
 
 We might have a decent guess as to what this language means, but to be precise,
 we will define its dynamic semantics using a rewriting system.  The reduction
@@ -102,7 +102,7 @@ defined as:
 
 @exercise{Prove that for all values, @term[(size v)] = 0.}
 
-@subsection{Errors}
+@subsection[#:tag "let-zl-errors"]{Errors}
 
 Can @let-zl programs experience errors? What does it mean for a reduction
 semantics to have an error? Right now, there are no explicit, checked errors,
@@ -129,7 +129,7 @@ solve the problem.
 
 First, we could make such programs defined by adding
 transition rules. For example, we could add a rule that the car of a number
-is 0. Another way to make the programs defined, without sanctioning non-sense,
+is 0. Another way to make the programs defined, without sanctioning nonsense,
 is to add an error state. We do this by extending terms @term[e] to
 configurations @term[C]:
 @;
@@ -148,7 +148,7 @@ which rules out programs with
 some kinds of errors. We can then prove that no programs admitted by the
 type system get stuck.
 
-@section{Static Semantics}
+@section[#:tag "let-zl-statics"]{Static Semantics}
 
 With a type system, we assign types to (some) terms to classify them by
 what kind of value they compute. In our first, simple type system, we
@@ -219,7 +219,7 @@ expression:
  @term[(list (list int))], @term[(list (list (list int)))] and so on.
  How do you have to change the syntax of @term[t]? The typing rules?}
 
-@subsection{Type Safety}
+@subsection[#:tag "let-zl-type-safety"]{Type Safety}
 
 The goal of our type system is to prevent undetected errors—that is,
 stuck terms—in our programs. To show that it does this, we will prove
@@ -246,7 +246,7 @@ progress and preservation:
         reduces or @term[e] is a value.}
 ]
 
-@subsubsection{Preservation}
+@subsubsection[#:tag "let-zl-preservation"]{Preservation}
 
 We want to prove that if a term has a type and takes a step, the resulting
 term also has a type. We can do this be considering the cases of the
@@ -431,7 +431,7 @@ Now we are ready to prove preservation:
 
 QED.
 
-@subsubsection{Progress}
+@subsubsection[#:tag "let-zl-progress"]{Progress}
 
 Before we can prove progress, we need to classify values by their types.
 
@@ -561,7 +561,7 @@ QED.
 @exercise{Are the previous two exercises orthogonal? How do they interact
           or avoid interaction?}
 
-@section{Termination}
+@section[#:tag "let-zl-termination"]{Termination}
 
 Now let’s prove a rather strong property about a rather weak language.
 

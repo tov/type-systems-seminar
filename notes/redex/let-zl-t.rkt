@@ -26,7 +26,7 @@
 (define-judgment-form let-zl/t
   #:mode (types I I O)
   #:contract (types Γ e t)
-  [---- nat
+  [---- int
    (types Γ z int)]
   [---- nil
    (types Γ nil list)]
@@ -59,7 +59,7 @@
 (define-judgment-form let-zl/t
   #:mode (types* I O)
   #:contract (types* e t)
-  [---- nat
+  [---- int
    (types* z int)]
   [---- nil
    (types* nil list)]
