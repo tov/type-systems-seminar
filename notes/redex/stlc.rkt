@@ -1,6 +1,6 @@
 #lang racket/base
 
-(provide stlc ->val types satisfies
+(provide stlc ->val types satisfies SN
          stlc/rec ->val/rec types/rec)
 
 (require redex/reduction-semantics

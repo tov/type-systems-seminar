@@ -1,4 +1,4 @@
-GOAL = let-zl
+GOAL = stlc
 
 html: out/$(GOAL).html
 

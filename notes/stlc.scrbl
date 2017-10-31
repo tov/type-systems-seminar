@@ -16,12 +16,19 @@ The @stlc language has types @term[t] and terms @term[e] defined as follows:
 
 @render-nonterminals[r:stlc t e]
 
+Types include the natural numbers @term[nat] and function types
+@term[(-> t_1 t_2)]. Terms include variables, Peano naturals (@term[z] for
+zero and @term[s] for successor), lambda abstractions, and applications.
+
 @section[#:tag "stlc-dynamics"]{Dynamic Semantics}
 
 To define the dynamic semantics of @stlc, we give syntax for values and
 evaluation contexts:
 
 @render-nonterminals[r:stlc v E].
+
+Values include natural numbers and lambda abstractions. We evaluate under
+@term[s] and we evaluate both the operator and operand in an application.
 
 Then the reduction relation consists of one rule:
 
@@ -37,6 +44,9 @@ Then the rules are as follows. There are two constructors for the
 naturals, and they type as such:
 @;
 @render-judgment-rules[r:types zero succ]
+@;
+That is, @term[z] is a natural, and for any term @term[e] of type @term[nat],
+@term[(s e)] has type @term[nat] as well.
 
 Variables type by looking them up in the typing context:
 @;
@@ -53,6 +63,11 @@ of the operand:
 @render-judgment-rules[r:types app]
 
 @subsection[#:tag "stlc-type-safety"]{Type Safety}
+
+Before we can prove type safety, we need to prove several standard lemmas.
+
+We use the judgment @term[(types* e t)] with no context to mean that @term[e]
+types in an empty context: @term[(types • e t)].
 
 @lemma[#:name "Replacement"]{If @term[(types* (in-hole E e) t)] then
  @term[(types* e t_e)] for some @term[t_e]. Furthermore, for
@@ -128,7 +143,7 @@ of the operand:
          @term[(types* (ap (λ x t_x e_11) v_12) t_1)].
          This only types if @term[(types* (λ x t_x e_11) (-> t_x t_1))]
          and @term[(types* v_12 t_x)]. The former is only the case
-         if @term[(types ([x t_x]) e_11 t_1)].
+         if @term[(types (extend • x t_x) e_11 t_1)].
          Then by the substitution lemma,
          @term[(types* (substitute e_11 x v_12) t_1)], and by replacement,
          @term[(types* (in-hole E (substitute e_11 x v_12)) t)].}
@@ -141,7 +156,7 @@ QED.
 If @term[(types* v t)] then:
 
 @itemlist[
- @item{If @term[t] is @term[nat], then @term[v] is either @term[nil] or
+ @item{If @term[t] is @term[nat], then @term[v] is either @term[z] or
        or @term[(s v_1)] for some @term[v_1].}
  @item{If @term[t] is @term[(-> t_1 t_2)], then @term[v] is some lambda
  abstraction @term[(λ x t_1 e_1)].}
@@ -169,7 +184,7 @@ the terms:
         thing steps. If both are values, then by inversion of the @rulename[app]
         rule, @term[e_11] has a function type, and by the canonical forms lemma,
         that means it is a lambda abstraction @term[(λ x e)].
-        Then the whole term steps to @term[(substituted e x e_12)].}
+        Then the whole term steps to @term[(substitute e x e_12)].}
  @item{@term[(λ x t_1 e)]: A value.}
 ]
 
@@ -221,7 +236,11 @@ There is one rule for typing the new form:
 
 @section[#:tag "stlc-normalization"]{Strong Normalization}
 
-We wish to show that all terms that have a type terminate. It insufficient
+Define @term[(⇓ e)] to mean that @term[e] reduces to some value @term[v]:
+@term[(-->* e v)].
+
+We wish to show that all terms that have a type reduce to a value.
+It is insufficient
 to do induction on typing derivations. What we end up needing is a relation
 between terms and types, defined by induction on types,
 of the form @term[(SN t e)], as follows:
