@@ -122,6 +122,6 @@
    (types Δ Γ (Lam a e) (all a t))]
 
   [(kinds Δ t)
-   (types Δ Γ e (all a t_e))
+   (types Δ Γ e (all a t_1))
    ---- t-app
-   (types Δ Γ (App e t) (substitute t_e a t))])
+   (types Δ Γ (App e t) (substitute t_1 a t))])

@@ -1,4 +1,4 @@
-GOAL = stlc
+GOAL = poly
 
 html: out/$(GOAL).html
 
