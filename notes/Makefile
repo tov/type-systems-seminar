@@ -1,4 +1,4 @@
-GOAL = poly
+GOAL = record
 
 html: out/$(GOAL).html
 

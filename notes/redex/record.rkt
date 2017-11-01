@@ -1,6 +1,6 @@
 #lang racket/base
 
-(provide)
+(provide record ->val types)
 
 (require redex/reduction-semantics
          (prefix-in stlc: "stlc.rkt")
@@ -76,9 +76,12 @@
    ---- rec-cons
    (<: (Record [g_j t_j] ... [f t^l] [g_k t_k] ...) (Record [f t^r] [g_i t_i] ...))])
 
-(define-judgment-form record
+(define-extended-judgment-form record stlc:types
   #:mode (types I I O)
   #:contract (types Γ e t)
 
-  [---- var
-   (types Γ x (lookup Γ x))])
+  [(types Γ e_1 (-> t_1 t))
+   (types Γ e_2 t_2)
+   (<: t_2 t_1)
+   ---- app
+   (types Γ (ap e_1 e_2) t)])
