@@ -190,7 +190,7 @@ the underlying natural.) We could pack that up as:
  Counter =
    @term[(Lam b (lam y (all a (-> (* a (* (-> a a) (-> a Nat))) b))
                   (app (App (y (* Nat (* (-> Nat Nat) (-> Nat Nat)))))
-                       (pair c0 (pair succ identity)))))]
+                       (pair c0 (pair succ (lam x Nat x))))))]
 }
 
 Then to count to 2, we might write:
