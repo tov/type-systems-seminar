@@ -37,6 +37,9 @@ computation by rewriting expressions to expressions and eventually (hopefully)
 to values:
 @;
 @render-nonterminals[r:let-zl/eval v]
+@;
+We define values—final results—to include numbers @term[z], the empty list
+@term[nil], and pairs of values @term[(cons v_1 v_2)].
 
 The reduction
 relation describes a single computation step, and has a case for each kind of
@@ -74,9 +77,6 @@ In order to describe where evaluation can happen when when it is finished, we
 extend our syntax with values @term[v] and evaluation contexts @term[E]:
 @;
 @render-nonterminals[r:let-zl/eval E]
-
-We define values—final results—to include numbers @term[z], the empty list
-@term[nil], and pairs of values @term[(cons v_1 v_2)].
 
 Evaluation context @term[E] give a grammar for where evaluation can take place.
 For example, suppose we want to reduce the term @term[(* (+ 1 2) (+ 3 4))].
@@ -253,6 +253,27 @@ progress and preservation:
 ]
 
 @subsubsection[#:tag "let-zl-preservation"]{Preservation}
+
+Before we start, we make an observation about how typing derivations must
+be formed.
+
+@lemma[#:name "Inversion"]{If @term[(types Γ e t)] then,
+ @itemlist[
+  @item{If the term is a variable @term[x] then @term[(lookup Γ x)] = @term[t].}
+  @item{If the term is an integer @term[z] then @term[t] = @term[int].}
+  @item{If the term is @term[nil] then @term[t] = @term[list].}
+  @item{If the term is @term[(+ e_1 e_2)] or @term[(* e_1 e_2)]
+   then @term[t] = @term[int]
+   and @term[(types Γ e_1 int)] and @term[(types Γ e_2 int)].}
+  @item{If the term is @term[(cons e_1 e_2)], then @term[t] = @term[list]
+   and @term[(types Γ e_1 int)] and @term[(types Γ e_2 list)]}
+  @item{If the term is @term[(let x e_1 e_2)] then there is some type
+   @term[t_1] such that @term[(types Γ e_1 t_1)] and
+   @term[(types (extend Γ x t_1) e_2 t)].}
+ ]
+}
+
+@proof[] By inspection of the typing rules.
 
 We want to prove that if a term has a type and takes a step, the resulting
 term also has a type. We can do this be considering the cases of the

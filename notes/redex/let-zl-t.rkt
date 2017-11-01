@@ -30,16 +30,13 @@
    (types Γ z int)]
   [---- nil
    (types Γ nil list)]
-  [(types Γ e_1 int)
-   (types Γ e_2 list)
+  [(types Γ e_1 int) (types Γ e_2 list)
    ---- cons
    (types Γ (cons e_1 e_2) list)]
-  [(types Γ e_1 int)
-   (types Γ e_2 int)
+  [(types Γ e_1 int) (types Γ e_2 int)
    ---- plus
    (types Γ (+ e_1 e_2) int)]
-  [(types Γ e_1 int)
-   (types Γ e_2 int)
+  [(types Γ e_1 int) (types Γ e_2 int)
    ---- times
    (types Γ (* e_1 e_2) int)]
   [(types Γ e list)
@@ -63,16 +60,13 @@
    (types* z int)]
   [---- nil
    (types* nil list)]
-  [(types* e_1 int)
-   (types* e_2 list)
+  [(types* e_1 int) (types* e_2 list)
    ---- cons
    (types* (cons e_1 e_2) list)]
-  [(types* e_1 int)
-   (types* e_2 int)
+  [(types* e_1 int) (types* e_2 int)
    ---- plus
    (types* (+ e_1 e_2) int)]
-  [(types* e_1 int)
-   (types* e_2 int)
+  [(types* e_1 int) (types* e_2 int)
    ---- times
    (types* (* e_1 e_2) int)]
   [(types* e list)
