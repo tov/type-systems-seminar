@@ -1,4 +1,4 @@
-GOAL = record
+GOAL = sub
 
 html: out/$(GOAL).html
 

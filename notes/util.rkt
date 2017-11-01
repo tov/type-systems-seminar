@@ -31,6 +31,7 @@
    (['->     (match-lambda [(list _ _ e_1 e_2 _) (list "(→ " e_1 " " e_2 ")")])]
     ['-->    (match-lambda [(list _ _ e_1 e_2 _) (list "" e_1 " ⟶ " e_2)])]
     ['-->*   (match-lambda [(list _ _ e_1 e_2 _) (list "" e_1 " ⟶* " e_2)])]
+    ['<:     (match-lambda [(list _ _ t_1 t_2 _) (list "" t_1 " <: " t_2)])]
     ['extend (match-lambda [(list _ _ Γ x t _)   (list "" Γ ", " x ":" t)]
                            [(list _ _ Δ a _)     (list "" Δ ", " a)])]
     ['kinds  (match-lambda [(list _ _ Δ t _)     (list "" Δ " ⊢ " t)])]

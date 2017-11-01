@@ -1,15 +1,14 @@
 #lang racket/base
 
-(provide record ->val types)
+(provide λsub ->val <: types)
 
 (require redex/reduction-semantics
          (prefix-in stlc: "stlc.rkt")
          "util.rkt")
 
-(define-extended-language record stlc:stlc
+(define-extended-language λsub stlc:stlc
   (t ::=
      ....
-     top
      (Record [f t] ...))
   (e ::=
      ....
@@ -26,13 +25,13 @@
 (define ->val
   (extend-reduction-relation
    stlc:->val
-   record
+   λsub
    #:domain e
    (--> (in-hole E (project (record [f_i v_i] ... [f v] [f_j v_j] ...) f))
         (in-hole E v)
         prj)))
 
-(define-metafunction record
+(define-metafunction λsub
   lookup : Γ x -> t
   [(lookup (extend Γ x t) x)
    t]
@@ -40,28 +39,12 @@
    (lookup Γ x)
    (side-condition (not (equal? (term x) (term y))))])
 
-(define-extended-judgment-form record stlc:types
-  #:mode (types/alt I I O)
-  #:contract (types/alt Γ e t)
-  
-  [(types/alt Γ v_i t_i)
-   ...
-   ---- record
-   (types/alt Γ (record [f_i v_i] ...) (Record [f_i t_i] ...))]
-
-  [(types/alt Γ e (Record [f_i t_i] ... [f t] [f_j t_j] ...))
-   ---- project
-   (types/alt Γ (project e f) t)])
-
-(define-judgment-form record
+(define-judgment-form λsub
   #:mode (<: I I)
   #:contract (<: t t)
 
   [---- nat
    (<: nat nat)]
-
-  [---- top
-   (<: t top)]
 
   [(<: t_21 t_11)
    (<: t_12 t_22)
@@ -76,10 +59,19 @@
    ---- rec-cons
    (<: (Record [g_j t_j] ... [f t^l] [g_k t_k] ...) (Record [f t^r] [g_i t_i] ...))])
 
-(define-extended-judgment-form record stlc:types
+(define-extended-judgment-form λsub stlc:types
   #:mode (types I I O)
   #:contract (types Γ e t)
 
+  [(types Γ e_i t_i)
+   ...
+   ---- record
+   (types Γ (record [f_i e_i] ...) (Record [f_i t_i] ...))]
+
+  [(types Γ e (Record [f_i t_i] ... [f t] [f_j t_j] ...))
+   ---- project
+   (types Γ (project e f) t)]
+  
   [(types Γ e_1 (-> t_1 t))
    (types Γ e_2 t_2)
    (<: t_2 t_1)
