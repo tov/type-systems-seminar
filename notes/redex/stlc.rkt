@@ -107,7 +107,7 @@
         (in-hole E e_z)
         rec-zero]
    [--> (in-hole E (rec (s v) [e_z] [x_pre y_rec e_s]))
-        (in-hole E (substitute (substitute e_s x_pre v) y_rec (rec v [e_z] [x_rec y_pre e_s])))
+        (in-hole E (substitute (substitute e_s x_pre v) y_rec (rec v [e_z] [x_pre y_rec e_s])))
         rec-succ]))
 
 (define-extended-judgment-form stlc/rec types

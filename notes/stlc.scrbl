@@ -62,6 +62,20 @@ of the operand:
 @;
 @render-judgment-rules[r:types app]
 
+@exercise{Extend @stlc with a product type @term[(* t_1 t_2)].
+ You will need a form for
+ constructing products and projections for getting the components out. Add the
+ necessary reduction and typing rules.}
+
+@exercise{Extend @stlc with a sum type @term[(+ t_1 t_2)]. You will need two
+ injection forms @term[(inl e)] and @term[(inr e)] to create sums, and one
+ case analysis form to eliminate them,
+ @term[(match e [x e_l] [y e_r])].} The case analysis form takes a step once
+ @term[e] reduces to a sum value:
+ @term[(--> (match (inl v) [x e_l] [y e_r]) (substitute e_l x v))],
+ and similarly for @term[(inr v)]. Add the necessary reduction and typing
+ rules.}
+
 @subsection[#:tag "stlc-type-safety"]{Type Safety}
 
 Before we can prove type safety, we need to prove several standard lemmas.
@@ -192,23 +206,13 @@ the terms:
  then @term[(types* e_2 t)]. 2) If @term[(types* e_1 t)] then either
  @term[e_1] is a value or @term[(--> e_1 e_2)] for some @term[e_2].}
 
-@exercise{Extend @stlc with a product type @term[(* t_1 t_2)].
- You will need a form for
- constructing products and projections for getting the components out.}
-
-@exercise{Extend @stlc with a sum type @term[(+ t_1 t_2)]. You will need two
- injection forms @term[(inl e)] and @term[(inr e)] to create sums, and one
- case analysis form to eliminate them,
- @term[(match e [x e_l] [y e_r])].} The case analysis form takes a step once
- @term[e] reduces to a sum value:
- @term[(--> (match (inl v) [x e_l] [y e_r]) (substitute e_l x v))],
- and similarly for @term[(inr v)].}
+@exercise{Extend the type safety theorem to cover product and/or sum types.}
 
 @section[#:tag "stlc-an-extension"]{An Extension}
 
-As it stands, we can’t do much with natural numbers. We can add a limited,
-terminating form of recursion, as follows. We extend the syntax of terms and
-evaluation contexts as follows:
+As it stands, we can’t do much with natural numbers. Inspired by Gödel’s
+system T, we add a limited, terminating form of recursion on natural numbers.
+We extend the syntax of terms and evaluation contexts as follows:
 @;
 @render-nonterminals[r:stlc/rec e E]
 @;
@@ -227,21 +231,31 @@ There is one rule for typing the new form:
 @;
 @render-judgment-rules[r:types/rec rec]
 
-@exercise{Extend the safety theorem for the recursor.}
+@exercise{Extend the type safety theorem for the recursor.}
 
 @exercise{The recursor is currently call-by-name. To make it call-by-value
-          requires introducing an additional form. @term[let] will do. Show
+          requires introducing an additional form. @term[let] will do.
+          (Why can’t we just use λ?) Show
           how to add @term[let] to @stlc and how that can be used to make the
           recursor call-by-value.}
 
-@section[#:tag "stlc-normalization"]{Strong Normalization}
+@section[#:tag "stlc-normalization"]{Normalization}
 
-Define @term[(⇓ e)] to mean that @term[e] reduces to some value @term[v]:
-@term[(-->* e v)].
+A normal form is a form that doesn’t reduce any further, which for our purposes
+(since we have eliminated stuck states) is a value. A term @term[e]
+normalizes, written @term[(⇓ e)] if it reduces to a normal form, that is,
+a value.
+
+Historically, when working with lambda calculi that allow free conversion,
+authors have distinguished weak from strong normalization. A term weakly
+normalizes if it has some reduction sequence reaching a normal form; a term
+strongly normalizes if every of its reduction sequences reaches a normal form.
+However, we’ve defined our language to be deterministic, which causes weak and
+strong normalization to coincide.
 
 We wish to show that all terms that have a type reduce to a value.
-It is insufficient
-to do induction on typing derivations. What we end up needing is a (unary)
+It is insufficient to do induction on typing derivations.
+(Shall we try it?)  What we end up needing is a (unary)
 relation on terms, indexed by types, and defined by induction on types,
 of the form @term[(SN t e)], as follows:
 
@@ -252,7 +266,9 @@ of the form @term[(SN t e)], as follows:
          @term[(SN t_2 (ap e e_1))].}
 ]
 
-@lemma[#:name "SN preserved by reduction"]
+@exercise{How would we extend @term[SN] for product and/or sum types?}
+
+@lemma[#:name "SN preserved by conversion"]
 
 Suppose that @term[(types* e_1 t)] and @term[(--> e_1 e_2)]. Then:
 
@@ -264,15 +280,15 @@ Suppose that @term[(types* e_1 t)] and @term[(--> e_1 e_2)]. Then:
 @proof[] By induction on @term[t]:
 
 @itemlist[
- @item{@term[nat]: If @term[e_2] converges then @term[e_1] converges
-        by the same sequence. Since it has types @term[t], we have
+ @item{@term[nat]: If @term[e_2] normalizes then @term[e_1] normalizes
+        by the same sequence. Since it has type @term[t], we have
         @term[(SN nat e_1)]
 
-        If @term[e_1] converges then it does so via
-        @term[e_2], so @term[e_2] converges as well, and by preservation it has
+        If @term[e_1] normalizes then it does so via
+        @term[e_2], so @term[e_2] normalizes as well, and by preservation it has
         the same type, so @term[(SN nat e_2)].}
  @item{@term[(-> t_1 t_2)]: If @term[(SN (-> t_1 t_2) e_2)] then we know that
-        @term[e_2] converges and when applied to a good term, that converges
+        @term[e_2] normalizes and when applied to a good term, that normalizes
         too. We need to show that @term[e_1] does that same, that is,
         that @term[(SN t_1 e_arb)] implies that @term[(SN t_2 (ap e_1 e_arb))]
         for arbitrary term @term[e_arb]. We know that
@@ -283,7 +299,7 @@ Suppose that @term[(types* e_1 t)] and @term[(--> e_1 e_2)]. Then:
         as desired.
 
         If @term[(SN (-> t_1 t_2) e_1)] then we know that
-        @term[e_1] converges and when applied to a good term, that converges
+        @term[e_1] normalizes and when applied to a good term, that normalizes
         too. We need to know that @term[e_2] does the same, that is, that
         @term[(SN t_1 e_arb)] implies that @term[(SN t_2 (ap e_2 e_arb))]
         for arbitrary term @term[e_arb]. We know that
@@ -308,25 +324,25 @@ satisfy a typing environment:
 @proof[] By induction on the length of @term[γ]. If empty, then @term[Γ] is
 empty, and the substitution has no effect. Otherwise, @term[γ] =
 @term[(extend γ_1 x v_x)], where @term[Γ] = @term[(extend Γ_1 x t_x)]
-and @term[(satisfies γ_1 Γ_1)] and @term[(NT t_x v_x)]. Then by the
+and @term[(satisfies γ_1 Γ_1)] and @term[(SN t_x v_x)]. Then by the
 substitution lemma, @term[(types Γ_1 (substitute e x v_x) t)].
 Then by induction, @term[(types • (γ_1 (substitute e x v_x)) t)].
 But that is @term[(γ e)].
 
 @lemma[#:name "Every typed term is good"]{If @term[(types Γ e t)]
- and @term[(satisfies γ Γ)] then @term[(NT t (γ e))].}
+ and @term[(satisfies γ Γ)] then @term[(SN t (γ e))].}
 
 @proof[] By induction on the typing derivation:
 
 @itemlist[
  @item{@term[(types Γ x (lookup Γ x))]: Appling @term[γ] to @term[x]
-        gets us a @term[v] such that @term[(NT (lookup Γ x) v)].}
+        gets us a @term[v] such that @term[(SN (lookup Γ x) v)].}
  @item{@term[(types Γ z nat)]: Since @term[z] = @term[(γ z)], and
         @term[(types • z nat)] and @term[(⇓ z)], we have that
-        @term[(NT nat z)].}
+        @term[(SN nat z)].}
  @item{@term[(types Γ (s e_1) nat)]: By inversion, we know that
         @term[(types Γ e_1 nat)]. Then by induction, we have that
-        @term[(NT nat (γ e_1))]. By the definition of NT for @term[nat],
+        @term[(SN nat (γ e_1))]. By the definition of NT for @term[nat],
         we have that @term[(γ e_1)] types in the empty context and reduces
         to a natural number. Then @term[(γ (s e_1))] does as well.}
  @item{@term[(types Γ (ap e_1 e_2) t)]: By inversion, we know that
@@ -352,21 +368,29 @@ But that is @term[(γ e)].
     @item{To show that for any @term[e_1] such that @term[(SN t_1 e_1)],
           @term[(SN t_2 (ap (λ x t_1 (γ e_2)) e_1))]. By the definition of
           SN, we know that @term[(-->* e_1 v_1)] for some value @term[v_1].
-          Then by the lemma that SN is preserved by reduction, we know that
+          Then we can take an additional step,
+          @term[(--> (ap (λ x t_1 (γ e_2)) v_1) (substitute (γ e_2) x v_1))].
+          Because SN is preserved by backward conversion, it suffices to show
+          that this term is SN for @term[t_2].
+          
+          By the lemma that SN is preserved by forward conversion, we know that
           @term[(SN t_1 v_1)]. So then we can say that
           @term[(satisfies (extend γ x v_1) (extend Γ x t_1))].
-          Then we can take a step
-          @term[(--> (ap (λ x t_1 (γ e_2)) v_1) ((extend γ x v_1) e_2))].
-          By preservation, @term[(types • ((extend γ x v_1) e_2) t_2)].
-          So we can apply the induction hypothesis to conclude that
-          @term[(SN t_2 ((extend γ x v_1) e_2))]. Then by reduction preserving
-          SN, we can conclude that @term[(SN t_2 (ap (λ x t_1 (γ e_2)) e_1))].}
+          Now consider inverting the judgment that
+          @term[(types Γ (λ x t_1 e_2) (-> t_1 t_2))]. From this, we know that
+          @term[(types (extend Γ x t_1) e_2 t_2)]. Then applying the induction
+          hypothesis, we have that
+          @term[(SN t_2 ((extend γ x v_1) e_2))].
+          This is what we sought to show.}
    ]}
 ]
 
 QED.
 
 Strong normalization follows as a corollary.
+
+@exercise{Extend the strong normalization proof to cover products
+ and/or sums.}
 
 @exercise{Show that @stlc with the recursor still enjoys strong
  normalization.}
