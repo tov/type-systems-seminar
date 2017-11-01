@@ -7,4 +7,5 @@
 
 @include-section["let-zl.scrbl"]
 @include-section["stlc.scrbl"]
+@include-section["sub.scrbl"]
 @include-section["poly.scrbl"]

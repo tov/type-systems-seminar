@@ -257,7 +257,8 @@ progress and preservation:
 Before we start, we make an observation about how typing derivations must
 be formed.
 
-@lemma[#:name "Inversion"]{If @term[(types Γ e t)] then,
+@lemma[#:name "Inversion"]
+If @term[(types Γ e t)] then,
  @itemlist[
   @item{If the term is a variable @term[x] then @term[(lookup Γ x)] = @term[t].}
   @item{If the term is an integer @term[z] then @term[t] = @term[int].}
@@ -270,8 +271,7 @@ be formed.
   @item{If the term is @term[(let x e_1 e_2)] then there is some type
    @term[t_1] such that @term[(types Γ e_1 t_1)] and
    @term[(types (extend Γ x t_1) e_2 t)].}
- ]
-}
+]
 
 @proof[] By inspection of the typing rules.
 
