@@ -1,7 +1,7 @@
 #lang racket/base
 
 (provide stlc ->val types satisfies SN
-         stlc/rec ->val/rec types/rec)
+         stlc/rec ->val/rec types/alt)
 
 (require redex/reduction-semantics
          "util.rkt")
@@ -111,10 +111,10 @@
         rec-succ]))
 
 (define-extended-judgment-form stlc/rec types
-  #:mode (types/rec I I O)
-  #:contract (types/rec Γ e t)
-  [(types/rec Γ e nat)
-   (types/rec Γ e_z t)
-   (types/rec (extend (extend Γ x_pre nat) y_rec t) e_s t)
+  #:mode (types/alt I I O)
+  #:contract (types/alt Γ e t)
+  [(types/alt Γ e nat)
+   (types/alt Γ e_z t)
+   (types/alt (extend (extend Γ x_pre nat) y_rec t) e_s t)
    ---- rec
-   (types/rec Γ (rec e [e_z] [x_pre y_rec e_s]) t)])
+   (types/alt Γ (rec e [e_z] [x_pre y_rec e_s]) t)])

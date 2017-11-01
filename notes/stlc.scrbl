@@ -229,7 +229,7 @@ representing the just-described dynamics:
 
 There is one rule for typing the new form:
 @;
-@render-judgment-rules[r:types/rec rec]
+@render-judgment-rules[r:types/alt rec]
 
 @exercise{Extend the type safety theorem for the recursor.}
 

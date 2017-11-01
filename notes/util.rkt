@@ -49,7 +49,7 @@
     ['types  (match-lambda [(list _ _ Γ e t _)   (list "" Γ " ⊢ " e " : " t)]
                            [(list _ _ Δ Γ e t _) (list "" Δ "; " Γ " ⊢ " e
                                                        " : " t)])]
-    ['types/rec
+    ['types/alt
              (match-lambda [(list _ _ Γ e t _)   (list "" Γ " ⊢ " e " : " t)])]
     ['types* (match-lambda [(list _ _ e t _)     (list "" e " : " t)])])
    (with-atomic-rewriter 't "τ"
