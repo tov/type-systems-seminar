@@ -56,6 +56,9 @@
                                                        " : " t)])]
     ['types/alt
              (match-lambda [(list _ _ Γ e t _)   (list "" Γ " ⊢ " e " : " t)])]
+    ['types~>
+             (match-lambda [(list _ _ Γ e t e_out _)
+                            (list "" Γ " ⊢ " e " : " t " ↝ " e_out)])]
     ['types* (match-lambda [(list _ _ e t _)     (list "" e " : " t)])])
    (with-atomic-rewriter 't "τ"
     (parameterize

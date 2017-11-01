@@ -178,4 +178,58 @@ By cases on the reduction relation. There are two cases:
   this case is straightforward.}
 ]
 
-@render-judgment-rules[r:<:~> nat arr rec-nil rec-cons]
+QED.
+
+@subsection[#:tag "λsub-coercion"]{Compiling with Coercions}
+
+To say that @term[(<: t_1 t_2)] is to say that a @term[t_1] can be used
+wherever a @term[t_2] is expected, but do our run-time representations actually
+make that true? In some languages yes, but in many languages no. We might not
+want, for example, for record operations to have to do a (linear) search of
+field names at run time, but instead to fix the offset at compile time. Such
+a representation choice is not incompable with subtyping, if we are willing to
+interpret subtyping as a coercion between potentially different underlying
+representation types. For example, record type
+@term[(Record [a t_a] [b t_b] [c t_c])] is a subtype of
+record type
+@term[(Record [a t_a] [c t_c])]. The former is represented by a 3-element vector
+containing the values of fields a, b, and c, whereas the rather is represented
+as a 2-element vector containing the values of fields a and c. We cannot use an
+instance of the former as the latter directly, but we can coerce it. The
+coercion between two types in the subtype relationship is witnessed by the
+function converting the subtype to the supertype.
+
+In particular, the witness to the fact that @term[(<: nat nat)] is the identity
+function on type @term[nat]:
+@;
+@render-judgment-rules[r:<:~> nat]
+
+To witness an arrow subtyping, we build a function that applies the witness
+to the domain coercion to the argument and the witness to the codomain coercion
+to the result of the coerced function:
+@;
+@render-judgment-rules[r:<:~> arr]
+
+The empty record is a supertype of every record because we can take any record
+and produce the empty record:
+@;
+@render-judgment-rules[r:<:~> rec-nil]
+
+The non-empty record case is hairy. We convert record types by converting
+one element and then recursively converting the rest of the record, and then
+reassembling the desired result:
+@;
+@render-judgment-rules[r:<:~> rec-cons]
+
+The typing rules now translate from a language with subtyping to a language
+that doesn't use subtyping. All of the rules except @rulename[app] just
+translate each term by homomorphically translating the subterms:
+@;
+@render-judgment-rules[r:types~> var zero succ record project abs]
+
+The only interesting rule is @rulename[app], which includes subtyping. It
+generates the coercion for the particular subtyping used, and then applies that
+to coerce the argument to the function:
+@;
+@render-judgment-rules[r:types~> app]
+
