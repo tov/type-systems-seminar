@@ -20,7 +20,9 @@
   - Damas–Hindley–Milner type inference
       - Reading: Milner 1978, "A Theory of Type Polymorphim in Programming"
       - soundness & completeness?
-      - Reading: Pottier and Rémy, "The Essence of ML Type Inference"
+      - constraint-based inference
+         - Reading: Wand
+         - Reading: Pottier and Rémy, "The Essence of ML Type Inference"
 
   - Qualified types
       - for overloading à la Haskell
