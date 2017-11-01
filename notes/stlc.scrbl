@@ -241,8 +241,8 @@ Define @term[(⇓ e)] to mean that @term[e] reduces to some value @term[v]:
 
 We wish to show that all terms that have a type reduce to a value.
 It is insufficient
-to do induction on typing derivations. What we end up needing is a relation
-between terms and types, defined by induction on types,
+to do induction on typing derivations. What we end up needing is a (unary)
+relation on terms, indexed by types, and defined by induction on types,
 of the form @term[(SN t e)], as follows:
 
 @itemlist[
