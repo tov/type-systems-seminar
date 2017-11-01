@@ -9,13 +9,15 @@
 
 (require redex/pict
          scribble/base
+         (only-in racket/class make-object)
+         (only-in racket/draw font%)
          (only-in pict text hbl-append)
          (only-in racket/match match-lambda)
          (only-in redex/reduction-semantics default-language)
          (for-syntax racket/base syntax/parse))
 
 (define SERIF-FONT "Palatino")
-(define MONO-FONT "Menlo")
+(define MONO-FONT (make-object font% 14 "Menlo" 'modern))
 
 (define (typeset-SN t e)
   (list "("
@@ -32,6 +34,8 @@
     ['-->    (match-lambda [(list _ _ e_1 e_2 _) (list "" e_1 " ⟶ " e_2)])]
     ['-->*   (match-lambda [(list _ _ e_1 e_2 _) (list "" e_1 " ⟶* " e_2)])]
     ['<:     (match-lambda [(list _ _ t_1 t_2 _) (list "" t_1 " <: " t_2)])]
+    ['<:~>   (match-lambda [(list _ _ t_1 t_2 e _)
+                            (list "" t_1 " <: " t_2 " ↝ " e)])]
     ['extend (match-lambda [(list _ _ Γ x t _)   (list "" Γ ", " x ":" t)]
                            [(list _ _ Δ a _)     (list "" Δ ", " a)])]
     ['kinds  (match-lambda [(list _ _ Δ t _)     (list "" Δ " ⊢ " t)])]
@@ -55,7 +59,8 @@
     ['types* (match-lambda [(list _ _ e t _)     (list "" e " : " t)])])
    (with-atomic-rewriter 't "τ"
     (parameterize
-        ([default-style                  SERIF-FONT]
+        ([default-font-size              16]
+         [default-style                  SERIF-FONT]
          [grammar-style                  SERIF-FONT]
          [label-style                    SERIF-FONT]
          [literal-style                  MONO-FONT]

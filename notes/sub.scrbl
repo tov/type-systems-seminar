@@ -91,3 +91,91 @@ language that we need subtyping is in the application rule, so we replace
 the STLC application rule with this:
 
 @render-judgment-rules[r:types app]
+
+@subsection[#:tag "λsub-soundness"]{Type Soundness of @|λsub|.}
+
+Subtyping changes our preservation theorem somewhat, because
+reduction can cause type refinement. (That is, we learn more type
+information.) Here is the updated preservation theorem:
+
+@theorem[#:name "Preservation"]{If @term[(types • e_1 t_1)] and
+ @term[(--> e_1 e_2)] then there exists some @term[t_2] such that
+ @term[(types • e_2 t_2)] and @term[(<: t_2 t_1)].}
+
+Before we can prove it, we update the substitution lemma as follows:
+
+@lemma[#:name "Substitution"]{If @term[(types Γ e_1 t_1)]
+ and @term[(types (extend Γ x t_1^†) e_2 t_2)] where
+ @term[(<: t_1 t_1^†)]
+then @term[(types Γ (substitute e_2 x e_1) t_2^†)]
+for @term[(<: t_2^† t_2)].}
+
+@proof[] By induction on the derivation of the typing of @term[e_2]:
+
+@itemlist[
+ @item{@term[(types (extend Γ x t_1^†) y t_2)].
+
+  If @term[x] = @term[y], then @term[t_2] = @term[t_1^†].
+  Then @term[(substitute e_2 x e_1)] = @term[e_1], which has type @term[t_1].
+  Let @term[t_2^†] be @term[t_1]. Then the subtyping holds.
+
+  If @term[x] ≠ @term[y], then @term[(types (extend Γ x t_1^†) y (lookup Γ y))],
+  as before the substitution.}
+
+ @item{@term[(types (extend Γ x t_1^†) z nat)], then substitution has no
+  effect and it types in any environment.}
+
+ @item{@term[(types (extend Γ x t_1^†) (s e) nat)], then by induction
+        @term[(types Γ (substitute e x e_1) nat)], which relates
+        only to @term[nat]. Then reapply @term[s].}
+
+ @item{@term[(types (extend Γ x t_1^†) (λ y t_11 e) (-> t_11 t_12))],
+  then by inversion we know that
+  @term[(types (extend (extend Γ x t_1^†) y t_11) e t_12)].
+  Then by the induction hypothesis,
+  @term[(types (extend Γ y t_11) (substitute e x e_1) t_12^†)]
+  for some @term[(<: t_12^† t_12)]. Then by @rulename[abs],
+  @term[(types Γ (substitute (λ y t_11 e) x e_1) (-> t_11 t_12^t))],
+  which is a subtype of @term[(-> t_11 t_12)].}
+
+ @item{@term[(types (extend Γ x t_1^†) (ap e_11 e_12) t_1)], then by
+  inversion we know that
+  @term[(types (extend Γ x t_1^†) e_11 (-> t_11 t_1))] and
+  @term[(types (extend Γ x t_1^†) e_12 t_12)] where
+  @term[(<: t_12 t_11)].
+  Then by induction (twice), we have that
+  @term[(types Γ (substitute e_11 x e_1) t_11^†)] where
+  @term[(<: t_11^† (-> t_11 t_1))] and that
+  @term[(types Γ (substitute e_12 x e_1) t_12^†)] where
+  @term[(<: t_12^† t_12)].
+  By inspection of the subtype relation, the only types related to arrow types
+  are arrow types, so @term[t_11^†] must be an arrow type
+  @term[(-> t_111^† t_112^†)] where @term[(<: t_11 t_111^†)]
+  and @term[(<: t_112^† t_1)].
+  Then by transitivity (twice),
+  @term[(<: t_12^† t_111^†)]. This means we can apply
+  @term[(ap (substitute e_11 x e_1) (substitute e_12 x e_2))]
+  yielding type @term[t_112^†], which is a subtype of @term[t_1].}
+
+ @item{The record construction and projection cases are straightforward.}
+]
+
+@proof[#:name "of preservation"]
+By cases on the reduction relation. There are two cases:
+
+@itemlist[
+ @item{If @term[(--> (in-hole E (ap (λ x t_1 e_1) v_2)) (in-hole E (substitute e_1 x v_2)))],
+  then by replacement, @term[(ap (λ x t_1 e_1) v_2)] has a type, and it suffices
+  to show that this type is preserved.
+  Then by inversion (twice), we know that
+  @term[(types (extend • x t_1) e_1 t)]
+  and @term[(types • v_2 t_2)] where @term[(<: t_2 t_1)].
+  Then by the substitution lemma,
+  @term[(types • (substitute e_1 x v_2) t^†)] where
+  @term[(<: t^† t)].}
+
+ @item{If @term[(--> (in-hole E (project (record [f_i v_i] ... [f v] [f_j v_j] ...) f)) (in-hole E v))],
+  this case is straightforward.}
+]
+
+@render-judgment-rules[r:<:~> nat arr rec-nil rec-cons]
