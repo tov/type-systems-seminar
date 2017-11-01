@@ -32,7 +32,13 @@ sharing in @term[(let x e_1 e_2)], which binds @term[x] to the value of
 @section[#:tag "let-zl-dynamics"]{Dynamic Semantics}
 
 We might have a decent guess as to what this language means, but to be precise,
-we will define its dynamic semantics using a rewriting system.  The reduction
+we will define its dynamic semantics using a rewriting system, which registers
+computation by rewriting expressions to expressions and eventually (hopefully)
+to values:
+@;
+@render-nonterminals[r:let-zl/eval v]
+
+The reduction
 relation describes a single computation step, and has a case for each kind of
 basic computation step that our language performs. For example, here is how we
 perform addition:
@@ -67,7 +73,7 @@ the variable in the body:
 In order to describe where evaluation can happen when when it is finished, we
 extend our syntax with values @term[v] and evaluation contexts @term[E]:
 @;
-@render-nonterminals[r:let-zl/eval v E]
+@render-nonterminals[r:let-zl/eval E]
 
 We define values—final results—to include numbers @term[z], the empty list
 @term[nil], and pairs of values @term[(cons v_1 v_2)].
