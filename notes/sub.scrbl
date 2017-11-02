@@ -171,14 +171,32 @@ By cases on the reduction relation. There are two cases:
   @term[(types (extend • x t_1) e_1 t)]
   and @term[(types • v_2 t_2)] where @term[(<: t_2 t_1)].
   Then by the substitution lemma,
-  @term[(types • (substitute e_1 x v_2) t^†)] where
-  @term[(<: t^† t)].}
+  @term[(types • (substitute e_1 x v_2) t_^†)] where
+  @term[(<: t_^† t)].}
 
  @item{If @term[(--> (in-hole E (project (record [f_i v_i] ... [f v] [f_j v_j] ...) f)) (in-hole E v))],
   this case is straightforward.}
 ]
 
 QED.
+
+@lemma[#:name "Canonical forms"]
+
+If @term[(types • v t)], then:
+
+@itemlist[
+ @item{If @term[t] is @term[nat], then @term[v] is either @term[z]
+          or @term[(s v_1)].}
+ @item{If @term[t] is @term[(-> t_1 t_2)], then @term[v] has the form
+          @term[(λ x t_1 e)].}
+ @item{If @term[t] is @term[(Record [f t_1] ...)], then @term[v] is a record
+          with at least the fields @term[f].}
+]
+
+@lemma[#:name "Progress"]{
+  If @term[(types • e_1 t)] then either @term[e_1] is a value or
+     @term[(--> e_1 e_2)] for some term @term[e_2].
+}
 
 @subsection[#:tag "λsub-coercion"]{Compiling with Coercions}
 
