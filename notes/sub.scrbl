@@ -189,7 +189,7 @@ for @term[(<: t_2^† t_2)].}
   and @term[(<: t_112^† t_1)].
   Then by transitivity (twice),
   @term[(<: t_12^† t_111^†)]. This means we can apply
-  @term[(ap (substitute e_11 x e_1) (substitute e_12 x e_2))]
+  @term[(ap (substitute e_11 x e_1) (substitute e_12 x e_1))]
   yielding type @term[t_112^†], which is a subtype of @term[t_1].}
 
  @item{The record construction and projection cases are straightforward.}
