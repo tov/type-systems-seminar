@@ -102,7 +102,42 @@ information.) Here is the updated preservation theorem:
  @term[(--> e_1 e_2)] then there exists some @term[t_2] such that
  @term[(types • e_2 t_2)] and @term[(<: t_2 t_1)].}
 
-Before we can prove it, we update the substitution lemma as follows:
+Before we can prove it, we update the replacement and substitution lemmas
+as follows:
+
+@lemma[#:name "Replacement"]{If @term[(types Γ (in-hole E e) t)], then
+ @term[(types Γ e t_e)] for some type @term[t_e]. Furthermore, for any
+ @term[e_new] such that @term[(types Γ e_new t_new)] for @term[(<: t_new t_e)],
+ @term[(types Γ (in-hole E e_2) t_out)] for some @term[t_out] such that
+ @term[(<: t_out t)].}
+
+@proof[] By induction on @term[E]. The interesting cases are for application:
+
+@itemlist[
+ @item{If @term[E] is @term[(ap E_1 e_2)] then the whole term has a type
+  @term[t] only if there are some types @term[t_1] and @term[t_2] such that
+  @term[(types • (in-hole E_1 e) (-> t_1 t))] and
+  @term[(types • e_2 t_2)] where
+  @term[(<: t_2 t_1)]. Then by induction, @term[e] has a type, and if we
+  replace @term[e] with @term[e_new] having a subtype of that, then
+  @term[(types • (in-hole E_1 e_new) t_^†)] for
+  @term[(<: t_^† (-> t_1 t))]. The subtyping relation relates arrows only to
+  other arrows, so @term[t_^†] = @term[(-> t_1^† t_2^†)] with
+  @term[(<: t_1 t_1^†)] and @term[(<: t_2^† t)]. Then by transitivity,
+  @term[(<: t_2 t_1^†)]. This means that we can reform the application
+  @term[(types • (ap (in-hole E_1 e_new) e_2) t_2^†)], which has a subtype of
+  @term[t].}
+ @item{If @term[E] is @term[(ap e_1 E_2)], then the whole term has a type
+  @term[t] only if there are some types @term[t_1] and @term[t_2] such that
+  @term[(types • e_1 (-> t_1 t))] and
+  @term[(types • (in-hole E_2 e) t_2)] where
+  @term[(<: t_2 t_1)].
+  Then by induction, @term[e] has a type, and if we replace @term[e] with
+  @term[e_new] having a subtype of that, then
+  @term[(types • (in-hole E_2 e_new) t_2^†)] where @term[(<: t_2^† t_2)].
+  Then by transitivity, @term[(<: t_2^† t_1)], so we can reform the application
+  having the same type @term[t].}
+]
 
 @lemma[#:name "Substitution"]{If @term[(types Γ e_1 t_1)]
  and @term[(types (extend Γ x t_1^†) e_2 t_2)] where
@@ -193,10 +228,52 @@ If @term[(types • v t)], then:
           with at least the fields @term[f].}
 ]
 
+@proof[] By induction on the structure of the typing derivation. Only four
+rules form values, and those rules correspond to the conditions of the lemma.
+
 @lemma[#:name "Progress"]{
   If @term[(types • e_1 t)] then either @term[e_1] is a value or
      @term[(--> e_1 e_2)] for some term @term[e_2].
 }
+
+@proof[] By induction on the typing derivation:
+
+@itemlist[
+ @item{@term[(types • x t)] is vacuous.}
+ @item{@term[(types • z nat)] is a value.}
+ @item{If @term[(types • (s e) nat)] then by inversion,
+  @term[(types • e nat)]. Then by induction, @term[e] either takes a step
+  or is a value. If it's a value, then @term[(s e)] is a value; if it takes
+  a step to @term[e_^†] then @term[(s e)] takes a step to @term[(s e_^†)].}
+ @item{If @term[(types • (ap e_11 e_12) t)] then by inversion,
+  @term[(types • e_11 (-> t_11 t))] and @term[(types • e_12 t_12)] for some
+  types @term[t_11] and @term[t_12] such that @term[(<: t_12 t_11)].
+  Then by induction, each of @term[e_11] and @term[e_12]
+  either is a value or takes a step. If @term[e_11] takes a step to
+  @term[e_11^†], then the whole term takes a step to @term[(ap e_11^† e_12)].
+  If @term[e_11] is a value @term[v_11] and @term[e_12] takes a step to
+  @term[e_12^†], then the whole term takes a step to @term[(ap v_11 e_12^†)].
+  Otherwise, @term[e_12] is a value @term[v_12]. By the canonical forms
+  lemma, @term[v_11] has the form @term[(λ x t_11 e_111)]. Then the whole
+  term takes a step to @term[(substitute e_111 x v_12)].}
+ @item{@term[(types • (λ x t_1 e) (-> t_1 t_2))] is a value.}
+ @item{If @term[(types • (record [f_i e_i] ...) (Record f_i t_i))] then
+  by inversion, @term[(types • e_i t_i)] for all @term[e_i]. Then
+  by induction, each of those takes a step or is a value. If any takes
+  a step, then the whole term steps by the leftmost @term[e_i] to take
+  a step. Otherwise, they are all values, and the whole term is a value.}
+ @item{If @term[(types • (project e f) t_f)] then by inversion,
+  @term[e] has a record type with a field @term[f] having type
+  @term[t_f]. By induction, @term[e] either takes a step or is a value @term[v].
+  If it takes a step then the whole term takes a step. If it's a value,
+  then by the canonical forms lemma, it's a value
+  @term[(record [f_i v_i] ... [f v_f] [f_j v_j] ...)]. Then the whole term
+  takes a step to @term[v_f].}
+]
+
+@theorem[#:name "Type safety"] @λsub is type safe.
+
+@proof[] By progess and preservation.
 
 @subsection[#:tag "λsub-coercion"]{Compiling with Coercions}
 
