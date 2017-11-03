@@ -1,11 +1,11 @@
 #lang racket/base
 
-(provide system-f ->val member kinds kinds/env types)
+(provide λ-2 ->val member kinds kinds/env types)
 
 (require redex/reduction-semantics
          "util.rkt")
 
-(define-language system-f
+(define-language λ-2
   (t ::=
      a
      (all a t)
@@ -42,7 +42,7 @@
 
 (define ->val
   (reduction-relation
-   system-f
+   λ-2
    #:domain e
    (--> (in-hole E (app (lam x t e) v))
         (in-hole E (substitute e x v))
@@ -51,7 +51,7 @@
         (in-hole E (substitute e a t))
         inst)))
 
-(define-metafunction system-f
+(define-metafunction λ-2
   lookup : Γ x -> t
   [(lookup (extend Γ x t) x)
    t]
@@ -59,7 +59,7 @@
    (lookup Γ x)
    (side-condition (not (equal? (term x) (term y))))])
 
-(define-judgment-form system-f
+(define-judgment-form λ-2
   #:mode (member I I)
   #:contract (member a Δ)
 
@@ -70,7 +70,7 @@
    ---- next
    (member a (extend Δ b))])
 
-(define-judgment-form system-f
+(define-judgment-form λ-2
   #:mode (kinds I I)
   #:contract (kinds Δ t)
 
@@ -87,7 +87,7 @@
    ---- all
    (kinds Δ (all a t))])
 
-(define-judgment-form system-f
+(define-judgment-form λ-2
   #:mode (kinds/env I I)
   #:contract (kinds/env Δ Γ)
 
@@ -99,7 +99,7 @@
    ---- cons
    (kinds/env Δ (extend Γ x t))])
 
-(define-judgment-form system-f
+(define-judgment-form λ-2
   #:mode (types I I I O)
   #:contract (types Δ Γ e t)
   

@@ -6,10 +6,10 @@
           (only-in redex default-language)
           redex/pict)
 
-@(default-language r:system-f)
-@define[system-f]{@langname[System-F]}
+@(default-language r:λ-2)
+@define[λ-2]{@langname[λ-2]}
 
-@title{The Polymorphic Lambda Calculus @system-f}
+@title{The Polymorphic Lambda Calculus @λ-2}
 
 Suppose we want to write the composition function in the simply-typed
 lambda calculus. What does it look like? Well, it depends on the types
@@ -30,18 +30,18 @@ We introduce type variables @term[a_i] and abstract over them with @term[Lam]:
     @term[(Lam a_1 (Lam a_2 (Lam a_3 (lam x_1 (-> a_2 a_3) (lam x_2 (-> a_1 a_2) (lam y a_1 (app x_1 (app x_2 y))))))))]
 ]
 @;
-We model polymorphism with @|system-f|.
+We model polymorphism with @|λ-2|.
 
 @section[#:tag "system-f-syntax"]{Syntax}
 
-@render-nonterminals[r:system-f t e]
+@render-nonterminals[r:λ-2 t e]
 
 @section[#:tag "system-f-dynamics"]{Dynamic Semantics}
 
-To give the dynamic semantics of @system-f, we first define values and
+To give the dynamic semantics of @λ-2, we first define values and
 the evaluation contexts:
 
-@render-nonterminals[r:system-f E v]
+@render-nonterminals[r:λ-2 E v]
 
 Then the reduction relation has two rules, one for value abstraction
 applications, and one for type abstraction applications:
@@ -50,11 +50,11 @@ applications, and one for type abstraction applications:
 
 @section[#:tag "system-f-statics"]{Static Semantics}
 
-To give the static semantics of @system-f, we have both type variable
+To give the static semantics of @λ-2, we have both type variable
 environments (which tell us which type variables are in scope) and
 typing environments (which map variables to their types):
 
-@render-nonterminals[r:system-f Δ Γ]
+@render-nonterminals[r:λ-2 Δ Γ]
 
 The main typing judgment relies on two auxiliary judgments. The
 first tells us whether a type is well formed (which for this language just
@@ -66,7 +66,7 @@ A typing environment is well formed when all the types in it are well formed:
 
 @render-judgment-rules[r:kinds/env nil cons]
 
-Finally, we give the typing judgments for @|system-f|:
+Finally, we give the typing judgments for @|λ-2|:
 
 @render-judgment-rules[r:types var app abs t-abs t-app]
 
@@ -76,11 +76,11 @@ but I like knowing where my free type variables are.
 
 @section[#:tag "system-f-church"]{Church Data}
 
-@system-f, made of lambdas big and small, may seem to lack much in the way
+@λ-2, made of lambdas big and small, may seem to lack much in the way
 of data, but in fact it is very rich. Alonzo Church showed how to represent
 natural numbers and datatypes in the untyped lambda calculus. STLC is too
 weak for those encodings to be meaningful, but they work beautifully in
-@|system-f|.
+@|λ-2|.
 
 @subsection[#:tag "system-f-cnats"]{Natural Numbers}
 
@@ -163,7 +163,7 @@ its fold. Let @term[(List t)] =
 
 @subsection[#:tag "system-f-existentials"]{Existentials}
 
-We can encode existential types in @|system-f|. An existential
+We can encode existential types in @|λ-2|. An existential
 type lets us hide part of the representation of a type, and then safely use
 it without revealing the representation.
 
@@ -208,11 +208,11 @@ This is the basis of abstract types as the appear in module and object systems.
 Of course, it gets a bit easier to read if we add record types and make
 existentials primitive or, better yet, hidden.
 
-@exercise{Add existentials to @system-f without encoding as universals. In
+@exercise{Add existentials to @λ-2 without encoding as universals. In
  particular, you will need forms for packing and unpacking whose statics and
  dynamics agree with the encoding above.}
 
-@exercise{Proof type safety and/or normalization for @|system-f|.}
+@exercise{Proof type safety and/or normalization for @|λ-2|.}
 
 Consider this alternate definition of Counter:
 
