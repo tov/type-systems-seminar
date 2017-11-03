@@ -92,7 +92,7 @@ the STLC application rule with this:
 
 @render-judgment-rules[r:types app]
 
-@subsection[#:tag "λsub-soundness"]{Type Soundness of @|λsub|.}
+@subsection[#:tag "λsub-safety"]{Type Safety}
 
 Subtyping changes our preservation theorem somewhat, because
 reduction can cause type refinement. (That is, we learn more type
@@ -275,7 +275,7 @@ rules form values, and those rules correspond to the conditions of the lemma.
 
 @proof[] By progess and preservation.
 
-@subsection[#:tag "λsub-coercion"]{Compiling with Coercions}
+@section[#:tag "λsub-coercion"]{Compiling with Coercions}
 
 To say that @term[(<: t_1 t_2)] is to say that a @term[t_1] can be used
 wherever a @term[t_2] is expected, but do our run-time representations actually
