@@ -84,12 +84,12 @@ We need to decompose that term into an evaluation context and a redex, so that
 they match one of the reduction rules above. We can do that: the evaluation
 context is @term[(* hole (+ 3 4))], which matches the grammar of @term[e], and
 the redex in the hole is thus @term[(+ 1 2)]. This decomposition matches rule
-@rulename[plus], which reduces it to @term[(* 3 (+ 3 4))]. Then to perform
+@rulename[plus], which converts it to @term[(* 3 (+ 3 4))]. Then to perform
 another reduction, we decompose again, into evaluation context @term[(* 3 hole)]
-and redex @term[(+ 3 4)]. That reduces to @term[7] plugged back into the
+and redex @term[(+ 3 4)]. That converts to @term[7] plugged back into the
 evaluation context, for @term[(* 3 7)]. Then to perform one more reduction step,
 we decompose into the evaluation context @term[hole] and the redex
-@term[(* 3 7)], which reduces to @term[21].
+@term[(* 3 7)], which converts to @term[21].
 
 We define @term[-->*] to be the reflexive, transitive closure of @term[-->].
 That is, @term[(-->* e_1 _e2)] means that @term[e_1] reduces to @term[e_2] in
@@ -279,10 +279,10 @@ It is conventional to prove this theorem in terms of two lemmas,
 progress and preservation:
 @;
 @itemlist[
-  @item{Preservation: if @term[e_1] has type @term[t] and reduces in
+  @item{Preservation: if @term[e_1] has type @term[t] and converts in
         one step to @term[e_2], then @term[e_2] also has type @term[t].}
   @item{Progress: if @term[e] has a type @term[t], then either @term[e]
-        reduces or @term[e] is a value.}
+        takes a conversion step or @term[e] is a value.}
 ]
 
 @subsubsection[#:tag "let-zl-preservation"]{Preservation}
@@ -385,7 +385,7 @@ There’s one more standard lemma we need before we can prove preservation:
 and @term[(types Γ v t_x)] then
 @term[(types Γ (substitute e x v) t)].}
 
-@proof[] By induction on the typing deriviation for @term[e]; by cases
+@proof[] By induction on the typing derivation for @term[e]; by cases
 on the conclusion:
 
 @itemlist[
@@ -534,16 +534,16 @@ then @term[(--> (in-hole E e_1) WRONG)].}
 @proof[] If @term[(--> e_1 e_2)] then @term[e_1] must be some redex
 in a hole: @term[(in-hole E_1 e_11)]. Furthermore, it must take a step to some
 @term[(in-hole E_1 e_22)] = @term[e_2]. Then the same redex @term[e_11]
-reduces to the same reductum @term[e_22] in any evaluation context, including
+converts to the same contractum @term[e_22] in any evaluation context, including
 @term[(in-hole E E_1)].
 
 If @term[(--> e_1 WRONG)] then @term[e_1] must be some redex in a hole:
-@term[(in-hole E_1 e_11)] which reduces to @term[WRONG]. Then that same redex
-reduces to @term[WRONG] in any evaluation context, including
+@term[(in-hole E_1 e_11)] which converts to @term[WRONG]. Then that same redex
+converts to @term[WRONG] in any evaluation context, including
 @term[(in-hole E E_1)].
 
 @lemma[#:name "Progress"]{If @term[(types • e t)] then
-term @term[e] either reduces or is a value.}
+term @term[e] either converts or is a value.}
 
 @proof[] By induction on the typing derivation; by cases on the
 conclusion:
@@ -554,16 +554,16 @@ conclusion:
  @item{@term[(types • (cons e_1 e_2) list)]:
    Then @term[(types • e_1 int)]
    and @term[(types • e_2 list)].
-   By the induction hypothesis, term @term[e_1] either reduces, or is a value.
-   If @term[e_1] reduces to some term @term[e_11], then
+   By the induction hypothesis, term @term[e_1] either converts, or is a value.
+   If @term[e_1] converts to some term @term[e_11], then
    @term[(--> (cons e_1 e_2) (cons e_11 e_2))] by the context replacement lemma.
-   If @term[e_1] reduces to @term[WRONG], then
+   If @term[e_1] converts to @term[WRONG], then
    @term[(--> (cons e_1 e_1) WRONG)] by the context replacement lemma.
    If @term[e_1] is a value @term[v_1], then consider @term[e_2], which by
-   the induction hypothesis either reduces or is a value.
-   If @term[e_2] reduces to a term @term[e_22], then
+   the induction hypothesis either converts or is a value.
+   If @term[e_2] converts to a term @term[e_22], then
    @term[(--> (cons v_1 e_2) (cons v_1 e_22))] by the context replacement lemma.
-   If @term[e_2] reduces to @term[WRONG], then
+   If @term[e_2] converts to @term[WRONG], then
    @term[(--> (cons v_1 e_2) WRONG)] by the context replacement lemma.
    Finally, if @term[e_2] is a value @term[v_2] then @term[e]
    is a value @term[(cons v_1 v_2)].
@@ -571,16 +571,16 @@ conclusion:
  @item{@term[(types • (+ e_1 e_2) int)]:
    Then @term[(types • e_1 int)]
    and @term[(types • e_2 int)].
-   By the induction hypothesis, @term[e_1] either reduces or is a value.
-   If @term[e_1] reduces to a term @term[e_11], then
+   By the induction hypothesis, @term[e_1] either converts or is a value.
+   If @term[e_1] converts to a term @term[e_11], then
    @term[(--> (+ e_1 e_2) (+ e_11 e_2))] by the context replacement lemma.
-   If @term[e_1] reduces to @term[WRONG] then
+   If @term[e_1] converts to @term[WRONG] then
    @term[(--> (+ e_1 e_2) WRONG)] by the context replacement lemma.
    If @term[e_1] is a value @term[v_1], then consider @term[e_1], which by
-   the induction hypothesis either reduces or is a value.
-   If @term[e_2] reduces to a term @term[e_22], then
+   the induction hypothesis either converts or is a value.
+   If @term[e_2] converts to a term @term[e_22], then
    @term[(--> (+ v_1 e_2) (+ v_1 e_22))] by the context replacement lemma.
-   If @term[e_2] reduces to @term[WRONG], then
+   If @term[e_2] converts to @term[WRONG], then
    @term[(--> (+ v_1 e_2) WRONG)] by the context replacement lemma.
    Otherwise, @term[e_2] is a value @term[v_2]. By the canonical forms lemma,
    @term[v_1] is an integer @term[z_1] and @term[v_2] is an integer
@@ -590,10 +590,10 @@ conclusion:
  @item{@term[(types • (* e_1 e_2) int)]: As in the previous case.}
  @item{@term[(types • (car e_1) int)]:
    Then @term[(types • e_1 list)].
-   By the induction hypothesis, @term[e_1] either reduces or is a value.
-   If it reduces to a term @term[e_11], then
+   By the induction hypothesis, @term[e_1] either converts or is a value.
+   If it converts to a term @term[e_11], then
    @term[(--> (car e_1) (car e_11))] by the context replacement lemma.
-   If it reduces to @term[WRONG], then
+   If it converts to @term[WRONG], then
    @term[(--> (car e_1) WRONG)] by the context replacement lemma.
    Otherwise, @term[e_1] is a value. By the canonical forms lemma,
    it has the form @term[(cons v_1 v_2)], so we can take a step
@@ -605,10 +605,10 @@ conclusion:
  @item{@term[(types • (let x e_1 e_2) t)]:
    Then @term[(types • e_1 t_x)]
    and @term[(types ([x t_x]) e_2 t)] for some @term[t_x].
-   Then by the induction hypothesis, @term[e_1] either reduces or is a value.
-   If @term[e_1] reduces to a term @term[e_11], then
+   Then by the induction hypothesis, @term[e_1] either converts or is a value.
+   If @term[e_1] converts to a term @term[e_11], then
    @term[(--> (let x e_1 e_2) (let x e_11 e_2))] by the context replacement lemma.
-   If @term[e_1] reduces to @term[WRONG] then
+   If @term[e_1] converts to @term[WRONG] then
    @term[(--> (let x e_1 e_2) WRONG)] by the context replacement lemma.
    Otherwise, @term[e_1] is a value @term[v_1], and
    @term[(--> (let x v_1 e_2) (substitute e_2 x v_1))].}
