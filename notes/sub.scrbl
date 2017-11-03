@@ -6,7 +6,7 @@
           redex/pict)
 
 @(default-language r:λsub)
-@define[λsub]{@langname[λsub]}
+@define[λsub]{@langname[λ-sub]}
 
 @title{@|λsub|: Subtyping with Records}
 
