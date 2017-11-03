@@ -48,7 +48,7 @@ applications, and one for type abstraction applications:
 
 @render-reduction-rules[r:->val β-val inst]
 
-The dynamic semantics of @poly is given by the evaluation function @emph{eval}:
+The dynamic semantics of @λ-2 is given by the evaluation function @emph{eval}:
 
 @centered[
 @tabular[

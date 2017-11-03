@@ -91,6 +91,10 @@ evaluation context, for @term[(* 3 7)]. Then to perform one more reduction step,
 we decompose into the evaluation context @term[hole] and the redex
 @term[(* 3 7)], which reduces to @term[21].
 
+We define @term[-->*] to be the reflexive, transitive closure of @term[-->].
+That is, @term[(-->* e_1 _e2)] means that @term[e_1] reduces to @term[e_2] in
+zero or more steps.
+
 The dynamic semantics of @let-zl is now given by the evaluation function
 @emph{eval}, defined as:
 
