@@ -14,7 +14,7 @@
 
 The @stlc language has types @term[t] and terms @term[e] defined as follows:
 
-@render-nonterminals[r:stlc t e]
+@render-nonterminals[r:stlc t e x y]
 
 Types include the natural numbers @term[nat] and function types
 @term[(-> t_1 t_2)]. Terms include variables, Peano naturals (@term[z] for
@@ -404,10 +404,27 @@ QED.
 
 Strong normalization follows as a corollary.
 
-@exercise{Extend the strong normalization proof to cover products
- and/or sums.}
+@exercise{Extend the normalization proof to cover products and/or sums.}
 
-@exercise{Show that @stlc with the recursor still enjoys strong
- normalization.}
+@exercise{Show that @stlc with the recursor still enjoys normalization.}
 
+@section[#:tag "stlc-fix"]{Adding nontermination}
 
+We can add unrestricted recursion to @stlc by adding a fixed-point operator.
+The new expression form is @term[(fix e)]:
+@;
+@render-nonterminals[r:stlc/fix e]
+
+What @term[fix] does at run time is apply its argument, which must
+be a function, to the @term[fix] of itself, thus implementing recursion:
+@;
+@render-reduction-rules[r:->val/fix fix]
+
+To type @term[fix], we type its argument, which must be a function from
+the desired type to itself:
+@;
+@render-judgment-rules[r:types/alt fix]
+
+@exercise{Extend type safety for @term[fix].}
+
+@exercise{Where does the normalization proof break down if we add @term[fix]?}

@@ -13,9 +13,9 @@
 @section[#:tag "λsub-syntax"]{Syntax}
 
 Extending STLC with records is straightforward. First, we extend
-the syntax of types and terms, using @term[f] for record field labels:
+the syntax of types and terms, using @term[l] for record field labels:
 @;
-@render-nonterminals[r:λsub t e f]
+@render-nonterminals[r:λsub t e l m]
 
 A record type
 lists field names with their types; assume the field names are not repeated
@@ -43,9 +43,9 @@ expression form and keep the rest of the language the same:
 @render-judgment-rules[r:types record project]
 
 This works, but it’s not as expressive as we might like. Consider a function
-@term[(λ x (Record [f nat]) (project x f))]. It takes a record of one field
-@term[f] and projects out that field. But is there any reason we shouldn't be
-able to use this function on a record with @emph{more} fields than @term[f]?
+@term[(λ x (Record [l nat]) (project x l))]. It takes a record of one field
+@term[l] and projects out that field. But is there any reason we shouldn't be
+able to use this function on a record with @emph{more} fields than @term[l]?
 Subtyping captures that intuition, allowing us to formalize it and prove it
 sound.
 
@@ -209,7 +209,7 @@ By cases on the reduction relation. There are two cases:
   @term[(types • (substitute e_1 x v_2) t_^†)] where
   @term[(<: t_^† t)].}
 
- @item{If @term[(--> (in-hole E (project (record [f_i v_i] ... [f v] [f_j v_j] ...) f)) (in-hole E v))],
+ @item{If @term[(--> (in-hole E (project (record [l_i v_i] ... [l v] [l_j v_j] ...) l)) (in-hole E v))],
   this case is straightforward.}
 ]
 
@@ -224,8 +224,8 @@ If @term[(types • v t)], then:
           or @term[(s v_1)].}
  @item{If @term[t] is @term[(-> t_1 t_2)], then @term[v] has the form
           @term[(λ x t_1 e)].}
- @item{If @term[t] is @term[(Record [f t_1] ...)], then @term[v] is a record
-          with at least the fields @term[f].}
+ @item{If @term[t] is @term[(Record [l t_1] ...)], then @term[v] is a record
+          with at least the fields @term[l].}
 ]
 
 @proof[] By induction on the structure of the typing derivation. Only four
@@ -257,17 +257,17 @@ rules form values, and those rules correspond to the conditions of the lemma.
   lemma, @term[v_11] has the form @term[(λ x t_11 e_111)]. Then the whole
   term takes a step to @term[(substitute e_111 x v_12)].}
  @item{@term[(types • (λ x t_1 e) (-> t_1 t_2))] is a value.}
- @item{If @term[(types • (record [f_i e_i] ...) (Record f_i t_i))] then
+ @item{If @term[(types • (record [l_i e_i] ...) (Record l_i t_i))] then
   by inversion, @term[(types • e_i t_i)] for all @term[e_i]. Then
   by induction, each of those takes a step or is a value. If any takes
   a step, then the whole term steps by the leftmost @term[e_i] to take
   a step. Otherwise, they are all values, and the whole term is a value.}
- @item{If @term[(types • (project e f) t_f)] then by inversion,
-  @term[e] has a record type with a field @term[f] having type
+ @item{If @term[(types • (project e l) t_f)] then by inversion,
+  @term[e] has a record type with a field @term[l] having type
   @term[t_f]. By induction, @term[e] either takes a step or is a value @term[v].
   If it takes a step then the whole term takes a step. If it's a value,
   then by the canonical forms lemma, it's a value
-  @term[(record [f_i v_i] ... [f v_f] [f_j v_j] ...)]. Then the whole term
+  @term[(record [l_i v_i] ... [l v_f] [l_j v_j] ...)]. Then the whole term
   takes a step to @term[v_f].}
 ]
 

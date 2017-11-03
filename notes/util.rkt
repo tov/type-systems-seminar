@@ -61,18 +61,19 @@
                             (list "" Γ " ⊢ " e " : " t " ↝ " e_out)])]
     ['types* (match-lambda [(list _ _ e t _)     (list "" e " : " t)])])
    (with-atomic-rewriter 't "τ"
-    (parameterize
-        ([default-font-size              16]
-         [default-style                  SERIF-FONT]
-         [grammar-style                  SERIF-FONT]
-         [label-style                    SERIF-FONT]
-         [literal-style                  MONO-FONT]
-         [metafunction-style             SERIF-FONT]
-         [non-terminal-style             (cons 'italic SERIF-FONT)]
-         [non-terminal-subscript-style   (cons 'subscript SERIF-FONT)]
-         [non-terminal-superscript-style (cons 'superscript SERIF-FONT)]
-         [paren-style                    SERIF-FONT])
-      (thunk)))))
+    (with-atomic-rewriter 'l "ℓ"
+     (parameterize
+         ([default-font-size              16]
+          [default-style                  SERIF-FONT]
+          [grammar-style                  SERIF-FONT]
+          [label-style                    SERIF-FONT]
+          [literal-style                  MONO-FONT]
+          [metafunction-style             SERIF-FONT]
+          [non-terminal-style             (cons 'italic SERIF-FONT)]
+          [non-terminal-subscript-style   (cons 'subscript SERIF-FONT)]
+          [non-terminal-superscript-style (cons 'superscript SERIF-FONT)]
+          [paren-style                    SERIF-FONT])
+       (thunk))))))
 
 (define-syntax-rule (with-typesetting expr0 expr ...)
   (with-typesetting/thunk (λ () expr0 expr ...)))

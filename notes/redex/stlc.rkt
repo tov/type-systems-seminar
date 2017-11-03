@@ -1,7 +1,8 @@
 #lang racket/base
 
 (provide stlc ->val types satisfies SN
-         stlc/rec ->val/rec types/alt)
+         stlc/rec stlc/fix ->val/rec ->val/fix
+         types/alt)
 
 (require redex/reduction-semantics
          "util.rkt")
@@ -110,11 +111,28 @@
         (in-hole E (substitute (substitute e_s x_pre v) y_rec (rec v [e_z] [x_pre y_rec e_s])))
         rec-succ]))
 
-(define-extended-judgment-form stlc/rec types
+(define-extended-language stlc/fix stlc/rec
+  [e ::= ....
+     (fix e)]
+  [E ::= ....
+     (fix E)])
+
+(define ->val/fix
+  (extend-reduction-relation ->val/rec stlc/fix
+   [--> (in-hole E (fix (λ x t e)))
+        (in-hole E (substitute e x (fix (λ x t e))))
+        fix]))
+
+(define-extended-judgment-form stlc/fix types
   #:mode (types/alt I I O)
   #:contract (types/alt Γ e t)
+  
   [(types/alt Γ e nat)
    (types/alt Γ e_z t)
    (types/alt (extend (extend Γ x_pre nat) y_rec t) e_s t)
    ---- rec
-   (types/alt Γ (rec e [e_z] [x_pre y_rec e_s]) t)])
+   (types/alt Γ (rec e [e_z] [x_pre y_rec e_s]) t)]
+
+  [(types/alt Γ e (t -> t))
+   ---- fix
+   (types/alt Γ (fix e) t)])

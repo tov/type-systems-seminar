@@ -9,25 +9,25 @@
 (define-extended-language λsub stlc:stlc
   (t ::=
      ....
-     (Record [f t] ...))
+     (Record [l t] ...))
   (e ::=
      ....
-     (record [f e] ...)
-     (project e f))
+     (record [l e] ...)
+     (project e l))
   (v ::=
      ....
-     (record [f v] ...))
+     (record [l v] ...))
   (E ::=
      ....
-     (record [f v] ... [f E] [f e] ...))
-  (f g ::= variable-not-otherwise-mentioned))
+     (record [l v] ... [l E] [l e] ...))
+  (l m ::= variable-not-otherwise-mentioned))
 
 (define ->val
   (extend-reduction-relation
    stlc:->val
    λsub
    #:domain e
-   (--> (in-hole E (project (record [f_i v_i] ... [f v] [f_j v_j] ...) f))
+   (--> (in-hole E (project (record [l_i v_i] ... [l v] [l_j v_j] ...) l))
         (in-hole E v)
         prj)))
 
@@ -52,12 +52,12 @@
    (<: (-> t_11 t_12) (-> t_21 t_22))]
 
   [---- rec-nil
-   (<: (Record [f t] ...) (Record))]
+   (<: (Record [l t] ...) (Record))]
 
   [(<: t_l t_r)
-   (<: (Record [g_j t_j] ... [g_k t_k] ...) (Record [g_i t_i] ...))
+   (<: (Record [m_j t_j] ... [m_k t_k] ...) (Record [m_i t_i] ...))
    ---- rec-cons
-   (<: (Record [g_j t_j] ... [f t_l] [g_k t_k] ...) (Record [f t_r] [g_i t_i] ...))])
+   (<: (Record [m_j t_j] ... [l t_l] [m_k t_k] ...) (Record [l t_r] [m_i t_i] ...))])
 
 (define-extended-judgment-form λsub stlc:types
   #:mode (types I I O)
@@ -65,11 +65,11 @@
 
   [(types Γ e_i t_i) ...
    ---- record
-   (types Γ (record [f_i e_i] ...) (Record [f_i t_i] ...))]
+   (types Γ (record [l_i e_i] ...) (Record [l_i t_i] ...))]
 
-  [(types Γ e (Record [f_i t_i] ... [f t] [f_j t_j] ...))
+  [(types Γ e (Record [l_i t_i] ... [l t] [l_j t_j] ...))
    ---- project
-   (types Γ (project e f) t)]
+   (types Γ (project e l) t)]
   
   [(types Γ e_1 (-> t_1 t))
    (types Γ e_2 t_2)
@@ -90,17 +90,17 @@
    (<:~> (-> t_11 t_12) (-> t_21 t_22) (λ h (-> t_11 t_12) (λ n t_21 (ap e_2 (ap h (ap e_1 n))))))]
 
   [---- rec-nil
-   (<:~> (Record [f t] ...) (Record) (λ r (Record [f t] ...) (record)))]
+   (<:~> (Record [l t] ...) (Record) (λ r (Record [l t] ...) (record)))]
 
   [(<:~> t_l t_r e_1)
-   (<:~> (Record [g_j t_j] ... [g_k t_k] ...) (Record [g_i t_i] ...) e_2)
+   (<:~> (Record [m_j t_j] ... [m_k t_k] ...) (Record [m_i t_i] ...) e_2)
    ---- rec-cons
-   (<:~> (Record [g_j t_j] ... [f t_l] [g_k t_k] ...) (Record [f t_r] [g_i t_i] ...) (λ r (Record [g_j t_j] ... [f t_l] [g_k t_k] ...)
-                                                                                       (ap (λ s (Record [g_i t_i] ...)
-                                                                                             (record [f (e_1 (project r f))]
-                                                                                                     [g_i (project s g_i)] ...))
-                                                                                           (e_2 (record [g_j (project r g_j)] ...
-                                                                                                        [g_k (project r g_k)] ...)))))])
+   (<:~> (Record [m_j t_j] ... [l t_l] [m_k t_k] ...) (Record [l t_r] [m_i t_i] ...) (λ r (Record [m_j t_j] ... [l t_l] [m_k t_k] ...)
+                                                                                       (ap (λ s (Record [m_i t_i] ...)
+                                                                                             (record [l (e_1 (project r l))]
+                                                                                                     [m_i (project s m_i)] ...))
+                                                                                           (e_2 (record [m_j (project r m_j)] ...
+                                                                                                        [m_k (project r m_k)] ...)))))])
 
 (define-judgment-form λsub
   #:mode (types~> I I O O)
@@ -118,11 +118,11 @@
 
   [(types~> Γ e t e_1) ...
    ---- record
-   (types~> Γ (record [f e] ...) (Record [f t] ...) (record [f e_1] ...))]
+   (types~> Γ (record [l e] ...) (Record [l t] ...) (record [l e_1] ...))]
 
-  [(types~> Γ e (Record [f_i t_i] ... [f t] [f_j t_j] ...) e_1)
+  [(types~> Γ e (Record [l_i t_i] ... [l t] [l_j t_j] ...) e_1)
    ---- project
-   (types~> Γ (project e f) t (project e_1 f))]
+   (types~> Γ (project e l) t (project e_1 l))]
   
   [(types~> (extend Γ x t_1) e t_2 e_1)
    ---- abs

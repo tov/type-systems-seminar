@@ -34,7 +34,7 @@ We model polymorphism with @λ-2, also known as System F.
 
 @section[#:tag "system-f-syntax"]{Syntax}
 
-@render-nonterminals[r:λ-2 t e]
+@render-nonterminals[r:λ-2 t e x y a b]
 
 @section[#:tag "system-f-dynamics"]{Dynamic semantics}
 
