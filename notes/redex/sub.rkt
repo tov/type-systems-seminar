@@ -63,8 +63,7 @@
   #:mode (types I I O)
   #:contract (types Γ e t)
 
-  [(types Γ e_i t_i)
-   ...
+  [(types Γ e_i t_i) ...
    ---- record
    (types Γ (record [f_i e_i] ...) (Record [f_i t_i] ...))]
 
