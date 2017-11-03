@@ -658,7 +658,7 @@ k or fewer steps.
         k or fewer steps.}
  @item{@term[(+ e_1 e_2)]. Then by inversion of the typing rule @term[int], both
         subterms have type @term[int]. Let j be the size of @term[e_1]; then
-        the size of @term[e_1] is k – j – 1.
+        the size of @term[e_2] is k – j – 1.
         Then by the induction hypothesis, each
         reduces to a value or goes wrong, in at most j and k – j – 1 steps
         respectively. If either goes wrong, then the whole
