@@ -709,8 +709,8 @@ k or fewer steps.
         Note that because the size of a variable is 0 and so is the size of
         a value, the size of @term[(substitute e_2 x v_1)] is the same as
         the size of @term[e_2], k – j – 1. Further note that by preservation,
-        @term[(types • (substituted e_1 x v_1) t)]. So we an apply the
-        induction hypothesis to @term[(substituted e_1 x v_1)], learning that
+        @term[(types • (substitute e_1 x v_1) t)]. So we an apply the
+        induction hypothesis to @term[(substitute e_1 x v_1)], learning that
         it goes wrong or reaches a value in k – j – 1 or fewer steps.
         This yields a total of k or fewer steps.}
 ]
