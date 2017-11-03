@@ -48,6 +48,20 @@ applications, and one for type abstraction applications:
 
 @render-reduction-rules[r:->val β-val inst]
 
+The dynamic semantics of @poly is given by the evaluation function @emph{eval}:
+
+@centered[
+@tabular[
+ #:sep @hspace[1]
+ #:column-properties '(left left)          
+ (list (list @list{eval(@term[e]) = @term[v]}
+             @list{if @term[(-->* e v)]}))
+]
+]
+
+As defined, @emph{eval} could be partial, as with STLC, it is total on
+well typed terms.
+
 @section[#:tag "system-f-statics"]{Static semantics}
 
 To give the static semantics of @λ-2, we have both type variable
