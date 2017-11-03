@@ -30,7 +30,7 @@ We introduce type variables @term[a_i] and abstract over them with @term[Lam]:
     @term[(Lam a_1 (Lam a_2 (Lam a_3 (lam x_1 (-> a_2 a_3) (lam x_2 (-> a_1 a_2) (lam y a_1 (app x_1 (app x_2 y))))))))]
 ]
 @;
-We model polymorphism with @|λ-2|.
+We model polymorphism with @λ-2, also known as System F.
 
 @section[#:tag "system-f-syntax"]{Syntax}
 
