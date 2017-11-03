@@ -8,7 +8,7 @@
 @(default-language r:λsub)
 @define[λsub]{@langname[λ-sub]}
 
-@title{@|λsub|: Subtyping with Records}
+@title{@|λsub|: subtyping with records}
 
 @section[#:tag "λsub-syntax"]{Syntax}
 
@@ -23,7 +23,7 @@ within a record. A record expression lists field names with expressions
 whose values will fill the fields. A projection expression projects the
 value of the named field from a record.
 
-@section[#:tag "λsub-dynamics"]{Dynamic Semantics}
+@section[#:tag "λsub-dynamics"]{Dynamic semantics}
 
 The dynamics are straightforward. We extend values to include records where
 every field contains a value. We extend evaluation contexts to evaluate
@@ -35,7 +35,7 @@ Then we add one reduction rule, for projecting the field from a record:
 @;
 @render-reduction-rules[r:->val prj]
 
-@section[#:tag "λsub-statics"]{Static Semantics}
+@section[#:tag "λsub-statics"]{Static semantics}
 
 The simplest way to type records is to add one rule for each new
 expression form and keep the rest of the language the same:
@@ -92,7 +92,7 @@ the STLC application rule with this:
 
 @render-judgment-rules[r:types app]
 
-@subsection[#:tag "λsub-safety"]{Type Safety}
+@subsection[#:tag "λsub-safety"]{Type safety}
 
 Subtyping changes our preservation theorem somewhat, because
 reduction can cause type refinement. (That is, we learn more type
@@ -275,7 +275,7 @@ rules form values, and those rules correspond to the conditions of the lemma.
 
 @proof[] By progess and preservation.
 
-@section[#:tag "λsub-coercion"]{Compiling with Coercions}
+@section[#:tag "λsub-coercion"]{Compiling with coercions}
 
 To say that @term[(<: t_1 t_2)] is to say that a @term[t_1] can be used
 wherever a @term[t_2] is expected, but do our run-time representations actually

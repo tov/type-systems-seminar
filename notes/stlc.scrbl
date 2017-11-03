@@ -8,7 +8,7 @@
 @(default-language r:stlc)
 @define[stlc]{@langname[λ-st]}
 
-@title{The Simply-Typed Lambda Calculus @stlc}
+@title{The simply-typed lambda calculus @stlc}
 
 @section[#:tag "stlc-syntax"]{Syntax}
 
@@ -20,7 +20,7 @@ Types include the natural numbers @term[nat] and function types
 @term[(-> t_1 t_2)]. Terms include variables, Peano naturals (@term[z] for
 zero and @term[s] for successor), lambda abstractions, and applications.
 
-@section[#:tag "stlc-dynamics"]{Dynamic Semantics}
+@section[#:tag "stlc-dynamics"]{Dynamic semantics}
 
 To define the dynamic semantics of @stlc, we give syntax for values and
 evaluation contexts:
@@ -34,7 +34,22 @@ Then the reduction relation consists of one rule:
 
 @render-reduction-rules[r:->val β-val]
 
-@section[#:tag "stlc-statics"]{Static Semantics}
+The dynamic semantics of @stlc is given by the evaluation function @emph{eval}:
+
+@centered[
+@tabular[
+ #:sep @hspace[1]
+ #:column-properties '(left left)          
+ (list (list @list{eval(@term[e]) = @term[v]}
+             @list{if @term[(-->* e v)]}))
+]
+]
+
+As defined, @emph{eval} could be partial, but we will prove it total on
+well typed terms, first by proving that well typed terms don’t go wrong,
+and then by proving that well typed terms don’t diverge.
+
+@section[#:tag "stlc-statics"]{Static semantics}
 
 To type @stlc, we define typing contexts mapping variables to types:
 
@@ -76,7 +91,7 @@ of the operand:
  and similarly for @term[(inr v)]. Add the necessary reduction and typing
  rules.}
 
-@subsection[#:tag "stlc-type-safety"]{Type Safety}
+@subsection[#:tag "stlc-type-safety"]{Type safety}
 
 Before we can prove type safety, we need to prove several standard lemmas.
 
@@ -208,7 +223,7 @@ the terms:
 
 @exercise{Extend the type safety theorem to cover product and/or sum types.}
 
-@section[#:tag "stlc-an-extension"]{An Extension}
+@section[#:tag "stlc-an-extension"]{An extension}
 
 As it stands, we can’t do much with natural numbers. Inspired by Gödel’s
 system T, we add a limited, terminating form of recursion on natural numbers.

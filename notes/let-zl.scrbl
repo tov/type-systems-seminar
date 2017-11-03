@@ -9,7 +9,7 @@
 @(default-language r:let-zl/t)
 @define[let-zl]{@langname[let-zl]}
 
-@title{The @let-zl Language}
+@title{The @let-zl language}
 
 @section[#:tag "let-zl-syntax"]{Syntax}
 
@@ -29,7 +29,7 @@ Additionally, we have elimination forms for lists, @term[(car e)] and
 sharing in @term[(let x e_1 e_2)], which binds @term[x] to the value of
 @term[e_1] in @term[e_2].
 
-@section[#:tag "let-zl-dynamics"]{Dynamic Semantics}
+@section[#:tag "let-zl-dynamics"]{Dynamic semantics}
 
 We might have a decent guess as to what this language means, but to be precise,
 we will define its dynamic semantics using a rewriting system, which registers
@@ -91,8 +91,20 @@ evaluation context, for @term[(* 3 7)]. Then to perform one more reduction step,
 we decompose into the evaluation context @term[hole] and the redex
 @term[(* 3 7)], which reduces to @term[21].
 
-Configurations specify what we actually reduce over: expressions @term[e] or
-the special error token @term[WRONG].
+The dynamic semantics of @let-zl is now given by the evaluation function
+@emph{eval}, defined as:
+
+@centered[
+@tabular[
+ #:sep @hspace[1]
+ #:column-properties '(left left)          
+ (list (list @list{eval(@term[e]) = @term[v]}
+             @list{if @term[(-->* e v)]}))
+]
+]
+
+As we discuss below, @emph{eval} is partial for @let-zl because there are
+errors that cause reduction to get “stuck.”
 
 @exercise{Extend the language with Booleans. Besides Boolean literals, what
           do you think are essential operations? Extend the dynamic semantics
@@ -149,12 +161,29 @@ to @term[WRONG], thus flagging them as errors.
 This approach is equivalent to adding errors or exceptions to our programming
 language.
 
+We now update our evaluation function @emph{eval} to take these errors into
+account:
+
+@centered[
+@tabular[
+ #:sep @hspace[1]
+ #:column-properties '(left left)          
+ (list (list @list{eval(@term[e]) = @term[v]}
+             @list{if @term[(-->* e v)]})
+       (list @list{eval(@term[e]) = @term[WRONG]}
+             @list{if @term[(-->* e WRONG)]}))
+]
+]
+
+Alas, @emph{eval} is still partial, because there are stuck states that we
+haven’t converted to wrong states. (The other reason that @emph{eval} could
+be partial is non-termination, but as we will prove, we don’t have that.)
 A second way to rule out stuck states is to impose a type system,
 which rules out programs with
 some kinds of errors. We can then prove that no programs admitted by the
-type system get stuck.
+type system get stuck, which will make @emph{eval} total for this language.
 
-@section[#:tag "let-zl-statics"]{Static Semantics}
+@section[#:tag "let-zl-statics"]{Static semantics}
 
 With a type system, we assign types to (some) terms to classify them by
 what kind of value they compute. In our first, simple type system, we
@@ -225,7 +254,7 @@ expression:
  @term[(list (list int))], @term[(list (list (list int)))] and so on.
  How do you have to change the syntax of @term[t]? The typing rules?}
 
-@subsection[#:tag "let-zl-type-safety"]{Type Safety}
+@subsection[#:tag "let-zl-type-safety"]{Type safety}
 
 The goal of our type system is to prevent undetected errors—that is,
 stuck terms—in our programs. To show that it does this, we will prove

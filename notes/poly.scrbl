@@ -9,7 +9,7 @@
 @(default-language r:λ-2)
 @define[λ-2]{@langname[λ-2]}
 
-@title{The Polymorphic Lambda Calculus @λ-2}
+@title{The polymorphic lambda calculus @λ-2}
 
 Suppose we want to write the composition function in the simply-typed
 lambda calculus. What does it look like? Well, it depends on the types
@@ -36,7 +36,7 @@ We model polymorphism with @λ-2, also known as System F.
 
 @render-nonterminals[r:λ-2 t e]
 
-@section[#:tag "system-f-dynamics"]{Dynamic Semantics}
+@section[#:tag "system-f-dynamics"]{Dynamic semantics}
 
 To give the dynamic semantics of @λ-2, we first define values and
 the evaluation contexts:
@@ -48,7 +48,7 @@ applications, and one for type abstraction applications:
 
 @render-reduction-rules[r:->val β-val inst]
 
-@section[#:tag "system-f-statics"]{Static Semantics}
+@section[#:tag "system-f-statics"]{Static semantics}
 
 To give the static semantics of @λ-2, we have both type variable
 environments (which tell us which type variables are in scope) and
@@ -74,7 +74,7 @@ Strictly speaking, every Δ and every type well-formedness premiss can
 go away and it all still works, with type variables acting like constants,
 but I like knowing where my free type variables are.
 
-@section[#:tag "system-f-church"]{Church Data}
+@section[#:tag "system-f-church"]{Church data}
 
 @λ-2, made of lambdas big and small, may seem to lack much in the way
 of data, but in fact it is very rich. Alonzo Church showed how to represent
@@ -82,7 +82,7 @@ natural numbers and datatypes in the untyped lambda calculus. STLC is too
 weak for those encodings to be meaningful, but they work beautifully in
 @|λ-2|.
 
-@subsection[#:tag "system-f-cnats"]{Natural Numbers}
+@subsection[#:tag "system-f-cnats"]{Natural numbers}
 
 The natural numbers can be defined as functions that iterate a function.
 In particular, define type @term[Nat] to be
