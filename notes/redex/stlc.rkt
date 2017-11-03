@@ -133,6 +133,6 @@
    ---- rec
    (types/alt Γ (rec e [e_z] [x_pre y_rec e_s]) t)]
 
-  [(types/alt Γ e (t -> t))
+  [(types/alt Γ e (-> t t))
    ---- fix
    (types/alt Γ (fix e) t)])
