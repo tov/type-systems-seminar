@@ -396,7 +396,11 @@ on the conclusion:
         Then by the induction hypothesis,
         @term[(types Γ (substitute e_1 x v) t_e)].
         Because @term[x] ≠ @term[y], @term[(extend (extend Γ x t_x) y t_e)]
-        = @term[(extend (extend Γ y t_e) x t_x)]. So we have that
+        = @term[(extend (extend Γ y t_e) x t_x)]. (This reordering could be
+        proved correct in an “exchange” lemma, but we take it to be obviously
+        correct from the typing rules. Exchange will be of more interest when
+        linear type systems force us to get serious about contexts.)
+        So we have that
         @term[(types (extend (extend Γ y t_e) x t_x) e_2 t)].
         Then by the induction hypothesis,
         @term[(types (extend Γ y t_e) (substitute e_2 x v) t)].
