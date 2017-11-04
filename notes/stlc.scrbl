@@ -13,9 +13,9 @@
 @section[#:tag "stlc-syntax"]{Syntax}
 
 The @stlc language has types @term[t] and terms @term[e] defined as follows:
-
+@;
 @render-nonterminals[r:stlc t e x y]
-
+@;
 Types include the natural numbers @term[nat] and function types
 @term[(-> t_1 t_2)]. Terms include variables, Peano naturals (@term[z] for
 zero and @term[s] for successor), lambda abstractions, and applications.
@@ -24,18 +24,18 @@ zero and @term[s] for successor), lambda abstractions, and applications.
 
 To define the dynamic semantics of @stlc, we give syntax for values and
 evaluation contexts:
-
-@render-nonterminals[r:stlc v E].
-
+@;
+@render-nonterminals[r:stlc v E]
+@;
 Values include natural numbers and lambda abstractions. We evaluate under
 @term[s] and we evaluate both the operator and operand in an application.
 
 Then the reduction relation consists of one rule:
-
+@;
 @render-reduction-rules[r:->val β-val]
 
 The dynamic semantics of @stlc is given by the evaluation function @emph{eval}:
-
+@;
 @centered[
 @tabular[
  #:sep @hspace[1]
@@ -44,7 +44,7 @@ The dynamic semantics of @stlc is given by the evaluation function @emph{eval}:
              @list{if @term[(-->* e v)]}))
 ]
 ]
-
+@;
 As defined, @emph{eval} could be partial, but we will prove it total on
 well typed terms, first by proving that well typed terms don’t go wrong,
 and then by proving that well typed terms don’t diverge.
@@ -85,7 +85,7 @@ of the operand:
 @exercise{Extend @stlc with a sum type @term[(+ t_1 t_2)]. You will need two
  injection forms @term[(inl e)] and @term[(inr e)] to create sums, and one
  case analysis form to eliminate them,
- @term[(match e [x e_l] [y e_r])].} The case analysis form takes a step once
+ @term[(match e [x e_l] [y e_r])]. The case analysis form takes a step once
  @term[e] reduces to a sum value:
  @term[(--> (match (inl v) [x e_l] [y e_r]) (substitute e_l x v))],
  and similarly for @term[(inr v)]. Add the necessary reduction and typing
@@ -147,7 +147,7 @@ types in an empty context: @term[(types • e t)].
         that @term[(types (extend Γ x t_1) e nat)]. Then by induction,
         @term[(types Γ (substitute e x e_1) nat)], and reapplying rule
         @rulename[succ], we have that
-        @term[(types Γ (substituted (s e) x e_1) nat)].}
+        @term[(types Γ (substitute (s e) x e_1) nat)].}
  @item{@term[ap] cases are similar.}
  @item{@term[(types (extend Γ x t_1) (λ y t_21 e) (-> t_21 t_22))]:
         This can be the case only if
@@ -246,13 +246,39 @@ There is one rule for typing the new form:
 @;
 @render-judgment-rules[r:types/alt rec]
 
+Here is predecessor expressed using the recursor:
+@;
+@centered{
+ pred = @term[(λ n nat (rec n [z] [x_pre y_rec x_pre]))]
+}
+@;
+For zero it returns zero, and for any other number it returns the predecessor,
+ignoring the recursive result.
+
+And here is addition expressed using the recursor:
+@;
+@centered{
+ add = @term[(λ n nat (λ m nat (rec n [m] [x_pre y_rec (s y_rec)])))]
+}
+
+@exercise{Implement multiplication using the recursor.}
+
+@exercise{Implement factorial using the recursor.}
+
+@exercise{Implement a function that divides a natural number by two (rounding
+ down.}
+
 @exercise{Extend the type safety theorem for the recursor.}
 
-@exercise{The recursor is currently call-by-name. To make it call-by-value
-          requires introducing an additional form. @term[let] will do.
-          (Why can’t we just use λ?) Show
-          how to add @term[let] to @stlc and how that can be used to make the
-          recursor call-by-value.}
+@exercise{The recursor is currently call-by-name, in the sense that it
+ substitutes the whole recursive expression of
+ @term[(rec v [e_z] [x_pre y_rec e_s])] for @term[y_rec] in the non-zero case.
+ The call-by-value form would compute the value of that subterm first and
+ then subtitute the value, but making it call-by-value
+ requires introducing an additional form. @term[let] will do.
+ (Why can’t we just use λ?) Show
+ how to add @term[let] to @stlc and how that can be used to make the
+ recursor call-by-value.}
 
 @section[#:tag "stlc-normalization"]{Normalization}
 
@@ -261,7 +287,9 @@ A normal form is a form that doesn’t reduce any further, which for our purpose
 normalizes, written @term[(⇓ e)] if it reduces to a normal form, that is,
 a value.
 
-Historically, when working with lambda calculi that allow free conversion,
+Historically, when working with lambda calculi that allow free conversion
+(that is, redexes can by identified anywhere in a term, without a notion of
+evaluation contexts)
 authors have distinguished weak from strong normalization. A term weakly
 normalizes if it has some reduction sequence reaching a normal form; a term
 strongly normalizes if every of its reduction sequences reaches a normal form.
@@ -296,7 +324,8 @@ Suppose that @term[(types* e_1 t)] and @term[(--> e_1 e_2)]. Then:
 
 @itemlist[
  @item{@term[nat]: If @term[e_2] normalizes then @term[e_1] normalizes
-        by the same sequence. Since it has type @term[t], we have
+        by the same sequence because @term[e_1] takes a step to @term[e_2],
+        which then normalizes. Since it has type @term[t], we have
         @term[(SN nat e_1)]
 
         If @term[e_1] normalizes then it does so via
@@ -326,11 +355,24 @@ Suppose that @term[(types* e_1 t)] and @term[(--> e_1 e_2)]. Then:
 QED.
 
 Next, we define substitutions, and what it means for a substitution to
-satisfy a typing environment:
-
+satisfy a typing environment. A substitution associates some variables
+with values to substitute them:
+@;
 @render-nonterminals[r:stlc γ]
+@;
+To apply a substitution to a term, written @term[(γ e)], is to substitute
+in the term the values of the substitution for their variables.
 
+A substitution satisfies a typing environment if they have the same domains
+(sets of variables) and every value in the
+substitution not only  has the type given for the corresponding variable in the
+type environment, but is SN for that type:
+@;
 @render-judgment-rules[r:satisfies nil cons]
+
+Now we can prove a lemma that if we apply a substitution to a term that types
+in an environment consistent with the substitution, then the substituted
+term types in the empty environment:
 
 @lemma[#:name "Mass substitution"]{If @term[(types Γ e t)]
  and @term[(satisfies γ Γ)] then
