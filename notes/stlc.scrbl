@@ -371,6 +371,11 @@ type environment, but is SN for that type:
 @;
 @render-judgment-rules[r:satisfies nil cons]
 
+Note that if a substitution satisfies a type environment, this means that
+it contains values that typed in the empty type environment, meaning they are
+closed. Thus, the order of substitution doesn’t matter, as no variable in
+the substitution will interfere with any other.
+
 Now we can prove a lemma that if we apply a substitution to a term that types
 in an environment consistent with the substitution, then the substituted
 term types in the empty environment:
