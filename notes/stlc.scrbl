@@ -325,11 +325,13 @@ Suppose that @term[(types* e_1 t)] and @term[(--> e_1 e_2)]. Then:
 @itemlist[
  @item{@term[nat]: If @term[e_2] normalizes then @term[e_1] normalizes
         by the same sequence because @term[e_1] takes a step to @term[e_2],
-        which then normalizes. Since it has type @term[t], we have
+        which then normalizes. We know this because our formulation of @stlc
+        is determistic, and there is no other way to reduce the term. (We could
+        prove this but haven’t.) Since it has type @term[t], we have
         @term[(SN nat e_1)]
 
         If @term[e_1] normalizes then it does so via
-        @term[e_2], so @term[e_2] normalizes as well, and by preservation it has
+        @term[e_2], so @term[e_2] normalizes as well and by preservation it has
         the same type, so @term[(SN nat e_2)].}
  @item{@term[(-> t_1 t_2)]: If @term[(SN (-> t_1 t_2) e_2)] then we know that
         @term[e_2] normalizes and when applied to a good term, that normalizes
