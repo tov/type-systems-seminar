@@ -31,7 +31,7 @@
      (ap v E))
   (γ ::=
      •
-     (extend γ x v))
+     (extend-substitution γ x v))
   (x y ::= variable-not-otherwise-mentioned)
   #:binding-forms
   (λ x t e #:refers-to x))
@@ -91,7 +91,7 @@
   [(SN t v)
    (satisfies γ Γ)
    ---- cons
-   (satisfies (extend γ x v) (extend Γ x t))])
+   (satisfies (extend-substitution γ x v) (extend Γ x t))])
 
 ; This is based on Gödel’s T via Harper in Practical Foundations:
 (define-extended-language stlc/rec stlc

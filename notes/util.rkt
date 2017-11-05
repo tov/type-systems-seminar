@@ -36,8 +36,12 @@
     ['<:     (match-lambda [(list _ _ t_1 t_2 _) (list "" t_1 " <: " t_2)])]
     ['<:~>   (match-lambda [(list _ _ t_1 t_2 e _)
                             (list "" t_1 " <: " t_2 " ↝ " e)])]
+    ['apply-substitution
+             (match-lambda [(list _ _ e γ _)     (list "" e "" γ "")])]
     ['extend (match-lambda [(list _ _ Γ x t _)   (list "" Γ ", " x ":" t)]
                            [(list _ _ Δ a _)     (list "" Δ ", " a)])]
+    ['extend-substitution
+             (match-lambda [(list _ _ γ x v _)   (list "" γ "[" x ":=" v "]")])]
     ['kinds  (match-lambda [(list _ _ Δ t _)     (list "" Δ " ⊢ " t)])]
     ['kinds/env
              (match-lambda [(list _ _ Δ Γ _)     (list "" Δ " ⊢ " Γ)])]

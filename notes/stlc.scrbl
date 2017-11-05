@@ -360,8 +360,9 @@ with values to substitute them:
 @;
 @render-nonterminals[r:stlc γ]
 @;
-To apply a substitution to a term, written @term[(γ e)], is to substitute
-in the term the values of the substitution for their variables.
+To apply a substitution to a term, written @term[(apply-substitution e γ)],
+is to substitute in the term the values of the substitution for their
+variables.
 
 A substitution satisfies a typing environment if they have the same domains
 (sets of variables) and every value in the
@@ -376,32 +377,38 @@ term types in the empty environment:
 
 @lemma[#:name "Mass substitution"]{If @term[(types Γ e t)]
  and @term[(satisfies γ Γ)] then
- @term[(types • (γ e) t)].}
+ @term[(types • (apply-substitution e γ) t)].}
 
 @proof[] By induction on the length of @term[γ]. If empty, then @term[Γ] is
 empty, and the substitution has no effect. Otherwise, @term[γ] =
-@term[(extend γ_1 x v_x)], where @term[Γ] = @term[(extend Γ_1 x t_x)]
+@term[(extend-substitution γ_1 x v_x)],
+where @term[Γ] = @term[(extend Γ_1 x t_x)]
 and @term[(satisfies γ_1 Γ_1)] and @term[(SN t_x v_x)]. Then by the
 substitution lemma, @term[(types Γ_1 (substitute e x v_x) t)].
-Then by induction, @term[(types • (γ_1 (substitute e x v_x)) t)].
-But that is @term[(γ e)].
+Then by induction,
+@term[(types • (apply-substitution (substitute e x v_x) γ_1) t)].
+But that is @term[(apply-substitution e γ)].
 
 @lemma[#:name "Every typed term is good"]{If @term[(types Γ e t)]
- and @term[(satisfies γ Γ)] then @term[(SN t (γ e))].}
+ and @term[(satisfies γ Γ)] then @term[(SN t (apply-substitution e γ))].}
 
 @proof[] By induction on the typing derivation:
 
 @itemlist[
  @item{@term[(types Γ x (lookup Γ x))]: Appling @term[γ] to @term[x]
         gets us a @term[v] such that @term[(SN (lookup Γ x) v)].}
- @item{@term[(types Γ z nat)]: Since @term[z] = @term[(γ z)], and
+ @item{@term[(types Γ z nat)]: Since @term[z] =
+  @term[(apply-substitution z γ)], and
         @term[(types • z nat)] and @term[(⇓ z)], we have that
         @term[(SN nat z)].}
  @item{@term[(types Γ (s e_1) nat)]: By inversion, we know that
         @term[(types Γ e_1 nat)]. Then by induction, we have that
-        @term[(SN nat (γ e_1))]. By the definition of NT for @term[nat],
-        we have that @term[(γ e_1)] types in the empty context and reduces
-        to a natural number. Then @term[(γ (s e_1))] does as well.}
+        @term[(SN nat (apply-substitution e_1 γ))].
+        By the definition of NT for @term[nat],
+        we have that @term[(apply-substitution e_1 γ)]
+        types in the empty context and reduces
+        to a natural number. Then @term[(apply-substitution (s e_1) γ)]
+        does as well.}
  @item{@term[(types Γ (ap e_1 e_2) t)]: By inversion, we know that
         @term[(types Γ e_1 (-> t_2 t))] and
         @term[(types Γ e_2 t_2)]. By induction, we know that
@@ -411,33 +418,35 @@ But that is @term[(γ e)].
         Let @term[e_arb] be @term[e_2]. Then @term[(SN t (ap e_1 e_2))].}
  @item{@term[(types Γ (λ x t_1 e_2) (-> t_1 t_2))]:
         Without loss of generality, let @term[x] be fresh for @term[γ].
-        So then that term equals @term[(λ x t_1 (γ e_1))].
-        We need to show that @term[(SN (-> t_1 t_2) (λ x t_1 (γ e_2)))].
+        So then that term equals @term[(λ x t_1 (apply-substitution e_1 γ))].
+        We need to show that
+        @term[(SN (-> t_1 t_2) (λ x t_1 (apply-substitution e_2 γ)))].
         To show this, we need to show three things:
   @itemlist[
-    @item{To show @term[(types • (λ x t_1 (γ e_2)) (-> t_1 t_2))].
+    @item{To show
+          @term[(types • (λ x t_1 (apply-substitution e_2 γ)) (-> t_1 t_2))].
           It suffices to show that
           @term[(types Γ (λ x t_1 e_2) (-> t_1 t_2))] for some @term[Γ]
           such that @term[(satisfies γ Γ)], by the mass substitution lemma.
           That is what we have.}
-    @item{To show @term[(⇓ (λ x t_1 (γ e_2)))]. This is clear, because it is a
-          value.}
+    @item{To show @term[(⇓ (λ x t_1 (apply-substitution e_2 γ)))].
+          This is clear, because it is a value.}
     @item{To show that for any @term[e_1] such that @term[(SN t_1 e_1)],
-          @term[(SN t_2 (ap (λ x t_1 (γ e_2)) e_1))]. By the definition of
+          @term[(SN t_2 (ap (λ x t_1 (apply-substitution e_2 γ)) e_1))]. By the definition of
           SN, we know that @term[(-->* e_1 v_1)] for some value @term[v_1].
           Then we can take an additional step,
-          @term[(--> (ap (λ x t_1 (γ e_2)) v_1) (substitute (γ e_2) x v_1))].
+          @term[(--> (ap (λ x t_1 (apply-substitution e_2 γ)) v_1) (substitute (apply-substitution e_2 γ) x v_1))].
           Because SN is preserved by backward conversion, it suffices to show
           that this term is SN for @term[t_2].
           
           By the lemma that SN is preserved by forward conversion, we know that
           @term[(SN t_1 v_1)]. So then we can say that
-          @term[(satisfies (extend γ x v_1) (extend Γ x t_1))].
+          @term[(satisfies (extend-substitution γ x v_1) (extend Γ x t_1))].
           Now consider inverting the judgment that
           @term[(types Γ (λ x t_1 e_2) (-> t_1 t_2))]. From this, we know that
           @term[(types (extend Γ x t_1) e_2 t_2)]. Then applying the induction
           hypothesis, we have that
-          @term[(SN t_2 ((extend γ x v_1) e_2))].
+          @term[(SN t_2 (apply-substitution e_2 (extend-substitution γ x v_1)))].
           This is what we sought to show.}
    ]}
 ]
