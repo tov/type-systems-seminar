@@ -226,7 +226,9 @@ existentials primitive or, better yet, hidden.
  particular, you will need forms for packing and unpacking whose statics and
  dynamics agree with the encoding above.}
 
-@exercise{Proof type safety and/or normalization for @|λ-2|.}
+@exercise{Prove type safety for @|λ-2|.}
+
+@exercise[#:name "Very difficult"]{Prove normalization for @|λ-2|.}
 
 Consider this alternate definition of Counter:
 
