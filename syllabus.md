@@ -1,21 +1,14 @@
 # Topics
 
-  - Abstract syntax, binding, and substitution
+  - Intro: let/zl
 
   - Simply-typed lambda calculus
-      - Reading: basic description from TAPL
-      - In lecture: Type safety proof.
-      - Activity: simply extensions like products, sums, records, recursion
-      - In lecture: Normalization proof.
-      - Activity: type scheme inference and cataloguing of all possible
-        type errors
+
+  - Subtyping with record types
 
   - System F
       - Reading: Reynolds 1974, "Towards a Theory of Type Structure"
-      - type safety?
-      - normalization?
-      - Activity: Church encodings
-      - Reading: F≤ (TAPL?)
+      (pages 1–8)
 
   - Damas–Hindley–Milner type inference
       - Reading: Milner 1978, "A Theory of Type Polymorphim in Programming"
