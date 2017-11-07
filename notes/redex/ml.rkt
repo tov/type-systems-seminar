@@ -166,34 +166,26 @@
    ---- arr
    (unify (-> t_11 t_12) (-> t_21 t_22) (compose-subst S_2 S_1))])
 
-(define-judgment-form λ-ml
-  #:mode (inst I I O)
-  #:contract (inst (a ...) σ t)
-
-  [---- mono
-   (inst (a ...) t t)]
-
-  [(where b_1 (fresh b (a ...)))
-   (inst (a ... b_1) (substitute σ b b_1) t)
-   ---- all
-   (inst (a ...) (all b σ) t)])
-
-(define-judgment-form λ-ml
-  #:mode (gen I I O)
-  #:contract (gen (a ...) t σ)
+(define-metafunction λ-ml
+  inst : (a ...) σ -> t
+  [(inst (a ...) t)
+   t]
+  [(inst (a ...) (all b σ))
+   (inst (a ... b_1) (substitute σ b b_1))
+   (where b_1 (fresh b (a ...)))])
   
-  [---- mono
-   (gen () t t)]
-  
-  [(gen (a_i ...) t σ)
-   ---- all
-   (gen (a a_i ...) t (all a σ))])
+(define-metafunction λ-ml
+  gen : (a ...) t -> σ
+  [(gen () t)
+   t]
+  [(gen (a a_i ...) t)
+   (all a (gen (a_i ...) t))])
 
 (define-judgment-form λ-ml
   #:mode (W I I O O)
   #:contract (W Γ e S t)
 
-  [(inst (ftv/Γ Γ) (lookup Γ x) t)
+  [(where t (inst (ftv/Γ Γ) (lookup Γ x)))
    ---- var
    (W Γ x • t)]
 
@@ -210,7 +202,7 @@
    (W Γ (λ x e) S (-> (apply-subst S a) t))]
 
   [(W Γ e_1 S_1 t_1)
-   (gen (\\ (ftv t_1) (ftv/Γ (apply-subst/Γ S_1 Γ))) t_1 σ)
+   (where σ (gen (\\ (ftv t_1) (ftv/Γ (apply-subst/Γ S_1 Γ))) t_1))
    (W (extend (apply-subst/Γ S_1 Γ) x σ) e_2 S_2 t_2)
    ---- let
    (W Γ (let x e_1 e_2) (compose-subst S_2 S_1) t_2)])

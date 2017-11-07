@@ -26,8 +26,12 @@
 
 @render-judgment-rules[r:unify var-same var-left var-right arr]
 
-@render-judgment-rules[r:inst mono all]
-
-@render-judgment-rules[r:gen mono all]
+@centered{
+  @with-typesetting{
+    @render-metafunction[r:inst]
+     
+    @render-metafunction[r:gen]
+  }
+}
 
 @render-judgment-rules[r:W var app abs let]

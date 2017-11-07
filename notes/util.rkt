@@ -84,8 +84,7 @@
     ['types* (match-lambda [(list _ _ e t _)     (list "" e " : " t)])]
     ['unify  (match-lambda [(list _ _ t_1 t_2 S _)
                                                  (list "" t_1 " ~ " t_2 " ↝ " S)])]
-    ['W      (match-lambda [(list _ _ Γ e S t _) (list "W(" Γ ", " e ") = ("
-                                                       S ", " t ")")])])
+    ['W      (rewriter [(Γ e S t) "W(" Γ ", " e ") = (" S ", " t ")"])])
    (with-atomic-rewriter 't "τ"
     (with-atomic-rewriter 'l "ℓ"
      (parameterize
@@ -102,7 +101,7 @@
        (thunk))))))
 
 (define-syntax-rule (with-typesetting expr0 expr ...)
-  (with-typesetting/thunk (λ () expr0 expr ...)))
+  (with-typesetting/thunk (λ () (list expr0 expr ...))))
 
 (define-syntax-rule (term e)
   (with-typesetting (render-term (default-language) e)))
