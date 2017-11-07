@@ -388,7 +388,7 @@ term types in the empty environment:
 
 @proof[] By induction on the length of @term[γ]. If empty, then @term[Γ] is
 empty, and the substitution has no effect. Otherwise, @term[γ] =
-@term[(extend-substitution γ_1 x v_x)],
+@term[(extend-subst γ_1 x v_x)],
 where @term[Γ] = @term[(extend Γ_1 x t_x)]
 and @term[(satisfies γ_1 Γ_1)] and @term[(SN t_x v_x)]. Then by the
 substitution lemma, @term[(types Γ_1 (substitute e x v_x) t)].
@@ -448,12 +448,12 @@ But that is @term[(apply-substitution e γ)].
           
           By the lemma that SN is preserved by forward conversion, we know that
           @term[(SN t_1 v_1)]. So then we can say that
-          @term[(satisfies (extend-substitution γ x v_1) (extend Γ x t_1))].
+          @term[(satisfies (extend-subst γ x v_1) (extend Γ x t_1))].
           Now consider inverting the judgment that
           @term[(types Γ (λ x t_1 e_2) (-> t_1 t_2))]. From this, we know that
           @term[(types (extend Γ x t_1) e_2 t_2)]. Then applying the induction
           hypothesis, we have that
-          @term[(SN t_2 (apply-substitution e_2 (extend-substitution γ x v_1)))].
+          @term[(SN t_2 (apply-substitution e_2 (extend-subst γ x v_1)))].
           This is what we sought to show.}
    ]}
 ]

@@ -30,7 +30,7 @@
      (extend Γ x σ))
   (S ::=
      •
-     (extend S a t))
+     (extend-subst S a t))
   (C ::=
      true
      (and C C)
@@ -93,14 +93,14 @@
   ftv/S : S -> (a ...)
   [(ftv/S •)
    ()]
-  [(ftv/S (extend S a t))
+  [(ftv/S (extend-subst S a t))
    (∪ (ftv/S S) (ftv t))])
 
 (define-metafunction λ-ml
   apply-subst : S σ -> σ
   [(apply-subst • σ)
    σ]
-  [(apply-subst (extend S a t) σ)
+  [(apply-subst (extend-subst S a t) σ)
    (substitute (apply-subst S σ) a t)])
 
 (define-metafunction λ-ml
@@ -114,14 +114,14 @@
   apply-subst/S : S S -> S
   [(apply-subst/S S •)
    •]
-  [(apply-subst/S S (extend S_1 a t))
+  [(apply-subst/S S (extend-subst S_1 a t))
    (extend (apply-subst/S S S_1) a (apply-subst S t))])
 
 (define-metafunction λ-ml
   concat-subst : S S -> S
   [(concat-subst S •)
    S]
-  [(concat-subst S (extend S_1 a t))
+  [(concat-subst S (extend-subst S_1 a t))
    (extend (concat-subst S S_1) a t)])
 
 (define-metafunction λ-ml
@@ -155,7 +155,7 @@
   
   [(∉ a (ftv t))
    ---- var-left
-   (unify a t (extend • a t))]
+   (unify a t (extend-subst • a t))]
   
   [(unify a (-> t_1 t_2) S)
    ---- var-right
