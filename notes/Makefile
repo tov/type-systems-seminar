@@ -1,4 +1,4 @@
-GOAL = sub
+GOAL = ml
 
 html: out/$(GOAL).html
 

@@ -28,20 +28,38 @@
         e
         ")"))
 
+(define-syntax rewriter
+  (syntax-rules ()
+    [(_ [(pat ...) term ...] ...)
+     (match-lambda [(list _ _ pat ... _) (list term ...)] ...)]))
+
 (define (with-typesetting/thunk thunk)
   (with-compound-rewriters
-   (['->     (match-lambda [(list _ _ e_1 e_2 _) (list "(→ " e_1 " " e_2 ")")])]
+   (['∈      (rewriter [(a as)    "" a " ∈ " as])]
+    ['∉      (match-lambda [(list _ _ a as _)    (list "" a " ∉ " as)])]
+    ['->     (rewriter [(t_1 t_2) "(→ " t_1 " " t_2 ")"])]
     ['-->    (match-lambda [(list _ _ e_1 e_2 _) (list "" e_1 " ⟶ " e_2)])]
     ['-->*   (match-lambda [(list _ _ e_1 e_2 _) (list "" e_1 " ⟶* " e_2)])]
     ['<:     (match-lambda [(list _ _ t_1 t_2 _) (list "" t_1 " <: " t_2)])]
     ['<:~>   (match-lambda [(list _ _ t_1 t_2 e _)
                             (list "" t_1 " <: " t_2 " ↝ " e)])]
+    ['\\     (rewriter [(as bs) "" as " \\ " bs])]
+    ['apply-subst
+             (match-lambda [(list _ _ S σ _)     (list "" S "" σ "")])]
+    ['apply-subst/Γ
+             (match-lambda [(list _ _ S Γ _)     (list "" S "" Γ "")])]
+    ['compose-subst
+             (match-lambda [(list _ _ S_1 S_2 _) (list "" S_1 "" S_2 "")])]
     ['apply-substitution
              (match-lambda [(list _ _ e γ _)     (list "" e "" γ "")])]
     ['extend (match-lambda [(list _ _ Γ x t _)   (list "" Γ ", " x ":" t)]
                            [(list _ _ Δ a _)     (list "" Δ ", " a)])]
     ['extend-substitution
              (match-lambda [(list _ _ γ x v _)   (list "" γ "[" x ":=" v "]")])]
+    ['fresh  (rewriter [(a bs)            "fresh # " bs])]
+    ['ftv    (match-lambda [(list _ _ t _)       (list "ftv(" t ")")])]
+    ['ftv/Γ  (match-lambda [(list _ _ Γ _)       (list "ftv(" Γ ")")])]
+    ['ftv/S  (match-lambda [(list _ _ S _)       (list "ftv(" S ")")])]
     ['kinds  (match-lambda [(list _ _ Δ t _)     (list "" Δ " ⊢ " t)])]
     ['kinds/env
              (match-lambda [(list _ _ Δ Γ _)     (list "" Δ " ⊢ " Γ)])]
@@ -63,7 +81,11 @@
     ['types~>
              (match-lambda [(list _ _ Γ e t e_out _)
                             (list "" Γ " ⊢ " e " : " t " ↝ " e_out)])]
-    ['types* (match-lambda [(list _ _ e t _)     (list "" e " : " t)])])
+    ['types* (match-lambda [(list _ _ e t _)     (list "" e " : " t)])]
+    ['unify  (match-lambda [(list _ _ t_1 t_2 S _)
+                                                 (list "" t_1 " ~ " t_2 " ↝ " S)])]
+    ['W      (match-lambda [(list _ _ Γ e S t _) (list "W(" Γ ", " e ") = ("
+                                                       S ", " t ")")])])
    (with-atomic-rewriter 't "τ"
     (with-atomic-rewriter 'l "ℓ"
      (parameterize
