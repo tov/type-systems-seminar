@@ -29,7 +29,7 @@
 @centered{
   @with-typesetting{
     @render-metafunction[r:inst]
-     
+
     @render-metafunction[r:gen]
   }
 }

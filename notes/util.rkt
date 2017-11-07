@@ -35,56 +35,53 @@
 
 (define (with-typesetting/thunk thunk)
   (with-compound-rewriters
-   (['∈      (rewriter [(a as)    "" a " ∈ " as])]
-    ['∉      (match-lambda [(list _ _ a as _)    (list "" a " ∉ " as)])]
-    ['->     (rewriter [(t_1 t_2) "(→ " t_1 " " t_2 ")"])]
-    ['-->    (match-lambda [(list _ _ e_1 e_2 _) (list "" e_1 " ⟶ " e_2)])]
-    ['-->*   (match-lambda [(list _ _ e_1 e_2 _) (list "" e_1 " ⟶* " e_2)])]
-    ['<:     (match-lambda [(list _ _ t_1 t_2 _) (list "" t_1 " <: " t_2)])]
-    ['<:~>   (match-lambda [(list _ _ t_1 t_2 e _)
-                            (list "" t_1 " <: " t_2 " ↝ " e)])]
-    ['\\     (rewriter [(as bs) "" as " \\ " bs])]
+   (['∈      (rewriter [(a as)       "" a " ∈ " as])]
+    ['∉      (rewriter [(a as)       "" a " ∉ " as])]
+    ['->     (rewriter [(t_1 t_2)    "(→ " t_1 " " t_2 ")"])]
+    ['-->    (rewriter [(e_1 e_2)    "" e_1 " ⟶ " e_2])]
+    ['-->*   (rewriter [(e_1 e_2)    "" e_1 " ⟶* " e_2])]
+    ['<:     (rewriter [(t_1 t_2)    "" t_1 " <: " t_2])]
+    ['<:~>   (rewriter [(t_1 t_2 e)  "" t_1 " <: " t_2 " ↝ " e])]
+    ['\\     (rewriter [(as bs)      "" as " \\ " bs])]
     ['apply-subst
-             (match-lambda [(list _ _ S σ _)     (list "" S "" σ "")])]
+             (rewriter [(S σ)        "" S "" σ ""])]
     ['apply-subst/Γ
-             (match-lambda [(list _ _ S Γ _)     (list "" S "" Γ "")])]
+             (rewriter [(S Γ)        "" S "" Γ ""])]
     ['compose-subst
-             (match-lambda [(list _ _ S_1 S_2 _) (list "" S_1 "" S_2 "")])]
+             (rewriter [(S_1 S_2)    "" S_1 "" S_2 ""])]
     ['apply-substitution
-             (match-lambda [(list _ _ e γ _)     (list "" e "" γ "")])]
-    ['extend (match-lambda [(list _ _ Γ x t _)   (list "" Γ ", " x ":" t)]
-                           [(list _ _ Δ a _)     (list "" Δ ", " a)])]
+             (rewriter [(e γ)        "" e "" γ ""])]
+    ['extend (rewriter [(Γ x t)      "" Γ ", " x ":" t]
+                       [(Δ a)        "" Δ ", " a])]
     ['extend-substitution
-             (match-lambda [(list _ _ γ x v _)   (list "" γ "[" x ":=" v "]")])]
-    ['fresh  (rewriter [(a bs)            "fresh # " bs])]
-    ['ftv    (match-lambda [(list _ _ t _)       (list "ftv(" t ")")])]
-    ['ftv/Γ  (match-lambda [(list _ _ Γ _)       (list "ftv(" Γ ")")])]
-    ['ftv/S  (match-lambda [(list _ _ S _)       (list "ftv(" S ")")])]
-    ['kinds  (match-lambda [(list _ _ Δ t _)     (list "" Δ " ⊢ " t)])]
+             (rewriter [(γ x v)      "" γ "[" x ":=" v "]"])]
+    ['fresh  (rewriter [(a bs)       "fresh # " bs])]
+    ['ftv    (rewriter [(t)          "ftv(" t ")"])]
+    ['ftv/Γ  (rewriter [(Γ)          "ftv(" Γ ")"])]
+    ['ftv/S  (rewriter [(S)          "ftv(" S ")"])]
+    ['kinds  (rewriter [(Δ t)        "" Δ " ⊢ " t])]
     ['kinds/env
-             (match-lambda [(list _ _ Δ Γ _)     (list "" Δ " ⊢ " Γ)])]
-    ['lookup (match-lambda [(list _ _ Γ x _)     (list "" Γ "(" x ")")])]
-    ['member (match-lambda [(list _ _ a Δ _)     (list "" a " ∈ " Δ)])]
-    ['meta-+ (match-lambda [(list _ _ e_1 e_2 _) (list "" e_1 " + " e_2)])]
-    ['meta-* (match-lambda [(list _ _ e_1 e_2 _) (list "" e_1 " × " e_2)])]
+             (rewriter [(Δ Γ)        "" Δ " ⊢ " Γ])]
+    ['lookup (rewriter [(Γ x)        "" Γ "(" x ")"])]
+    ['member (rewriter [(a Δ)        "" a " ∈ " Δ])]
+    ['meta-+ (rewriter [(e_1 e_2)    "" e_1 " + " e_2])]
+    ['meta-* (rewriter [(e_1 e_2)    "" e_1 " × " e_2])]
     ['satisfies
-             (match-lambda [(list _ _ γ Γ _)     (list "" γ " ⊨ " Γ)])]
-    ['SN     (match-lambda [(list _ _ t e _)     (typeset-SN t e)])]
-    ['size   (match-lambda [(list _ _ e _)       (list "|" e "|")])]
+             (rewriter [(γ Γ)        "" γ " ⊨ " Γ])]
+    ['SN     (rewriter [(t e)        (typeset-SN t e)])]
+    ['size   (rewriter [(e)          "|" e "|"])]
     ['substitute
-             (match-lambda [(list _ _ e x v _)   (list "" e "[" x ":=" v "]")])]
-    ['types  (match-lambda [(list _ _ Γ e t _)   (list "" Γ " ⊢ " e " : " t)]
-                           [(list _ _ Δ Γ e t _) (list "" Δ "; " Γ " ⊢ " e
-                                                       " : " t)])]
+             (rewriter [(e x v)      "" e "[" x ":=" v "]"])]
+    ['types  (rewriter [(Γ e t)      "" Γ " ⊢ " e " : " t]
+                       [(Δ Γ e t)    "" Δ "; " Γ " ⊢ " e " : " t])]
     ['types/alt
-             (match-lambda [(list _ _ Γ e t _)   (list "" Γ " ⊢ " e " : " t)])]
+             (rewriter [(Γ e t)      "" Γ " ⊢ " e " : " t])]
     ['types~>
-             (match-lambda [(list _ _ Γ e t e_out _)
-                            (list "" Γ " ⊢ " e " : " t " ↝ " e_out)])]
-    ['types* (match-lambda [(list _ _ e t _)     (list "" e " : " t)])]
-    ['unify  (match-lambda [(list _ _ t_1 t_2 S _)
-                                                 (list "" t_1 " ~ " t_2 " ↝ " S)])]
-    ['W      (rewriter [(Γ e S t) "W(" Γ ", " e ") = (" S ", " t ")"])])
+             (rewriter [(Γ e t e_out)
+                                     "" Γ " ⊢ " e " : " t " ↝ " e_out])]
+    ['types* (rewriter [(e t)        "" e " : " t])]
+    ['unify  (rewriter [(t_1 t_2 S)  "" t_1 " ~ " t_2 " ↝ " S])]
+    ['W      (rewriter [(Γ e S t)   "W(" Γ ", " e ") = (" S ", " t ")"])])
    (with-atomic-rewriter 't "τ"
     (with-atomic-rewriter 'l "ℓ"
      (parameterize
