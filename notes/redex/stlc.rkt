@@ -111,17 +111,26 @@
         (in-hole E (substitute (substitute e_s x_pre v) y_rec (rec v [e_z] [x_pre y_rec e_s])))
         rec-succ]))
 
+; This is PCF:
 (define-extended-language stlc/fix stlc/rec
   [e ::= ....
-     (fix e)]
+     (fix e)
+     (if0 e e [x e])]
   [E ::= ....
-     (fix E)])
+     (fix E)
+     (if0 E e [x e])])
 
 (define ->val/fix
   (extend-reduction-relation ->val/rec stlc/fix
    [--> (in-hole E (fix (λ x t e)))
         (in-hole E (substitute e x (fix (λ x t e))))
-        fix]))
+        fix]
+   [--> (in-hole E (if0 z e_z [x e_s]))
+        (in-hole E e_z)
+        if0-z]
+   [--> (in-hole E (if0 (s v) e_z [x e_s]))
+        (in-hole E (substitute e_s x v))
+        if0-s]))
 
 (define-extended-judgment-form stlc/fix types
   #:mode (types/alt I I O)
@@ -135,4 +144,10 @@
 
   [(types/alt Γ e (-> t t))
    ---- fix
-   (types/alt Γ (fix e) t)])
+   (types/alt Γ (fix e) t)]
+
+  [(types/alt Γ e nat)
+   (types/alt Γ e_z t)
+   (types/alt (extend Γ x nat) e_s t)
+   ---- if0
+   (types/alt Γ (if0 e e_z [x e_s]) t)])

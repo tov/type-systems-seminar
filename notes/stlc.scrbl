@@ -469,19 +469,31 @@ Strong normalization follows as a corollary.
 @section[#:tag "stlc-fix"]{Adding nontermination}
 
 We can add unrestricted recursion to @stlc by adding a fixed-point operator.
-The new expression form is @term[(fix e)]:
+We will also add an @term[if0] construct, which lets us discriminate between
+zero and non-zero and extracts the predecessor from a natural. (This is
+redundant with the recursor, but easier to use. The resulting language is
+equivalent to the classic PCF.)
+
+The new expression forms are @term[(fix e)] and @term[(if0 e e [x e])]:
 @;
 @render-nonterminals[r:stlc/fix e]
 
 What @term[fix] does at run time is apply its argument, which must
-be a function, to the @term[fix] of itself, thus implementing recursion:
+be a function, to the @term[fix] of itself, thus implementing recursion.
+What @term[if0] does is discriminate between @term[z] and @term[(s v)],
+evaluating to its then-branch if zero, and its else-branch if not.
 @;
-@render-reduction-rules[r:->val/fix fix]
+@render-reduction-rules[r:->val/fix fix if0-z if0-s]
 
 To type @term[fix], we type its argument, which must be a function from
-the desired type to itself:
+the desired type to itself. To type @term[if0], the natural position must
+type as @term[nat], and the then- and else-branches must have the same type,
+where the else-branch has the predecessor bound.
 @;
-@render-judgment-rules[r:types/alt fix]
+@render-judgment-rules[r:types/alt fix if0]
+
+@exercise{Define addition, multiplication, and factorial using @term[fix]
+ and @term[if0]. How does it compare to using the recursor?}
 
 @exercise{Extend type safety for @term[fix].}
 
