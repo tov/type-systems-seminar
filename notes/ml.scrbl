@@ -22,16 +22,36 @@
 
 @section[#:tag "ml-static"]{Static semantics}
 
-@render-nonterminals[r:λ-ml t σ Γ S a b]
+@subsection[#:tag "ml-system"]{Algorithmic type system}
+
+@render-nonterminals[r:λ-ml t σ Γ a b]
+
+@render-judgment-rules[r:> mono all]
+
+@render-judgment-rules[r:types var abs app let]
+
+@subsection[#:tag "ml-inference"]{Type inference algorithm}
+
+@render-nonterminals[r:λ-ml S]
 
 @render-judgment-rules[r:unify var-same var-left var-right arr]
 
 @centered{
-  @with-typesetting{
-    @render-metafunction[r:inst]
+ @with-typesetting{
+  @render-metafunction[r:inst]
 
-    @render-metafunction[r:gen]
-  }
+  @render-metafunction[r:gen]
+ }
 }
 
 @render-judgment-rules[r:W var app abs let]
+
+@section[#:tag "ml-constraints"]{Constraint-based type inference}
+
+@render-judgment-rules[r:solve true and equal exists]
+
+@centered{
+ @with-typesetting{
+  @render-metafunction[r:generate]
+ }
+}

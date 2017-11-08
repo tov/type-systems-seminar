@@ -3,6 +3,7 @@
 (provide λ-ml
          ->val
          W inst gen unify
+         > types
          solve generate)
 
 (require redex/reduction-semantics
@@ -191,6 +192,40 @@
    (W (extend (apply-subst S_1 Γ) x σ) e_2 S_2 t_2)
    ---- let
    (W Γ (let x e_1 e_2) (compose-subst S_2 S_1) t_2)])
+
+(define-judgment-form λ-ml
+  #:mode (> I O)
+  #:contract (> σ t)
+  [---- mono
+   (> t t)]
+  [(where/hidden t_1 guess-type)
+   (> (substitute σ a t_1) t)
+   ---- all
+   (> (all a σ) t)])
+
+(define-judgment-form λ-ml
+  #:mode (types I I O)
+  #:contract (types Γ e t)
+
+  [(> (lookup Γ x) t)
+   ---- var
+   (types Γ x t)]
+
+  [(where/hidden t_1 guess-type)
+   (types (extend Γ x t_1) e t_2)
+   ---- abs
+   (types Γ (λ x e) (-> t_1 t_2))]
+
+  [(types Γ e_1 (-> t_2 t))
+   (types Γ e_2 t_2)
+   ---- app
+   (types Γ (ap e_1 e_2) t)]
+
+  [(types Γ e_1 t_1)
+   (where σ_1 (gen (\\ (ftv t_1) (ftv Γ)) t_1))
+   (types (extend Γ x σ_1) e_2 t)
+   ---- let
+   (types Γ (let x e_1 e_2) t)])
 
 (define-judgment-form λ-ml
   #:mode (solve I O)

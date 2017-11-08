@@ -27,6 +27,7 @@
   (with-compound-rewriters
    (['∈      (rewriter [(a as)       "" a " ∈ " as])]
     ['∉      (rewriter [(a as)       "" a " ∉ " as])]
+    ['>      (rewriter [(σ t)        "" σ " > " t ""])]
     ['->     (rewriter [(t_1 t_2)    "(→ " t_1 " " t_2 ")"])]
     ['-->    (rewriter [(e_1 e_2)    "" e_1 " ⟶ " e_2])]
     ['-->*   (rewriter [(e_1 e_2)    "" e_1 " ⟶* " e_2])]
