@@ -1,6 +1,6 @@
 #lang racket/base
 
-(provide λ-ml
+(provide λ-ml/no-bool λ-ml
          ->val
          W inst gen unify
          > types
@@ -10,7 +10,7 @@
          racket/set
          "util.rkt")
 
-(define-language λ-ml
+(define-language λ-ml/no-bool
   (e ::=
      x
      (λ x e)
@@ -36,17 +36,34 @@
      •
      (extend-subst S a t))
   (C ::=
-     true
-     (and C C)
+     ⊤
+     (∧ C C)
      (= t t)
-     (ex a C))
+     (∃ a C))
   (x y ::= variable-not-otherwise-mentioned)
   (a b ::= variable-not-otherwise-mentioned)
   #:binding-forms
   (λ x e #:refers-to x)
   (let x e_1 e_2 #:refers-to x)
   (all a s #:refers-to a)
-  (ex a C #:refers-to a))
+  (∃ a C #:refers-to a))
+
+(define-extended-language λ-ml λ-ml/no-bool
+  (e ::=
+     ....
+     true
+     false
+     (if e e e))
+  (v ::=
+     ....
+     true
+     false)
+  (E ::=
+     ....
+     (if E e e))
+  (t ::=
+     ....
+     bool))
 
 (define ->val
   (reduction-relation
@@ -57,7 +74,13 @@
         β-val)
    (--> (in-hole E (let x v e))
         (in-hole E (substitute e x v))
-        let)))
+        let)
+   (--> (in-hole E (if true e_1 e_2))
+        (in-hole E e_1)
+        if-true)
+   (--> (in-hole E (if false e_1 e_2))
+        (in-hole E e_2)
+        if-false)))
 
 (define-metafunction λ-ml
   lookup : Γ x -> σ
@@ -83,6 +106,7 @@
   [(ftv a)                       (a)]
   ; Types
   [(ftv (-> t_1 t_2))            (∪ (ftv t_1) (ftv t_2))]
+  [(ftv bool)                    ()]
   ; Type schemes
   [(ftv (all a σ))               (\\ (ftv σ) (a))]
   ; Environments
@@ -91,10 +115,10 @@
   ; Substitutions
   [(ftv (extend-subst S a t))    (∪ (ftv S) (ftv t))]
   ; Constraints
-  [(ftv true)                    ()]
-  [(ftv (and C_1 C_2))           (∪ (ftv C_1) (ftv C_2))]
+  [(ftv ⊤)                       ()]
+  [(ftv (∧ C_1 C_2))             (∪ (ftv C_1) (ftv C_2))]
   [(ftv (= t_1 t_2))             (∪ (ftv t_1) (ftv t_2))]
-  [(ftv (ex a C))                (\\ (ftv C) (a))])
+  [(ftv (∃ a C))                 (\\ (ftv C) (a))])
 
 (define-metafunction λ-ml
   apply-subst : S any -> any
@@ -144,8 +168,12 @@
    (unify a t (extend-subst • a t))]
   
   [(unify a (-> t_1 t_2) S)
-   ---- var-right
+   ---- arr-left
    (unify (-> t_1 t_2) a S)]
+
+  [(unify a bool S)
+   ---- bool-left
+   (unify bool a S)]
   
   [(unify t_11 t_21 S_1)
    (unify (apply-subst S_1 t_12) (apply-subst S_1 t_22) S_2)
@@ -191,7 +219,22 @@
    (where σ (gen (\\ (ftv t_1) (ftv (apply-subst S_1 Γ))) t_1))
    (W (extend (apply-subst S_1 Γ) x σ) e_2 S_2 t_2)
    ---- let
-   (W Γ (let x e_1 e_2) (compose-subst S_2 S_1) t_2)])
+   (W Γ (let x e_1 e_2) (compose-subst S_2 S_1) t_2)]
+
+  [---- true
+   (W Γ true • bool)]
+
+  [---- false
+   (W Γ false • bool)]
+
+  [(W Γ e_1 S_1 t_1)
+   (W (apply-subst S_1 Γ) e_2 S_2 t_2)
+   (W (apply-subst (compose-subst S_2 S_1) Γ) e_3 S_3 t_3)
+   (unify (apply-subst (compose-subst S_3 S_2) t_1) bool S_4)
+   (unify (apply-subst (compose-subst S_4 S_3) t_2) (apply-subst S_4 t_3) S_5)
+   (where S (compose-subst S_5 (compose-subst S_4 (compose-subst S_3 (compose-subst S_2 S_1)))))
+   ---- if
+   (W Γ (if e_1 e_2 e_3) S (apply-subst (compose-subst S_5 S_4) t_3))])
 
 (define-judgment-form λ-ml
   #:mode (> I O)
@@ -225,19 +268,31 @@
    (where σ_1 (gen (\\ (ftv t_1) (ftv Γ)) t_1))
    (types (extend Γ x σ_1) e_2 t)
    ---- let
-   (types Γ (let x e_1 e_2) t)])
+   (types Γ (let x e_1 e_2) t)]
+
+  [---- true
+   (types Γ true bool)]
+
+  [---- false
+   (types Γ false bool)]
+
+  [(types Γ e_1 bool)
+   (types Γ e_2 t)
+   (types Γ e_3 t)
+   ---- if
+   (types Γ (if e_1 e_2 e_3) t)])
 
 (define-judgment-form λ-ml
   #:mode (solve I O)
   #:contract (solve C S)
 
   [---- true
-   (solve true •)]
+   (solve ⊤ •)]
 
   [(solve C_1 S_1)
    (solve (apply-subst S_1 C_2) S_2)
    ---- and
-   (solve (and C_1 C_2) (compose-subst S_2 S_1))]
+   (solve (∧ C_1 C_2) (compose-subst S_2 S_1))]
 
   [(unify t_1 t_2 S)
    ---- equals
@@ -246,7 +301,7 @@
   [(where b (fresh a C))
    (solve (substitute C a b) S)
    ---- exists
-   (solve (ex a C) S)])
+   (solve (∃ a C) S)])
 
 (define-metafunction λ-ml
   generate : Γ e t -> C
@@ -256,12 +311,12 @@
    (where t_1 (inst (ftv Γ) (lookup Γ x)))]
 
   [(generate Γ (λ x e) t)
-   (ex a (ex b (and (= t (-> a b)) (generate (extend Γ x a) e b))))
+   (∃ a (∃ b (∧ (= t (-> a b)) (generate (extend Γ x a) e b))))
    (where a (fresh α (Γ t)))
    (where b (fresh β (Γ t a)))]
 
   [(generate Γ (ap e_1 e_2) t)
-   (ex a (and (generate Γ e_1 (-> a t)) (generate Γ e_2 a)))
+   (∃ a (∧ (generate Γ e_1 (-> a t)) (generate Γ e_2 a)))
    (where a (fresh α (Γ t)))]
 
   [(generate Γ (let x e_1 e_2) t)
@@ -270,4 +325,13 @@
    (where C_1 (generate Γ e_1 a))
    (judgment-holds (solve C_1 S))
    (where t_1 (apply-subst S a))
-   (where σ_1 (gen (\\ (ftv t_1) (ftv Γ)) t_1))])
+   (where σ_1 (gen (\\ (ftv t_1) (ftv Γ)) t_1))]
+
+  [(generate Γ true t)
+   (= t bool)]
+
+  [(generate Γ false t)
+   (= t bool)]
+
+  [(generate Γ (if e_1 e_2 e_3) t)
+   (∧ (generate Γ e_1 bool) (∧ (generate Γ e_2 t) (generate Γ e_3 t)))])

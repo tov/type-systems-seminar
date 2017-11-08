@@ -12,46 +12,42 @@
 
 @section[#:tag "ml-syntax"]{Syntax of @λ-ml}
 
-@render-nonterminals[r:λ-ml e x y]
+@render-nonterminals[r:λ-ml/no-bool e x y]
 
 @section[#:tag "ml-dynamic"]{Dynamic semantics}
 
-@render-nonterminals[r:λ-ml v E]
+@render-nonterminals[r:λ-ml/no-bool v E]
 
 @render-reduction-rules[r:->val β-val let]
 
 @section[#:tag "ml-static"]{Static semantics}
 
-@subsection[#:tag "ml-system"]{Algorithmic type system}
-
-@render-nonterminals[r:λ-ml t σ Γ a b]
+@render-nonterminals[r:λ-ml/no-bool t σ Γ a b]
 
 @render-judgment-rules[r:> mono all]
 
 @render-judgment-rules[r:types var abs app let]
 
-@subsection[#:tag "ml-inference"]{Type inference algorithm}
+@section[#:tag "ml-base"]{Adding base types}
 
-@render-nonterminals[r:λ-ml S]
+@render-nonterminals[r:λ-ml t e v E]
 
-@render-judgment-rules[r:unify var-same var-left var-right arr]
+@render-reduction-rules[r:->val if-true if-false]
 
-@centered{
- @with-typesetting{
-  @render-metafunction[r:inst]
+@render-judgment-rules[r:types true false if]
 
-  @render-metafunction[r:gen]
- }
-}
+@section[#:tag "ml-inference"]{Type inference algorithm}
 
-@render-judgment-rules[r:W var app abs let]
+@render-nonterminals[r:λ-ml/no-bool S]
+
+@render-judgment-rules[r:unify var-same var-left bool-left arr-left arr]
+
+@render-metas[r:inst r:gen]}
+
+@render-judgment-rules[r:W var app abs let true false if]
 
 @section[#:tag "ml-constraints"]{Constraint-based type inference}
 
-@render-judgment-rules[r:solve true and equal exists]
+@render-judgment-rules[r:solve true and equals exists]
 
-@centered{
- @with-typesetting{
-  @render-metafunction[r:generate]
- }
-}
+@render-metas[r:generate]

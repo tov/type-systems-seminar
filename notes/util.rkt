@@ -5,7 +5,8 @@
          theorem lemma exercise proof
          render-reduction-rules
          render-judgment-rules
-         render-nonterminals)
+         render-nonterminals
+         render-metas)
 
 (require redex/pict
          scribble/base
@@ -108,6 +109,11 @@
 (define-syntax-rule (render-nonterminals lang nt ...)
   (parameterize ([render-language-nts '(nt ...)])
     (with-typesetting (centered (render-language lang)))))
+
+(define-syntax-rule (render-metas fn ...)
+  (with-typesetting
+    (centered
+      (render-metafunctions fn ... #:contract? #true))))
 
 #;
 (define (theorem-like/thunk kind name body)
