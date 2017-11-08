@@ -76,63 +76,39 @@
 (define-metafunction λ-ml
   ftv : any -> (a ...)
   ; Type variables
-  [(ftv a)
-   (a)]
+  [(ftv a)                       (a)]
   ; Types
-  [(ftv (-> t_1 t_2))
-   (∪ (ftv t_1) (ftv t_2))]
+  [(ftv (-> t_1 t_2))            (∪ (ftv t_1) (ftv t_2))]
   ; Type schemes
-  [(ftv (all a σ))
-   (\\ (ftv σ) (a))]
+  [(ftv (all a σ))               (\\ (ftv σ) (a))]
   ; Environments
-  [(ftv •)
-   •]
-  [(ftv (extend Γ x σ))
-   (∪ (ftv Γ) (ftv σ))]
+  [(ftv •)                       ()]
+  [(ftv (extend Γ x σ))          (∪ (ftv Γ) (ftv σ))]
   ; Substitutions
-  [(ftv (extend-subst S a t))
-   (∪ (ftv S) (ftv t))]
+  [(ftv (extend-subst S a t))    (∪ (ftv S) (ftv t))]
   ; Constraints
-  [(ftv true)
-   ()]
-  [(ftv (and C_1 C_2))
-   (∪ (ftv C_1) (ftv C_2))]
-  [(ftv (= t_1 t_2))
-   (∪ (ftv t_1) (ftv t_2))]
-  [(ftv (ex a C))
-   (\\ (ftv C) (a))])
+  [(ftv true)                    ()]
+  [(ftv (and C_1 C_2))           (∪ (ftv C_1) (ftv C_2))]
+  [(ftv (= t_1 t_2))             (∪ (ftv t_1) (ftv t_2))]
+  [(ftv (ex a C))                (\\ (ftv C) (a))])
 
 (define-metafunction λ-ml
-  apply-subst : S σ -> σ
-  [(apply-subst • σ)
-   σ]
-  [(apply-subst (extend-subst S a t) σ)
-   (substitute (apply-subst S σ) a t)])
-
-(define-metafunction λ-ml
-  apply-subst/Γ : S Γ -> Γ
-  [(apply-subst/Γ S •)
-   •]
-  [(apply-subst/Γ S (extend Γ x σ))
-   (extend (apply-subst/Γ S Γ) x (apply-subst S σ))])
-
-(define-metafunction λ-ml
-  apply-subst/S : S S -> S
-  [(apply-subst/S S •)
-   •]
-  [(apply-subst/S S (extend-subst S_1 a t))
-   (extend (apply-subst/S S S_1) a (apply-subst S t))])
+  apply-subst : S any -> any
+  [(apply-subst • any)
+   any]
+  [(apply-subst (extend-subst S a t) any)
+   (substitute (apply-subst S any) a t)])
 
 (define-metafunction λ-ml
   concat-subst : S S -> S
   [(concat-subst S •)
    S]
   [(concat-subst S (extend-subst S_1 a t))
-   (extend (concat-subst S S_1) a t)])
+   (extend-subst (concat-subst S S_1) a t)])
 
 (define-metafunction λ-ml
   compose-subst : S S -> S
-  [(compose-subst S_1 S_2) (concat-subst S_1 (apply-subst/S S_1 S_2))])
+  [(compose-subst S_1 S_2) (concat-subst S_1 (apply-subst S_1 S_2))])
 
 (define-metafunction λ-ml
   fresh : a (a ...) -> a
@@ -196,7 +172,7 @@
    (W Γ x • t)]
 
   [(W Γ e_1 S_1 t_1)
-   (W (apply-subst/Γ S_1 Γ) e_2 S_2 t_2)
+   (W (apply-subst S_1 Γ) e_2 S_2 t_2)
    (where a (fresh α (∪ (ftv Γ) (ftv S_1) (ftv S_2) (ftv t_1) (ftv t_2))))
    (unify (apply-subst S_2 t_1) (-> t_2 a) S_3)
    ---- app
@@ -208,8 +184,8 @@
    (W Γ (λ x e) S (-> (apply-subst S a) t))]
 
   [(W Γ e_1 S_1 t_1)
-   (where σ (gen (\\ (ftv t_1) (ftv (apply-subst/Γ S_1 Γ))) t_1))
-   (W (extend (apply-subst/Γ S_1 Γ) x σ) e_2 S_2 t_2)
+   (where σ (gen (\\ (ftv t_1) (ftv (apply-subst S_1 Γ))) t_1))
+   (W (extend (apply-subst S_1 Γ) x σ) e_2 S_2 t_2)
    ---- let
    (W Γ (let x e_1 e_2) (compose-subst S_2 S_1) t_2)])
 

@@ -11,22 +11,12 @@
          scribble/base
          (only-in racket/class make-object)
          (only-in racket/draw font%)
-         (only-in pict text hbl-append)
          (only-in racket/match match-lambda)
          (only-in redex/reduction-semantics default-language)
          (for-syntax racket/base syntax/parse))
 
 (define SERIF-FONT "Palatino")
 (define MONO-FONT (make-object font% 14 "Menlo" 'modern))
-
-(define (typeset-SN t e)
-  (list "("
-        (hbl-append (text "SN" MONO-FONT)
-                    (text " " SERIF-FONT))
-        t
-        " "
-        e
-        ")"))
 
 (define-syntax rewriter
   (syntax-rules ()
@@ -45,8 +35,6 @@
     ['\\     (rewriter [(as bs)      "" as " \\ " bs])]
     ['apply-subst
              (rewriter [(S σ)        "" S "" σ ""])]
-    ['apply-subst/Γ
-             (rewriter [(S Γ)        "" S "" Γ ""])]
     ['compose-subst
              (rewriter [(S_1 S_2)    "" S_1 "" S_2 ""])]
     ['apply-substitution
@@ -57,8 +45,6 @@
              (rewriter [(γ x v)      "" γ "[" x ":=" v "]"])]
     ['fresh  (rewriter [(a bs)       "fresh # " bs])]
     ['ftv    (rewriter [(t)          "ftv(" t ")"])]
-    ['ftv/Γ  (rewriter [(Γ)          "ftv(" Γ ")"])]
-    ['ftv/S  (rewriter [(S)          "ftv(" S ")"])]
     ['kinds  (rewriter [(Δ t)        "" Δ " ⊢ " t])]
     ['kinds/env
              (rewriter [(Δ Γ)        "" Δ " ⊢ " Γ])]
@@ -68,7 +54,7 @@
     ['meta-* (rewriter [(e_1 e_2)    "" e_1 " × " e_2])]
     ['satisfies
              (rewriter [(γ Γ)        "" γ " ⊨ " Γ])]
-    ['SN     (rewriter [(t e)        (typeset-SN t e)])]
+    ['SN     (rewriter [(t e)        "(SN " t " " e ")"])]
     ['size   (rewriter [(e)          "|" e "|"])]
     ['substitute
              (rewriter [(e x v)      "" e "[" x ":=" v "]"])]
