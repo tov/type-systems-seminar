@@ -74,27 +74,33 @@
    ,(apply set-union (term ((a ...) ...)))])
 
 (define-metafunction λ-ml
-  ftv : σ -> (a ...)
+  ftv : any -> (a ...)
+  ; Type variables
   [(ftv a)
    (a)]
+  ; Types
+  [(ftv (-> t_1 t_2))
+   (∪ (ftv t_1) (ftv t_2))]
+  ; Type schemes
   [(ftv (all a σ))
    (\\ (ftv σ) (a))]
-  [(ftv (-> t_1 t_2))
-   (∪ (ftv t_1) (ftv t_2))])
-
-(define-metafunction λ-ml
-  ftv/Γ : Γ -> (a ...)
-  [(ftv/Γ •)
+  ; Environments
+  [(ftv •)
+   •]
+  [(ftv (extend Γ x σ))
+   (∪ (ftv Γ) (ftv σ))]
+  ; Substitutions
+  [(ftv (extend-subst S a t))
+   (∪ (ftv S) (ftv t))]
+  ; Constraints
+  [(ftv true)
    ()]
-  [(ftv/Γ (extend Γ x σ))
-   (∪ (ftv/Γ Γ) (ftv σ))])
-
-(define-metafunction λ-ml
-  ftv/S : S -> (a ...)
-  [(ftv/S •)
-   ()]
-  [(ftv/S (extend-subst S a t))
-   (∪ (ftv/S S) (ftv t))])
+  [(ftv (and C_1 C_2))
+   (∪ (ftv C_1) (ftv C_2))]
+  [(ftv (= t_1 t_2))
+   (∪ (ftv t_1) (ftv t_2))]
+  [(ftv (ex a C))
+   (\\ (ftv C) (a))])
 
 (define-metafunction λ-ml
   apply-subst : S σ -> σ
@@ -185,27 +191,39 @@
   #:mode (W I I O O)
   #:contract (W Γ e S t)
 
-  [(where t (inst (ftv/Γ Γ) (lookup Γ x)))
+  [(where t (inst (ftv Γ) (lookup Γ x)))
    ---- var
    (W Γ x • t)]
 
   [(W Γ e_1 S_1 t_1)
    (W (apply-subst/Γ S_1 Γ) e_2 S_2 t_2)
-   (where a (fresh α (∪ (ftv/Γ Γ) (ftv/S S_1) (ftv/S S_2) (ftv t_1) (ftv t_2))))
+   (where a (fresh α (∪ (ftv Γ) (ftv S_1) (ftv S_2) (ftv t_1) (ftv t_2))))
    (unify (apply-subst S_2 t_1) (-> t_2 a) S_3)
    ---- app
    (W Γ (ap e_1 e_2) (compose-subst S_3 (compose-subst S_2 S_1)) (apply-subst S_3 a))]
 
-  [(where a (fresh α (ftv/Γ Γ)))
+  [(where a (fresh α (ftv Γ)))
    (W (extend Γ x a) e S t)
    ---- abs
    (W Γ (λ x e) S (-> (apply-subst S a) t))]
 
   [(W Γ e_1 S_1 t_1)
-   (where σ (gen (\\ (ftv t_1) (ftv/Γ (apply-subst/Γ S_1 Γ))) t_1))
+   (where σ (gen (\\ (ftv t_1) (ftv (apply-subst/Γ S_1 Γ))) t_1))
    (W (extend (apply-subst/Γ S_1 Γ) x σ) e_2 S_2 t_2)
    ---- let
    (W Γ (let x e_1 e_2) (compose-subst S_2 S_1) t_2)])
+
+(define-judgment-form λ-ml
+  #:mode (solve I O)
+  #:contract (solve C S)
+
+  [---- true
+   (solve true •)]
+
+  [(solve C_1 S_1)
+   (solve C_2 S_2)
+   ---- and
+   (solve (and C_1 C_2) (compose-subst S_2 S_1))])
 
 (define-judgment-form λ-ml
   #:mode (generate I I I O)
