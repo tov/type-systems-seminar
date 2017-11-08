@@ -111,9 +111,9 @@
   [(compose-subst S_1 S_2) (concat-subst S_1 (apply-subst S_1 S_2))])
 
 (define-metafunction λ-ml
-  fresh : a (a ...) -> a
-  [(fresh a (b ...))
-   ,(variable-not-in (term (b ...)) (term a))])
+  fresh : a any -> a
+  [(fresh a any)
+   ,(variable-not-in (term any) (term a))])
 
 (define-judgment-form λ-ml
   #:mode (∈ I I)
@@ -173,12 +173,12 @@
 
   [(W Γ e_1 S_1 t_1)
    (W (apply-subst S_1 Γ) e_2 S_2 t_2)
-   (where a (fresh α (∪ (ftv Γ) (ftv S_1) (ftv S_2) (ftv t_1) (ftv t_2))))
+   (where a (fresh β (Γ S_1 S_2 t_1 t_2)))
    (unify (apply-subst S_2 t_1) (-> t_2 a) S_3)
    ---- app
    (W Γ (ap e_1 e_2) (compose-subst S_3 (compose-subst S_2 S_1)) (apply-subst S_3 a))]
 
-  [(where a (fresh α (ftv Γ)))
+  [(where a (fresh α Γ))
    (W (extend Γ x a) e S t)
    ---- abs
    (W Γ (λ x e) S (-> (apply-subst S a) t))]

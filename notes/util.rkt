@@ -43,7 +43,7 @@
                        [(Δ a)        "" Δ ", " a])]
     ['extend-subst
              (rewriter [(γ x v)      "" γ "[" x ":=" v "]"])]
-    ['fresh  (rewriter [(a bs)       "fresh # " bs])]
+    ['fresh  (rewriter [(a bs)       "# " bs])]
     ['ftv    (rewriter [(t)          "ftv(" t ")"])]
     ['kinds  (rewriter [(Δ t)        "" Δ " ⊢ " t])]
     ['kinds/env
