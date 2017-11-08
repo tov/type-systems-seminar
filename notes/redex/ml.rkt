@@ -1,6 +1,9 @@
 #lang racket/base
 
-(provide λ-ml ->val W inst gen unify)
+(provide λ-ml
+         ->val
+         W inst gen unify
+         solve generate)
 
 (require redex/reduction-semantics
          racket/set
@@ -197,27 +200,39 @@
    (solve true •)]
 
   [(solve C_1 S_1)
-   (solve C_2 S_2)
+   (solve (apply-subst S_1 C_2) S_2)
    ---- and
-   (solve (and C_1 C_2) (compose-subst S_2 S_1))])
+   (solve (and C_1 C_2) (compose-subst S_2 S_1))]
 
-(define-judgment-form λ-ml
-  #:mode (generate I I I O)
-  #:contract (generate Γ e t C)
+  [(unify t_1 t_2 S)
+   ---- equals
+   (solve (= t_1 t_2) S)]
 
-  [---- var
-   (generate Γ x t (= t (lookup Γ x)))]
+  [(where b (fresh a C))
+   (solve (substitute C a b) S)
+   ---- exists
+   (solve (ex a C) S)])
 
-  [(where a (fresh))
-   (where b (fresh))
-   (generate (extend Γ x a) e b C)
-   ---- abs
-   (generate Γ (λ x e) t (ex a (ex b (and (= t (-> a b)) C))))]
+(define-metafunction λ-ml
+  generate : Γ e t -> C
 
-  [(where a (fresh))
-   (generate Γ e_1 (-> a t) C_1)
-   (generate Γ e_2 a C_2)
-   ---- app
-   (generate Γ (ap e_1 e_2) t (ex a (and C_1 C_2)))])
+  [(generate Γ x t)
+   (= t t_1)
+   (where t_1 (inst (ftv Γ) (lookup Γ x)))]
 
+  [(generate Γ (λ x e) t)
+   (ex a (ex b (and (= t (-> a b)) (generate (extend Γ x a) e b))))
+   (where a (fresh α (Γ t)))
+   (where b (fresh β (Γ t a)))]
 
+  [(generate Γ (ap e_1 e_2) t)
+   (ex a (and (generate Γ e_1 (-> a t)) (generate Γ e_2 a)))
+   (where a (fresh α (Γ t)))]
+
+  [(generate Γ (let x e_1 e_2) t)
+   (generate (extend Γ x σ_1) e_2 t)
+   (where a (fresh α Γ))
+   (where C_1 (generate Γ e_1 a))
+   (judgment-holds (solve C_1 S))
+   (where t_1 (apply-subst S a))
+   (where σ_1 (gen (\\ (ftv t_1) (ftv Γ)) t_1))])
