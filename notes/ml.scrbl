@@ -146,8 +146,8 @@ argument of any type @term[t], and we get that same @term[t] back.
 So we could say that @term[x] has the @italic{type scheme}
 @term[(-> a a)] for all types @term[a].
 
-In fact, we will write type schemes with the universal quantifier to
-indicate which type variables are free in the scheme:
+We will write type schemes with the universal quantifier to
+indicate which type variables are free to be instantiated in the scheme:
 @;
 @render-nonterminals[r:λ-ml/no-bool σ]
 @;
@@ -176,7 +176,7 @@ type scheme instead of a mere monomorphic type (“monotype”):
 On the other hand, notice that the domain type inferred for λ is still
 required to be a monotype.
 
-There are two initial rules, which are not syntax-directed, but which are
+There are two initial rules, which are not syntax directed, but which are
 used to instantiate type schemes to types and generalize types to type
 schemes. To instantiate a type scheme, we can replace its bound variable
 with any type whatsoever:
@@ -195,14 +195,14 @@ imposed on them.
 @exercise{Derive a type for
  @term[(let f (λ x x) (if true (ap f true) (ap (ap f (λ y y)) false)))].}
 
-@exercise{What types can you derive for @term[(λ x x)]? What do they have in
- common? What type scheme instantiates to all of them?}
+@exercise{What types can you derive for @term[(λ x (λ y (ap x y)))]?
+ What do they have in common? What type scheme instantiates to all of them?}
 
 @subsection[#:tag "ml-syntax-directed"]{The syntax-directed type system}
 
 The system presented above allows generalization and instantiation anywhere, but
 in fact, these rules are only useful in certain places, because we do not allow
-polymorphic type schemes as the domains of functions. So in fact, the only
+polymorphic type schemes as the domains of functions. The only
 place that generalization is useful is when binding the right-hand side of a
 @term[let], and instantiation is only useful when we lookup a variable with
 a type scheme and want to use it. It's not necessary to apply the rules anywhere
