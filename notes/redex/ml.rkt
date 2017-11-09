@@ -157,6 +157,13 @@
    (∉ a (b ...))])
 
 (define-judgment-form λ-ml
+  #:mode (not-a-type-variable I)
+  #:contract (not-a-type-variable t)
+  [(side-condition ,(not (redex-match? λ-ml a (term t))))
+    ---- only
+   (not-a-type-variable t)])
+
+(define-judgment-form λ-ml
   #:mode (unify I I O)
   #:contract (unify t t S)
   
@@ -164,23 +171,20 @@
    (unify a a •)]
   
   [(∉ a (ftv t))
-   ---- var-any
+   ---- var-left
    (unify a t (extend-subst • a t))]
   
-  [(unify a bool S)
-   ---- bool-var
-   (unify bool a S)]
+  [(not-a-type-variable t)
+   (unify a t S)
+   ---- var-right
+   (unify t a S)]
 
-  [(unify a (-> t_1 t_2) S)
-   ---- arr-var
-   (unify (-> t_1 t_2) a S)]
-
-  [---- bool-bool
+  [---- bool
    (unify bool bool •)]
   
   [(unify t_11 t_21 S_1)
    (unify (apply-subst S_1 t_12) (apply-subst S_1 t_22) S_2)
-   ---- arr-arr
+   ---- arr
    (unify (-> t_11 t_12) (-> t_21 t_22) (compose-subst S_2 S_1))])
 
 (define-metafunction λ-ml

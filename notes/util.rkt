@@ -56,6 +56,8 @@
     ['member (rewriter [(a Δ)        "" a " ∈ " Δ])]
     ['meta-+ (rewriter [(e_1 e_2)    "" e_1 " + " e_2])]
     ['meta-* (rewriter [(e_1 e_2)    "" e_1 " × " e_2])]
+    ['not-a-type-variable
+             (rewriter [(t)          "" t " is not a type variable"])]
     ['satisfies
              (rewriter [(γ Γ)        "" γ " ⊨ " Γ])]
     ['SN     (rewriter [(t e)        "(SN " t " " e ")"])]
