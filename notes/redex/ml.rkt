@@ -4,7 +4,7 @@
          ->val
          W inst gen unify
          > types
-         solve generate)
+         solve-constraint generate)
 
 (require redex/reduction-semantics
          racket/set
@@ -250,9 +250,9 @@
   #:mode (types I I O)
   #:contract (types Γ e t)
 
-  [(> (lookup Γ x) t)
-   ---- var
-   (types Γ x t)]
+  ;; We start with the simply-typed λ calculus (with mono-types):
+  [---- var
+   (types Γ x (lookup Γ x))]
 
   [(where/hidden t_1 guess-type)
    (types (extend Γ x t_1) e t_2)
@@ -264,12 +264,52 @@
    ---- app
    (types Γ (ap e_1 e_2) t)]
 
+  ;; And we add let, still with mono-types:
+  [(types Γ e_1 t_1)
+   (types (extend Γ x t_1) e_2 t_2)
+   ---- let
+   (types Γ (let x e_1 e_2) t_2)]
+
+  ;; Polymorphism via copying, incorrect and correct.
+  [(types Γ (substitute e_2 x e_1) t_2)
+   ---- let-copy/wrong
+   (types Γ (let x e_1 e_2) t_2)]
+
+  [(types Γ e_1 t_1)
+   (types Γ (substitute e_2 x e_1) t_2)
+   ---- let-copy
+   (types Γ (let x e_1 e_2) t_2)]
+  
+  ;; The logical type system uses explicit inst and gen rules that can happen
+  ;; anywhere, and let is modified to allow binding a type scheme σ:
+  [(types Γ e (all a σ))
+   (where/hidden t fake-type)
+   ---- inst
+   (types Γ e (substitute σ a t))]
+
+  [(types Γ e σ)
+   (where a (fresh α Γ))
+   ---- gen
+   (types Γ e (all a σ))]
+
+  [(types Γ e_1 σ_1)
+   (types (extend Γ x σ_1) e_2 σ_2)
+   ---- let-poly
+   (types Γ (let x e_1 e_2) σ_2)]
+
+  ;; The algorithmic type system combines each of var and inst with another rule
+  ;; and discards all of var, inst, let, and gen.
+  [(> (lookup Γ x) t)
+   ---- var-inst
+   (types Γ x t)]
+
   [(types Γ e_1 t_1)
    (where σ_1 (gen (\\ (ftv t_1) (ftv Γ)) t_1))
    (types (extend Γ x σ_1) e_2 t)
-   ---- let
+   ---- let-gen
    (types Γ (let x e_1 e_2) t)]
 
+  ;; Here we add bool as a base type.
   [---- true
    (types Γ true bool)]
 
@@ -283,25 +323,25 @@
    (types Γ (if e_1 e_2 e_3) t)])
 
 (define-judgment-form λ-ml
-  #:mode (solve I O)
-  #:contract (solve C S)
+  #:mode (solve-constraint I O)
+  #:contract (solve-constraint C S)
 
   [---- true
-   (solve ⊤ •)]
+   (solve-constraint ⊤ •)]
 
-  [(solve C_1 S_1)
-   (solve (apply-subst S_1 C_2) S_2)
+  [(solve-constraint C_1 S_1)
+   (solve-constraint (apply-subst S_1 C_2) S_2)
    ---- and
-   (solve (∧ C_1 C_2) (compose-subst S_2 S_1))]
+   (solve-constraint (∧ C_1 C_2) (compose-subst S_2 S_1))]
 
   [(unify t_1 t_2 S)
    ---- equals
-   (solve (= t_1 t_2) S)]
+   (solve-constraint (= t_1 t_2) S)]
 
   [(where b (fresh a C))
-   (solve (substitute C a b) S)
+   (solve-constraint (substitute C a b) S)
    ---- exists
-   (solve (∃ a C) S)])
+   (solve-constraint (∃ a C) S)])
 
 (define-metafunction λ-ml
   generate : Γ e t -> C
@@ -323,7 +363,7 @@
    (generate (extend Γ x σ_1) e_2 t)
    (where a (fresh α Γ))
    (where C_1 (generate Γ e_1 a))
-   (judgment-holds (solve C_1 S))
+   (judgment-holds (solve-constraint C_1 S))
    (where t_1 (apply-subst S a))
    (where σ_1 (gen (\\ (ftv t_1) (ftv Γ)) t_1))]
 

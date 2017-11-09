@@ -47,6 +47,8 @@
              (rewriter [(γ x v)      "" γ "[" x ":=" v "]"])]
     ['fresh  (rewriter [(a bs)       "# " bs])]
     ['ftv    (rewriter [(t)          "ftv(" t ")"])]
+    ['generate
+             (rewriter [(Γ e t)      "⟦" Γ " ⊢ " e " : " t "⟧"])]
     ['kinds  (rewriter [(Δ t)        "" Δ " ⊢ " t])]
     ['kinds/env
              (rewriter [(Δ Γ)        "" Δ " ⊢ " Γ])]
@@ -58,6 +60,8 @@
              (rewriter [(γ Γ)        "" γ " ⊨ " Γ])]
     ['SN     (rewriter [(t e)        "(SN " t " " e ")"])]
     ['size   (rewriter [(e)          "|" e "|"])]
+    ['solve-constraint
+             (rewriter [(C S)        "solve(" C ") ↝ " S])]
     ['substitute
              (rewriter [(e x v)      "" e "[" x ":=" v "]"])]
     ['types  (rewriter [(Γ e t)      "" Γ " ⊢ " e " : " t]
