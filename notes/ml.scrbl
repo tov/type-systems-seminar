@@ -381,7 +381,7 @@ tells us what has to be true for a term to type, and then we solve the
 constraint. This technique is important mostly because it allows us to
 extend our type system in particular ways by adding new kinds of constraints.
 
-Our language of constraints has the trivial true contraint
+Our language of constraints has the trivial true constraint
 @term[⊤], the conjunction of two constraints @term[(∧ C C)], a constraint
 that two types be equal @term[(= t t)], and a constraint @term[(∃ a C)] that
 introduces a fresh type variable for the subconstraint @term[C]. Here is
