@@ -17,8 +17,7 @@
   - Damas–Hindley–Milner type inference
       - Pre-reading: [Damas and Milner 1982, "Principal type-schemes for
         functional programs"][dm82]
-      - soundness & completeness?
-      - constraint-based inference
+      - Constraint-based inference?
          - Reading: Wand
          - Reading: Pottier and Rémy, "The Essence of ML Type Inference"
 
