@@ -227,8 +227,8 @@ the given bound variables:
 @;
 @render-metas[r:gen]
 
-The syntax-directed type system presented in this section type exactly the same
-programs as the logical type system from the previous section. Unlike the
+The syntax-directed type system presented in this section admits exactly the
+same programs as the logical type system from the previous section. Unlike the
 logical system, it tells us exactly when we need to apply instantiation and
 generalization. But it still does not tell us what types to instantiate type
 schemes to in rule @rulename[var-inst], and it does not tell us what type
