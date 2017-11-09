@@ -164,20 +164,23 @@
    (unify a a •)]
   
   [(∉ a (ftv t))
-   ---- var-left
+   ---- var-any
    (unify a t (extend-subst • a t))]
   
+  [(unify a bool S)
+   ---- bool-var
+   (unify bool a S)]
+
   [(unify a (-> t_1 t_2) S)
-   ---- arr-left
+   ---- arr-var
    (unify (-> t_1 t_2) a S)]
 
-  [(unify a bool S)
-   ---- bool-left
-   (unify bool a S)]
+  [---- bool-bool
+   (unify bool bool •)]
   
   [(unify t_11 t_21 S_1)
    (unify (apply-subst S_1 t_12) (apply-subst S_1 t_22) S_2)
-   ---- arr
+   ---- arr-arr
    (unify (-> t_11 t_12) (-> t_21 t_22) (compose-subst S_2 S_1))])
 
 (define-metafunction λ-ml

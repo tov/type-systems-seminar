@@ -272,18 +272,22 @@ A variable @term[a] unifies with any other type @term[t] by extending
 the substitution to map @term[a] to @term[t], @italic{provided that
  @term[a] is not free in @term[t]}:
 @;
-@render-judgment-rules[r:unify var-left]
+@render-judgment-rules[r:unify var-any]
 @;
 (If @term[(∈ a (ftv t))] then they won't unify and we have a type error. This is
 the only kind of type error in a system without base types.)
 
 If a variable appears on the right, we swap it to the left and unify:
 @;
-@render-judgment-rules[r:unify bool-left arr-left]
+@render-judgment-rules[r:unify bool-var arr-var]
+
+Type @term[bool] unifies with itself:
+@;
+@render-judgment-rules[r:unify bool-bool]
 
 Finally, two types unify if their domains unify and their codomains unify:
 @;
-@render-judgment-rules[r:unify arr]
+@render-judgment-rules[r:unify arr-arr]
 @;
 Note that after @term[(unify t_11 t_21 S)] produces a substitution @term[S],
 we apply that substitution to @term[t_12] and @term[t_22] before unifying,
