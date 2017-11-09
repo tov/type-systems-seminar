@@ -73,7 +73,7 @@
                                      "" Γ " ⊢ " e " : " t " ↝ " e_out])]
     ['types* (rewriter [(e t)        "" e " : " t])]
     ['unify  (rewriter [(t_1 t_2 S)  "" t_1 " ~ " t_2 " ↝ " S])]
-    ['W      (rewriter [(Γ e S t)   "W(" Γ ", " e ") = (" S ", " t ")"])])
+    ['W      (rewriter [(Γ e S t)   "W(" Γ "; " e ") = (" S "; " t ")"])])
    (with-atomic-rewriter 't "τ"
     (with-atomic-rewriter 'l "ℓ"
      (parameterize
