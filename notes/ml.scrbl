@@ -401,7 +401,7 @@ constraints required for the typing judgment @term[(types Γ e t)] to hold:
 @;
 @render-metas[r:generate]
 
-How can we use this to type a term if we don’t know it's type to begin with?
+How can we use this to type a term if we don’t know its type to begin with?
 Suppose we want to type a term @term[e] in the empty environment. Then we choose
 a fresh type variable @term[a], generate the constraint that @term[e] has
 type type, and solve the constraint, yielding a substitition:
