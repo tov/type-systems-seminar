@@ -41,8 +41,8 @@
              (rewriter [(S_1 S_2)    "" S_1 "" S_2 ""])]
     ['apply-substitution
              (rewriter [(e γ)        "" e "" γ ""])]
-    ['extend (rewriter [(Γ x t)      "" Γ ", " x ":" t]
-                       [(Δ a)        "" Δ ", " a])]
+    ['extend (rewriter [(Γ x t)      "" Γ ", " x ":" t ""]
+                       [(Δ a)        "" Δ ", " a ""])]
     ['extend-subst
              (rewriter [(γ x v)      "" γ "[" x ":=" v "]"])]
     ['fresh  (rewriter [(a bs)       "# " bs])]
