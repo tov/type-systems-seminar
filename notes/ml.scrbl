@@ -295,7 +295,7 @@ will see that we accumulate and compose them.
 Unification has an interesting property: It finds the @italic{most general}
 unifier for any pair of unifiable types. A substitution @term[S] is more
 general than a substitution @term[S_1] if there exists a substitution @term[S_2]
-such that @term[S_1] = @term[(compose-substitution S_2 S)]. That is, if
+such that @term[S_1] = @term[(compose-subst S_2 S)]. That is, if
 @term[S_1] does more substitution than @term[S]. So suppose that @term[t_1]
 and @term[t_2] are two types, and suppose that
 @term[(apply-subst S_1 t_1)] = @term[(apply-subst S_1 t_2)]. Then the @term[S]
