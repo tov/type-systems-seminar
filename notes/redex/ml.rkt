@@ -4,7 +4,7 @@
          ->val
          W inst gen unify ftv
          > types
-         solve-constraint generate)
+         solve-constraint generate types*)
 
 (require redex/reduction-semantics
          racket/set
@@ -386,3 +386,13 @@
 
   [(generate Γ (if e_1 e_2 e_3) t)
    (∧ (generate Γ e_1 bool) (∧ (generate Γ e_2 t) (generate Γ e_3 t)))])
+
+; This is for testing:
+(define-judgment-form λ-ml
+  #:mode (types* I O)
+  #:contract (types* e σ)
+
+  [(solve-constraint (generate • e α) S)
+   (where t (apply-subst S α))
+   ---- generate/solve/generalize
+   (types* e (gen (ftv t) t))])
