@@ -37,7 +37,7 @@
   (cond
     [(null? lst) #false]
     [(null? (cdr lst)) (car lst)]
-    [else (fail-check "non-unique result")]))
+    [else (error "non-unique result")]))
 
 ; t t -> S or #false
 (define (unify-types t_1 t_2)
