@@ -42,22 +42,8 @@
 ; t t -> S or #false
 (define (unify-types t_1 t_2)
   (unique-car (judgment-holds (unify ,t_1 ,t_2 S) S)))
-  
-(define-check (check-unifies/fun? t_1 t_2)
-  (unless (unify-types t_1 t_2)
-    (fail-check "Could not unify")))
-
-(define-syntax-rule (check-unifies? t_1 t_2)
-  (check-unifies/fun? (term t_1) (term t_2)))
-
-(define-check (check-does-not-unify/fun? t_1 t_2)
-  (when (unify-types t_1 t_2)
-    (fail-check "Unified")))
-   
-(define-syntax-rule (check-does-not-unify? t_1 t_2)
-  (check-does-not-unify/fun? (term t_1) (term t_2)))
-
-(define-check (check-unifies-with/fun? t_1 t_2 S)
+ 
+(define-check (check-unifies/fun? t_1 t_2 S)
   ; S -> [List-of [List a t]]
   (define (subst->list S)
     (match S
@@ -68,32 +54,31 @@
   (unless (set=? S S-actual)
     (fail-check (format "Unifies with ~s" S-actual))))
     
-(define-syntax-rule (check-unifies-with? t_1 t_2 S)
-  (check-unifies-with/fun? (term t_1) (term t_2) `S))
+(define-syntax-rule (check-unifies? t_1 t_2 S)
+  (check-unifies/fun? (term t_1) (term t_2) `S))
 
-(check-unifies? a a)
-(check-unifies? a b)
-(check-unifies? a bool)
-(check-unifies? bool a)
-(check-unifies? a (-> b b))
-(check-unifies? (-> bool b) a)
+(define-check (check-does-not-unify/fun? t_1 t_2)
+  (when (unify-types t_1 t_2)
+    (fail-check "Unified")))
+   
+(define-syntax-rule (check-does-not-unify? t_1 t_2)
+  (check-does-not-unify/fun? (term t_1) (term t_2)))
+
+(check-unifies? a a ())
+(check-unifies? a b ((a b)))
+(check-unifies? a bool ((a bool)))
+(check-unifies? bool a ((a bool)))
+(check-unifies? a (-> b b) ((a (-> b b))))
+(check-unifies? (-> a b) (-> (-> b b) (-> c c))
+                ((a (-> (-> c c) (-> c c)))
+                 (b (-> c c))))
+(check-unifies? (-> a (-> c c)) (-> (-> b b) b)
+                ((a (-> (-> c c) (-> c c)))
+                 (b (-> c c))))
 
 (check-does-not-unify? bool (-> bool bool))
 (check-does-not-unify? a (-> a bool))
 (check-does-not-unify? (-> a b) (-> b (-> a a)))
-
-(check-unifies-with? a a ())
-(check-unifies-with? a b ((a b)))
-(check-unifies-with? a bool ((a bool)))
-(check-unifies-with? bool a ((a bool)))
-(check-unifies-with? a (-> b b) ((a (-> b b))))
-(check-unifies-with? (-> a b) (-> (-> b b) (-> c c))
-                     ((a (-> (-> c c) (-> c c)))
-                      (b (-> c c))))
-(check-unifies-with? (-> a (-> c c)) (-> (-> b b) b)
-                     ((a (-> (-> c c) (-> c c)))
-                      (b (-> c c))))
-
 
 ;                                                                    
 ;                                                                    
