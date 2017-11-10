@@ -4,7 +4,9 @@
          ->val
          W inst gen unify ftv
          > types
-         solve-constraint generate types*)
+         solve-constraint generate
+         generate*
+         types*)
 
 (require redex/reduction-semantics
          racket/set
@@ -387,12 +389,74 @@
   [(generate Γ (if e_1 e_2 e_3) t)
    (∧ (generate Γ e_1 bool) (∧ (generate Γ e_2 t) (generate Γ e_3 t)))])
 
-; This is for testing:
 (define-judgment-form λ-ml
-  #:mode (types* I O)
-  #:contract (types* e σ)
+  #:mode (inst* I I O O)
+  #:contract (inst* (a ...) σ t (a ...))
 
+  [---- mono
+   (inst* (b ...) t t (b ...))]
+
+  [(where b (fresh a (b_0 ...)))
+   (inst* (b_0 ... b) (substitute σ a b) t (b_1 ...))
+   ---- all
+   (inst* (b_0 ...) (all a σ) t (b_1 ...))])
+
+(define-judgment-form λ-ml
+  #:mode (generate* I I I O O O)
+  #:contract (generate* (a ...) Γ e t C (a ...))
+
+  [(inst* (b_0 ...) (lookup Γ x) t (b_1 ...))
+   ---- var
+   (generate* (b_0 ...) Γ x t ⊤ (b_1 ...))]
+
+  [(where a (fresh α (b_0 ...)))
+   (generate* (b_0 ... a) (extend Γ x a) e t C (b_1 ...))
+   ---- abs
+   (generate* (b_0 ...) Γ (λ x e) (-> a t) C (b_1 ...))]
+
+  [(generate* (b_0 ...) Γ e_1 t_1 C_1 (b_1 ...))
+   (generate* (b_1 ...) Γ e_2 t_2 C_2 (b_2 ...))
+   (where a (fresh α (b_2 ...)))
+   (where C (∧ (= t_1 (-> t_2 a)) (∧ C_1 C_2)))
+   ---- app
+   (generate* (b_0 ...) Γ (ap e_1 e_2) a C (b_2 ... a))]
+
+  [(generate* (b_0 ...) Γ e_1 t_1 C_1 (b_1 ...))
+   (solve-constraint C_1 S)
+   (where σ_1 (gen (\\ (ftv (apply-subst S t_1)) (ftv Γ)) (apply-subst S t_1)))
+   (generate* (b_1 ...) (extend Γ x σ_1) e_2 t_2 C_2 (b_2 ...))
+   ---- let
+   (generate* (b_0 ...) Γ (let x e_1 e_2) t_2 C_2 (b_2 ...))]
+
+  [---- true
+   (generate* (b ...) Γ true bool ⊤ (b ...))]
+
+  [---- false
+   (generate* (b ...) Γ false bool ⊤ (b ...))]
+
+  [(generate* (b_0 ...) Γ e_1 t_1 C_1 (b_1 ...))
+   (generate* (b_1 ...) Γ e_2 t_2 C_2 (b_2 ...))
+   (generate* (b_2 ...) Γ e_3 t_3 C_3 (b_3 ...))
+   (where C (∧ (= t_1 bool) (∧ (= t_2 t_3) (∧ C_1 (∧ C_2 C_3)))))
+   ---- if
+   (generate* (b_0 ...) Γ (if e_1 e_2 e_3) t_2 C (b_3 ...))])
+
+(define-judgment-form λ-ml
+  #:mode (types* I I O)
+  #:contract (types* string e σ)
+
+  [(W • e S t_*)
+   (where t (apply-subst S t_*))
+   ---- "algo-w"
+   (types* "W" e (gen (ftv t) t))]
+  
   [(solve-constraint (generate • e α) S)
    (where t (apply-subst S α))
-   ---- generate/solve/generalize
-   (types* e (gen (ftv t) t))])
+   ---- "check"
+   (types* "↓" e (gen (ftv t) t))]
+  
+  [(generate* () • e t_* C (b ...))
+   (solve-constraint C S)
+   (where t (apply-subst S t_*))
+   ---- "synthesize"
+   (types* "↑" e (gen (ftv t) t))])

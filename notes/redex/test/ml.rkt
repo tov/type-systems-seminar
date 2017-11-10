@@ -80,133 +80,73 @@
 (check-does-not-unify? a (-> a bool))
 (check-does-not-unify? (-> a b) (-> b (-> a a)))
 
-;                                                                    
-;                                                                    
-;                                                                    
-;                                                                    
-;               ;;;;                                      ;;       ;;
-;                 ;;                                      ;;       ;;
-;                 ;;                                      ;;       ;;
-;                 ;;                                      ;;;     ;;;
-;     ;;;;;       ;;        ;;;; ;;    ;;;;;               ;; ;;; ;; 
-;    ;;;;;;;;     ;;       ;;;;;;;;   ;;;;;;;              ;; ;;; ;; 
-;    ;     ;;     ;;      ;;;   ;;;  ;;;   ;;;             ;; ; ; ;; 
-;     ;;;;;;;     ;;      ;;     ;;  ;;     ;;             ;; ; ; ;; 
-;    ;;;;;;;;     ;;      ;;     ;;  ;;     ;;             ;; ; ; ;; 
-;   ;;;    ;;     ;;      ;;     ;;  ;;     ;;             ;;;; ;;;; 
-;   ;;     ;;     ;;      ;;     ;;  ;;     ;;             ;;;   ;;; 
-;   ;;    ;;;     ;;      ;;;   ;;;  ;;;   ;;;              ;;   ;;  
-;    ;;;;;;;;      ;;      ;;;;;;;;   ;;;;;;;               ;;   ;;  
-;     ;;;  ;;       ;;;;    ;;;; ;;    ;;;;;                ;;   ;;  
-;                                ;;                                  
-;                          ;    ;;;                                  
-;                          ;;;;;;;                                   
-;                           ;;;;;                                    
-;                                                                    
-
-; e -> σ or #false
-(define (type-check e)
-  (define t (unique-car (judgment-holds (W • ,e S t) t)))
-  (and t (term (gen (ftv ,t) ,t))))
-
-(define-syntax-rule (check-types? e t)
-  (test-equal (type-check (term e)) (term t)))
-
-(define-syntax-rule (check-does-not-type? e)
-  (check-false (type-check (term e))))
-
-(check-types? true bool)
-(check-types? (let x true x) bool)
-(check-types? (λ x x) (all a (-> a a)))
-; the order of binders produced by generalization is unpredictable!
-(check-types? (λ x (λ y x)) (all a (all b (-> b (-> a b)))))
-(check-types? (λ f (λ g (λ x (ap f (ap g x)))))
-              (all a (all c (all b (-> (-> b c) (-> (-> a b) (-> a c)))))))
-(check-types? (let f (λ x x) (ap f (λ x (λ y x))))
-              (all a (all b (-> b (-> a b)))))
-(check-types? (let f (λ x x)
-                (if true
-                    (ap f true)
-                    (ap (ap f (λ y y)) false)))
-              bool)
-
-(check-types? (λ y
-                (let f (λ x x)
-                  (if y
-                      (ap f true)
-                      (ap (ap f (λ y y)) false))))
-              (-> bool bool))
-              
-(check-does-not-type? (λ x (ap x x)))
-(check-does-not-type? (ap true true))
-
-(check-does-not-type? (λ y
-                        (λ f
-                          (if y
-                              (ap f true)
-                              (ap (ap f (λ y y)) false)))))
-
 ;                                                         
 ;                                                         
 ;                                                         
 ;                                                         
-;                          ;;;;                           
-;                            ;;                           
-;                            ;;                           
-;                            ;;                           
-;     ;;;;;;     ;;;;;       ;;      ;;     ;;     ;;;;   
-;   ;;;;;;;;;   ;;;;;;;      ;;       ;;   ;;    ;;   ;;  
-;   ;;      ;  ;;;   ;;;     ;;       ;;   ;;    ;;    ;; 
-;   ;;;;;      ;;     ;;     ;;       ;;   ;;   ;;      ; 
-;    ;;;;;;;   ;;     ;;     ;;        ;; ;;    ;;;;;;;;; 
-;       ;;;;;  ;;     ;;     ;;        ;; ;;    ;;        
-;          ;;  ;;     ;;     ;;        ;; ;;    ;;        
-;   ;     ;;;  ;;;   ;;;     ;;         ;;;      ;        
-;   ;;;;;;;;;   ;;;;;;;       ;;        ;;;      ;;     ; 
-;    ;;;;;;      ;;;;;         ;;;;     ;;;        ;;;;;; 
+;       ;;                     ;;;;                       
+;       ;;                    ;;;;;                       
+;                             ;;                          
+;                             ;;                          
+;     ;;;;     ;;  ;;;     ;;;;;;;;     ;;;;      ;;  ;;  
+;       ;;     ;;;;;;;;    ;;;;;;;;   ;;   ;;     ;; ;;;; 
+;       ;;     ;;;   ;;;      ;;      ;;    ;;    ;;;   ; 
+;       ;;     ;;     ;;      ;;     ;;      ;    ;;      
+;       ;;     ;;     ;;      ;;     ;;;;;;;;;    ;;      
+;       ;;     ;;     ;;      ;;     ;;           ;;      
+;       ;;     ;;     ;;      ;;     ;;           ;;      
+;       ;;     ;;     ;;      ;;      ;           ;;      
+;       ;;     ;;     ;;      ;;      ;;     ;    ;;      
+;    ;;;;;;;;  ;;     ;;      ;;        ;;;;;;    ;;      
 ;                                                         
 ;                                                         
 ;                                                         
 ;                                                         
 ;                                                         
 
-; e -> σ or #false
-(define (type-check* e)
-  (unique-car (judgment-holds (types* ,e σ) σ)))
+(define (run-type-tests system-tag)
+  ; e -> σ or #false
+  (define (type-check* e)
+    (unique-car (judgment-holds (types* ,system-tag ,e σ) σ)))
 
-(define-syntax-rule (check-types*? e t)
-  (test-equal (type-check* (term e)) (term t)))
+  (define-syntax-rule (check-types*? e t)
+    (test-equal (type-check* (term e)) (term t)))
 
-(define-syntax-rule (check-does-not-type*? e)
-  (check-false (type-check* (term e))))
+  (define-syntax-rule (check-does-not-type*? e)
+    (check-false (type-check* (term e))))
 
-(check-types*? true bool)
-(check-types*? (let x true x) bool)
-(check-types*? (λ x x) (all a (-> a a)))
-; the order of binders produced by generalization is unpredictable!
-(check-types*? (λ x (λ y x)) (all a (all b (-> b (-> a b)))))
-(check-types*? (λ f (λ g (λ x (ap f (ap g x)))))
-               (all a (all c (all b (-> (-> b c) (-> (-> a b) (-> a c)))))))
-(check-types*? (let f (λ x x) (ap f (λ x (λ y x))))
-               (all a (all b (-> b (-> a b)))))
-(check-types*? (let f (λ x x)
-                 (if true
-                     (ap f true)
-                     (ap (ap f (λ y y)) false)))
-               bool)
-
-(check-types*? (λ y
-                 (let f (λ x x)
-                   (if y
+  (check-types*? true bool)
+  (check-types*? (let x true x) bool)
+  (check-types*? (λ x x) (all a (-> a a)))
+  ; the order of binders produced by generalization is unpredictable!
+  (check-types*? (λ x (λ y x)) (all a (all b (-> b (-> a b)))))
+  (check-types*? (λ f (λ g (λ x (ap f (ap g x)))))
+                 (all a (all c (all b (-> (-> b c) (-> (-> a b) (-> a c)))))))
+  (check-types*? (let f (λ x x) (ap f (λ x (λ y x))))
+                 (all a (all b (-> b (-> a b)))))
+  (check-types*? (let f (λ x x)
+                   (if true
                        (ap f true)
-                       (ap (ap f (λ y y)) false))))
-               (-> bool bool))
-              
-(check-does-not-type*? (λ x (ap x x)))
-(check-does-not-type*? (ap true true))
+                       (ap (ap f (λ y y)) false)))
+                 bool)
 
-(check-does-not-type*? (λ y
-                         (λ f
-                           (if y
-                               (ap f true)
-                               (ap (ap f (λ y y)) false)))))
+  (check-types*? (λ y
+                   (let f (λ x x)
+                     (if y
+                         (ap f true)
+                         (ap (ap f (λ y y)) false))))
+                 (-> bool bool))
+              
+  (check-does-not-type*? (λ x (ap x x)))
+  (check-does-not-type*? (ap true true))
+
+  (check-does-not-type*? (λ y
+                           (λ f
+                             (if y
+                                 (ap f true)
+                                 (ap (ap f (λ y y)) false))))))
+
+(run-type-tests "W")
+(run-type-tests "↑")
+(run-type-tests "↓")
+  
