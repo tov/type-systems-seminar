@@ -2,7 +2,7 @@
 
 (provide λ-ml/no-bool λ-ml
          ->val
-         W inst gen unify
+         W inst gen unify ftv
          > types
          solve-constraint generate)
 
@@ -45,7 +45,7 @@
   #:binding-forms
   (λ x e #:refers-to x)
   (let x e_1 e_2 #:refers-to x)
-  (all a s #:refers-to a)
+  (all a σ #:refers-to a)
   (∃ a C #:refers-to a))
 
 (define-extended-language λ-ml λ-ml/no-bool
@@ -124,8 +124,12 @@
   apply-subst : S any -> any
   [(apply-subst • any)
    any]
+  ; This case should not be necessary by my understanding, but it
+  ; avoids a problem.
+  [(apply-subst S (extend-subst S_rest a t))
+   (extend-subst (apply-subst S S_rest) a (apply-subst S t))]
   [(apply-subst (extend-subst S a t) any)
-   (substitute (apply-subst S any) a t)])
+   (apply-subst S (substitute any a t))])
 
 (define-metafunction λ-ml
   concat-subst : S S -> S
