@@ -38,7 +38,7 @@
     ['apply-subst
              (rewriter [(S σ)        "" S "" σ ""])]
     ['compose-subst
-             (rewriter [(S_1 S_2)    "" S_1 "" S_2 ""])]
+             (rewriter [(S_1 S_2)    "" S_1 "∘" S_2 ""])]
     ['apply-substitution
              (rewriter [(e γ)        "" e "" γ ""])]
     ['extend (rewriter [(Γ x t)      "" Γ ", " x ":" t ""]
