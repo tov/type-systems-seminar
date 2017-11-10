@@ -170,6 +170,7 @@
 ;                                                         
 ;                                                         
 
+; e -> σ or #false
 (define (type-check* e)
   (unique-car (judgment-holds (types* ,e σ) σ)))
 
