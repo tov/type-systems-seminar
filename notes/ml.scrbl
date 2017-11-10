@@ -94,6 +94,9 @@ same type as each other:
 @;
 @render-judgment-rules[r:types true false if]
 
+@exercise{Extend @λ-ml with one of these features: products, sums, numbers,
+ records, recursion, references.}
+
 @exercise{Show that the term
  @term[(let f (λ x x) (if true (ap f true) (ap (ap f (λ y y)) false)))]
 has no type.}
@@ -234,6 +237,8 @@ generalization. But it still does not tell us what types to instantiate type
 schemes to in rule @rulename[var-inst], and it does not tell us what type
 to use for the domain in rule @term[abs]. To actually type terms, we will
 need an algorithm.
+
+@exercise{Extend the syntax-directed type system for your extended language.}
 
 @section[#:tag "ml-inference-algo"]{Type inference algorithm}
 
@@ -377,6 +382,8 @@ and @term[e_3] with each other. Either of those is then the type of the result.
   @term[(apply-subst S_1 t_1)] = @term[t].)}
 ]
 
+@exercise{Extend unification and Algorithm W for your extended language.}
+
 @section[#:tag "ml-constraints"]{Constraint-based type inference}
 
 Algorithm W interleaves walking the term and unification. There’s another
@@ -420,3 +427,5 @@ Then we look up the type of @term[a] in the resulting substiution:
 Note that for @term[let]-free programs, constraint generation is completely
 separated from solving. However, when we encounter a @term[let], we still
 interleave solving to get the generalized type of the let-bound variable.
+
+@exercise{Extend constraint generation for your extended language.}
