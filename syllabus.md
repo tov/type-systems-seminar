@@ -13,6 +13,7 @@
       - Pre-reading: Reynolds 1974, "Towards a Theory of Type Structure"
       (pages 1–8)
       - Parametricity?
+      - Reading: Theorem for free?
 
   - Damas–Hindley–Milner type inference
       - Pre-reading: [Damas and Milner 1982, "Principal type-schemes for
