@@ -33,7 +33,9 @@
      hole
      (ap E e)
      (ap v E)
-     (Ap E t)))
+     (Ap E t))
+  (a b ::= variable-not-otherwise-mentioned)
+  (x y ::= variable-not-otherwise-mentioned))
 
 (define-metafunction fomega
   lookup : Γ any -> t or k
