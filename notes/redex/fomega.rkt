@@ -56,11 +56,9 @@
         β-type)))
 
 (define-judgment-form fomega
-  #:mode (≡ I I)
+  #:mode (≡ I O)
   #:contract (≡ t t)
-  [(where t_1* ,(apply-reduction-relation* ->type (term t_1)))
-   (where t_2* ,(apply-reduction-relation* ->type (term t_2)))
-   (side-condition ,(equal? (term t_1*) (term t_2*)))
+  [(where t_2 ,(apply-reduction-relation* ->type (term t_1)))
    ---- equiv
    (≡ t_1 t_2)])
 
@@ -99,3 +97,31 @@
    (kinds Γ t_2 k_2)
    ---- app
    (kinds Γ (ap t_1 t_2) k)])
+
+(define-judgment-form fomega
+  #:mode (types I I O)
+  #:contract (types Γ e t)
+
+  [---- var
+   (types Γ x (lookup Γ x))]
+
+  [(kinds Γ t_1 *)
+   (types (extend Γ x t_1) e t_2)
+   ---- abs
+   (types Γ (λ x t_1 e) (-> t_1 t_2))]
+
+  [(types Γ e_1 t_1)
+   (types Γ e_2 t_2)
+   (≡ t_1 (-> t_2 t))
+   ---- app
+   (types Γ (ap e_1 e_2) t)]
+
+  [(types (extend Γ a k) e t)
+   ---- tabs
+   (types Γ (Λ a k e) (all a k t))]
+
+  [(kinds Γ t k)
+   (types Γ e t_1)
+   (≡ t_1 (all a k t_1*))
+   ---- tapp
+   (types Γ (Ap e t) (substitute t_1* a t))])
