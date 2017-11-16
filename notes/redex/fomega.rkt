@@ -1,5 +1,7 @@
 #lang racket/base
 
+(provide fomega ->type ->val kinds types)
+
 (require redex/reduction-semantics
          "util.rkt")
 
@@ -25,7 +27,12 @@
      (extend Γ a k))
   (TE ::=
      hole
-     (ap TE t))
+     (-> TE t)
+     (-> t TE)
+     (all a k TE)
+     (λ a k TE)
+     (ap TE t)
+     (ap t TE))
   (v ::=
      (λ x t e)
      (Λ a k e))
@@ -60,7 +67,7 @@
 (define-judgment-form fomega
   #:mode (≡ I O)
   #:contract (≡ t t)
-  [(where t_2 ,(apply-reduction-relation* ->type (term t_1)))
+  [(where t_2 ,(car (apply-reduction-relation* ->type (term t_1))))
    ---- equiv
    (≡ t_1 t_2)])
 
@@ -114,7 +121,8 @@
 
   [(types Γ e_1 t_1)
    (types Γ e_2 t_2)
-   (≡ t_1 (-> t_2 t))
+   (≡ t_1 (-> t_2* t))
+   (≡ t_2 t_2*)
    ---- app
    (types Γ (ap e_1 e_2) t)]
 
