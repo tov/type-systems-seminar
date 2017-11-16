@@ -27,7 +27,7 @@ Polymorphism lets us write one composition function that works for any types.
 We introduce type variables @term[a_i] and abstract over them with @term[Lam]:
 @;
 @centered[
-    @term[(Lam a_1 (Lam a_2 (Lam a_3 (lam x_1 (-> a_2 a_3) (lam x_2 (-> a_1 a_2) (lam y a_1 (app x_1 (app x_2 y))))))))]
+    @term[(Λ a_1 (Λ a_2 (Λ a_3 (λ x_1 (-> a_2 a_3) (λ x_2 (-> a_1 a_2) (λ y a_1 (ap x_1 (ap x_2 y))))))))]
 ]
 @;
 We model polymorphism with @λ-2, also known as System F.
@@ -103,9 +103,9 @@ In particular, define type @term[Nat] to be
 @term[(all a (-> (-> a a) (-> a a)))], with
 
 @itemlist[
- @item{c0 = @term[(Lam a (lam f (-> a a) (lam x a x)))],}
- @item{c1 = @term[(Lam a (lam f (-> a a) (lam x a (app f x))))],}
- @item{c2 = @term[(Lam a (lam f (-> a a) (lam x a (app f (app f x)))))],}
+ @item{c0 = @term[(Λ a (λ f (-> a a) (λ x a x)))],}
+ @item{c1 = @term[(Λ a (λ f (-> a a) (λ x a (ap f x))))],}
+ @item{c2 = @term[(Λ a (λ f (-> a a) (λ x a (ap f (ap f x)))))],}
  @item{and in general, c@emph{n} as the function that for any type @term[a],
        iterates an @term[(-> a a)] function @emph{n} times.}
 ]
@@ -126,8 +126,8 @@ The Booleans can be defined as their own elimination rule. In particular,
 let type @term[Bool] = @term[(all a (-> a (-> a a)))]. Then define:
 
 @itemlist[
- @item{tru = @term[(Lam a (lam x a (lam y a x)))], and}
- @item{fls = @term[(Lam a (lam x a (lam y a y)))].}
+ @item{tru = @term[(Λ a (λ x a (λ y a x)))], and}
+ @item{fls = @term[(Λ a (λ x a (λ y a y)))].}
 ]
 
 There’s no need for if-then-else—just apply the Boolean.
@@ -147,7 +147,7 @@ and it gives back that @term[a].
 
 The pair value @term[(pair v_1 v_2)] of type @term[(* t_1 t_2)]
 is represented as
-@term[(Lam a (lam y (-> t_1 (-> t_2 a)) ((y v_1) v_2)))].
+@term[(Λ a (λ y (-> t_1 (-> t_2 a)) ((y v_1) v_2)))].
 
 @exercise{How can we write the selectors fst and snd?}
 
@@ -189,7 +189,7 @@ There must be some type @term[t_rep] such that @term[(substitute t a t_rep)]
 = @term[t_act]. Then to create the existential, we write:
 
 @centered[
- @term[(Lam b (lam y (all a (-> t b)) (app (App y t_rep) v_rep)))]
+ @term[(Λ b (λ y (all a (-> t b)) (ap (Ap y t_rep) v_rep)))]
 ]
 
 To use the existential, apply it!
@@ -202,20 +202,20 @@ the underlying natural.) We could pack that up as:
 
 @centered{
  Counter =
-   @term[(Lam b (lam y (all a (-> (* a (* (-> a a) (-> a Nat))) b))
-                  (app (App (y (* Nat (* (-> Nat Nat) (-> Nat Nat)))))
-                       (pair c0 (pair succ (lam x Nat x))))))]
+   @term[(Λ b (λ y (all a (-> (* a (* (-> a a) (-> a Nat))) b))
+                   (ap (Ap (y (* Nat (* (-> Nat Nat) (-> Nat Nat)))))
+                       (pair c0 (pair succ (λ x Nat x))))))]
 }
 
 Then to count to 2, we might write:
 
 @centered[
- @term[(app (App Counter Nat)
-            (Lam a (lam counter (* a (* (-> a a) (-> a Nat)))
-                     ((snd (snd counter))
-                      ((fst (snd counter))
-                       ((fst (snd counter))
-                        (fst counter)))))))]
+ @term[(ap (Ap Counter Nat)
+           (Λ a (λ counter (* a (* (-> a a) (-> a Nat)))
+                  ((snd (snd counter))
+                   ((fst (snd counter))
+                    ((fst (snd counter))
+                     (fst counter)))))))]
 ]
 
 This is the basis of abstract types as the appear in module and object systems.
@@ -234,8 +234,8 @@ Consider this alternate definition of Counter:
 
 @centered{
  Counter =
-   @term[(Lam b (lam y (all a (-> (* a (* (-> a a) (-> a Nat))) b))
-                  (app (App (y (* Nat (* (-> Nat Nat) (-> Nat Nat)))))
+   @term[(Λ b (λ y (all a (-> (* a (* (-> a a) (-> a Nat))) b))
+                   (ap (Ap (y (* Nat (* (-> Nat Nat) (-> Nat Nat)))))
                        (pair c1 (pair succ pred)))))]
 }
 

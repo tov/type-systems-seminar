@@ -12,10 +12,10 @@
      (-> t t))
   (e ::=
      x
-     (lam x t e)
-     (app e e)
-     (Lam a e)
-     (App e t))
+     (λ x t e)
+     (ap e e)
+     (Λ a e)
+     (Ap e t))
   (Δ ::=
      •
      (extend Δ a))
@@ -23,31 +23,31 @@
      •
      (extend Γ x t))
   (v ::=
-     (lam x t e)
-     (Lam a e))
+     (λ x t e)
+     (Λ a e))
   (E ::=
      hole
-     (app E e)
-     (app v E)
-     (App E t))
+     (ap E e)
+     (ap v E)
+     (Ap E t))
   (γ ::=
      •
      (extend γ x v))
   (x y ::= variable-not-otherwise-mentioned)
   (a b ::= variable-not-otherwise-mentioned)
   #:binding-forms
-  (lam x t e #:refers-to x)
-  (Lam a e #:refers-to a)
+  (λ x t e #:refers-to x)
+  (Λ a e #:refers-to a)
   (all a t #:refers-to a))
 
 (define ->val
   (reduction-relation
    λ-2
    #:domain e
-   (--> (in-hole E (app (lam x t e) v))
+   (--> (in-hole E (ap (λ x t e) v))
         (in-hole E (substitute e x v))
         β-val)
-   (--> (in-hole E (App (Lam a e) t))
+   (--> (in-hole E (Ap (Λ a e) t))
         (in-hole E (substitute e a t))
         inst)))
 
@@ -110,18 +110,18 @@
    [(kinds Δ t_1)
     (types Δ (extend Γ x t_1) e t_2)
    ---- abs
-   (types Δ Γ (lam x t_1 e) (-> t_1 t_2))]
+   (types Δ Γ (λ x t_1 e) (-> t_1 t_2))]
   
   [(types Δ Γ e_1 (-> t_2 t))
    (types Δ Γ e_2 t_2)
    ---- app
-   (types Δ Γ (app e_1 e_2) t)]
+   (types Δ Γ (ap e_1 e_2) t)]
 
   [(types (extend Δ a) Γ e t)
    ---- t-abs
-   (types Δ Γ (Lam a e) (all a t))]
+   (types Δ Γ (Λ a e) (all a t))]
 
   [(kinds Δ t)
    (types Δ Γ e (all a t_1))
    ---- t-app
-   (types Δ Γ (App e t) (substitute t_1 a t))])
+   (types Δ Γ (Ap e t) (substitute t_1 a t))])
