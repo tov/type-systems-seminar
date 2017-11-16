@@ -42,8 +42,13 @@
      (ap v E)
      (Ap E t))
   (a b ::= variable-not-otherwise-mentioned)
-  (x y ::= variable-not-otherwise-mentioned))
-
+  (x y ::= variable-not-otherwise-mentioned)
+  #:binding-forms
+  (all a k t #:refers-to a)
+  (λ a k t #:refers-to a)
+  (Λ a k e #:refers-to a)
+  (λ x t e #:refers-to x))
+  
 (define-metafunction fomega
   lookup : Γ any -> t or k
   [(lookup (extend Γ x t) x)
