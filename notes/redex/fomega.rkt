@@ -103,9 +103,9 @@
    ---- all
    (kinds Γ (all a k t) *)]
 
-  [(kinds (extend Γ a k) t *)
+  [(kinds (extend Γ a k_1) t k_2)
    ---- abs
-   (kinds Γ (λ a k t) (=> * *))]
+   (kinds Γ (λ a k_1 t) (=> k_1 k_2))]
 
   [(kinds Γ t_1 (=> k_2 k))
    (kinds Γ t_2 k_2)
