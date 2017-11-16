@@ -29,6 +29,7 @@
    (['∈      (rewriter [(a as)       "" a " ∈ " as])]
     ['∉      (rewriter [(a as)       "" a " ∉ " as])]
     ['>      (rewriter [(σ t)        "" σ " > " t ""])]
+    ['=>     (rewriter [(k_1 k_2)    "(⇒ " k_1 " " k_2 ")"])]
     ['->     (rewriter [(t_1 t_2)    "(→ " t_1 " " t_2 ")"])]
     ['-->    (rewriter [(e_1 e_2)    "" e_1 " ⟶ " e_2])]
     ['-->*   (rewriter [(e_1 e_2)    "" e_1 " ⟶* " e_2])]
@@ -49,7 +50,8 @@
     ['ftv    (rewriter [(t)          "ftv(" t ")"])]
     ['generate
              (rewriter [(Γ e t)      "⟦" Γ " ⊢ " e " : " t "⟧"])]
-    ['kinds  (rewriter [(Δ t)        "" Δ " ⊢ " t])]
+    ['kinds  (rewriter [(Δ t)        "" Δ " ⊢ " t]
+                       [(Γ t k)      "" Γ " ⊢ " t " :: " k ""])]
     ['kinds/env
              (rewriter [(Δ Γ)        "" Δ " ⊢ " Γ])]
     ['lookup (rewriter [(Γ x)        "" Γ "(" x ")"])]
@@ -78,18 +80,19 @@
     ['W      (rewriter [(Γ e S t)   "W(" Γ "; " e ") = (" S "; " t ")"])])
    (with-atomic-rewriter 't "τ"
     (with-atomic-rewriter 'l "ℓ"
-     (parameterize
-         ([default-font-size              16]
-          [default-style                  SERIF-FONT]
-          [grammar-style                  SERIF-FONT]
-          [label-style                    SERIF-FONT]
-          [literal-style                  MONO-FONT]
-          [metafunction-style             SERIF-FONT]
-          [non-terminal-style             (cons 'italic SERIF-FONT)]
-          [non-terminal-subscript-style   (cons 'subscript SERIF-FONT)]
-          [non-terminal-superscript-style (cons 'superscript SERIF-FONT)]
-          [paren-style                    SERIF-FONT])
-       (thunk))))))
+     (with-atomic-rewriter 'k "κ"
+      (parameterize
+        ([default-font-size              16]
+         [default-style                  SERIF-FONT]
+         [grammar-style                  SERIF-FONT]
+         [label-style                    SERIF-FONT]
+         [literal-style                  MONO-FONT]
+         [metafunction-style             SERIF-FONT]
+         [non-terminal-style             (cons 'italic SERIF-FONT)]
+         [non-terminal-subscript-style   (cons 'subscript SERIF-FONT)]
+         [non-terminal-superscript-style (cons 'superscript SERIF-FONT)]
+         [paren-style                    SERIF-FONT])
+        (thunk)))))))
 
 (define-syntax-rule (with-typesetting expr0 expr ...)
   (with-typesetting/thunk (λ () (list expr0 expr ...))))

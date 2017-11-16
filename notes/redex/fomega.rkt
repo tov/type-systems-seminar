@@ -8,7 +8,7 @@
 (define-language fomega
   (k ::=
      *
-     (=> * *))
+     (=> k k))
   (t ::=
      a
      (-> t t)

@@ -1,4 +1,4 @@
-GOAL = ml
+GOAL = fomega
 
 html: out/$(GOAL).html
 
