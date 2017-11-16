@@ -387,7 +387,7 @@ and @term[e_3] with each other. Either of those is then the type of the result.
 @section[#:tag "ml-constraints"]{Constraint-based type inference}
 
 Algorithm W interleaves walking the term and unification. There’s another
-approach based on @italic{constraints}, where we generate a constraint the
+approach based on @italic{constraints}, where we generate a constraint that
 tells us what has to be true for a term to type, and then we solve the
 constraint. This technique is important mostly because it allows us to
 extend our type system in particular ways by adding new kinds of constraints.
