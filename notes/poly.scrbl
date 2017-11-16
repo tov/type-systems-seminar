@@ -24,7 +24,7 @@ But if the functions have different types, we will need to define a
 different composition function. This is awkward!
 
 Polymorphism lets us write one composition function that works for any types.
-We introduce type variables @term[a_i] and abstract over them with @term[Lam]:
+We introduce type variables @term[a_i] and abstract over them with @term[Λ]:
 @;
 @centered[
     @term[(Λ a_1 (Λ a_2 (Λ a_3 (λ x_1 (-> a_2 a_3) (λ x_2 (-> a_1 a_2) (λ y a_1 (ap x_1 (ap x_2 y))))))))]
