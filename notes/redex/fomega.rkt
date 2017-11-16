@@ -52,7 +52,8 @@
   (reduction-relation
    fomega #:domain t
    (--> (in-hole TE (ap (λ a k t_1) t_2))
-        (in-hole TE (substitute t_1 a t_2)))))
+        (in-hole TE (substitute t_1 a t_2))
+        β-type)))
 
 (define-judgment-form fomega
   #:mode (≡ I I)
@@ -62,4 +63,39 @@
    (side-condition ,(equal? (term t_1*) (term t_2*)))
    ---- equiv
    (≡ t_1 t_2)])
-                      
+
+(define ->val
+  (reduction-relation
+   fomega
+   #:domain e
+   (--> (in-hole E (ap (λ x t e) v))
+        (in-hole E (substitute e x v))
+        β-val)
+   (--> (in-hole E (Ap (Λ a k e) t))
+        (in-hole E (substitute e a t))
+        inst)))
+
+(define-judgment-form fomega
+  #:mode (kinds I I O)
+  #:contract (kinds Γ t k)
+  
+  [---- var
+   (kinds Γ a (lookup Γ a))]
+
+  [(kinds Γ t_1 *)
+   (kinds Γ t_2 *)
+   ---- arr
+   (kinds Γ (-> t_1 t_2) *)]
+
+  [(kinds (extend Γ a k) t *)
+   ---- all
+   (kinds Γ (all a k t) *)]
+
+  [(kinds (extend Γ a k) t *)
+   ---- abs
+   (kinds Γ (λ a k t) (=> * *))]
+
+  [(kinds Γ t_1 (=> k_2 k))
+   (kinds Γ t_2 k_2)
+   ---- app
+   (kinds Γ (ap t_1 t_2) k)])
