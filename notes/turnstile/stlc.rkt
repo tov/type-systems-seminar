@@ -5,6 +5,7 @@
          Bool not if
          Int - zero? positive? negative? random
          Vec vec vec-ref vec-set! build-vec vec-len
+         Record
          ann
          let let* letrec
          λ (rename-out [λ lam])
@@ -130,6 +131,38 @@
    [⊢ e3 ≫ e3- ⇐ τ]
    ----
    [⊢ (if- e1- e2- e3-) ⇒ τ]])
+
+(define-internal-type-constructor Record)
+
+(define-syntax Record
+  (syntax-parser
+    [(_ [label:id τ:type] ...)
+     #'(Record- (list 'label τ.norm) ...)]))
+
+#;
+(define (record-type)
+  (error "Not for run time!"))
+#;
+(begin-for-syntax
+  (define-syntax ~Record
+    (pattern-expander
+     (syntax-parser
+       [(head [label:id τ] ...)
+        (begin
+          (displayln #'record)
+          (~seq _ [label τ] ...))]))))
+#;
+(define-typed-syntax record
+  [(_ [label:id e] ...) ≫
+   [⊢ e ≫ e- ⇒ τ] ...
+   ----
+   [⊢ (vector- e- ...) ⇒ (Record [label τ] ...)]])
+#;
+(define-typed-syntax project
+  [(_ e label:id) ≫
+   [⊢ e ≫ e- ⇒ (~Record fields)]
+   ----
+   [⊢ e- ⇒ Int]])
 
 (define-typed-syntax let
   [(_ ([x:id rhs:expr] ...) body:expr ...+) ≫
