@@ -36,6 +36,7 @@
     ['<:     (rewriter [(t_1 t_2)    "" t_1 " <: " t_2])]
     ['<:~>   (rewriter [(t_1 t_2 e)  "" t_1 " <: " t_2 " ↝ " e])]
     ['\\     (rewriter [(as bs)      "" as " \\ " bs])]
+    ['≡      (rewriter [(t_1 t_2)    "" t_1 " ≡ " t_2 ""])]
     ['apply-subst
              (rewriter [(S σ)        "" S "" σ ""])]
     ['compose-subst
