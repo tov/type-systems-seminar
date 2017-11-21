@@ -1,6 +1,6 @@
 #lang scribble/base
 
-@(require (prefix-in r: "redex/poly.rkt")
+@(require (prefix-in r: "redex/sysf.rkt")
           (prefix-in stlc: "redex/stlc.rkt")
           "util.rkt"
           (only-in redex default-language)
