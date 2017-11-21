@@ -13,6 +13,7 @@
          (rename-out [datum #%datum]
                      [app #%app]))
 
+
 ; Functions can have 0 or more arguments:
 (define-type-constructor -> #:arity >= 1)
 
@@ -73,10 +74,10 @@
    ----
    [⊢ (vector- ei- ...)]]
   [(_ e1 ei ...) ≫
-   [⊢ e1 ≫ e1- ⇒ τ]
-   [⊢ ei ≫ ei- ⇐ τ] ...
+   [⊢ e1 ≫ e1- ⇒ τ1]
+   [⊢ ei ≫ ei- ⇒ τi] ...
    ----
-   [⊢ (vector- e1- ei- ...) ⇒ (Vec τ)]])
+   [⊢ (vector- e1- ei- ...) ⇒ (Vec (⊔ τ1 τi ...))]])
 
 (define-typed-syntax vec-ref
   [(_ e_vec e_ix) ≫
@@ -124,6 +125,23 @@
    ----
    [⊢ (begin- e_i- ... e_n-) ⇒ τ]])
 
+(begin-for-syntax 
+  (define current-join
+    (make-parameter 
+      (λ (x y) 
+        (unless (typecheck? x y)
+          (type-error
+            #:src x
+            #:msg "branches have incompatible types: ~a and ~a" x y))
+        x))))
+
+(define-syntax ⊔
+  (syntax-parser
+    [(⊔ τ1 τ2 ...)
+     (for/fold ([τ ((current-type-eval) #'τ1)])
+               ([τ2 (in-list (stx-map (current-type-eval) #'[τ2 ...]))])
+       ((current-join) τ τ2))]))
+
 (define-typed-syntax if
   [(_ e1 e2 e3) ⇐ τ ≫
    [⊢ e1 ≫ e1- ⇐ Bool]
@@ -133,10 +151,10 @@
    [⊢ (if- e1- e2- e3-)]]
   [(_ e1 e2 e3) ≫
    [⊢ e1 ≫ e1- ⇐ Bool]
-   [⊢ e2 ≫ e2- ⇒ τ]
-   [⊢ e3 ≫ e3- ⇐ τ]
+   [⊢ e2 ≫ e2- ⇒ τ2]
+   [⊢ e3 ≫ e3- ⇒ τ3]
    ----
-   [⊢ (if- e1- e2- e3-) ⇒ τ]])
+   [⊢ (if- e1- e2- e3-) ⇒ (⊔ τ2 τ3)]])
 
 (module record-internal turnstile
   (provide (rename-out [Record- Record-internal-])
