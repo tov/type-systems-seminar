@@ -138,7 +138,14 @@
    ----
    [⊢ (if- e1- e2- e3-) ⇒ τ]])
 
-(define-internal-type-constructor Record-internal)
+(module record-internal turnstile
+  (provide (rename-out [Record- Record-internal-])
+           (for-syntax
+            (rename-out [~Record ~Record-internal]
+                        [Record? Record-internal?])))
+  (define-internal-type-constructor Record))
+
+(require (submod "." record-internal))
 
 (define-simple-macro (Record [label:id τ:type] ...)
   #:fail-when (check-duplicate-identifier (syntax->list #'(label ...)))
