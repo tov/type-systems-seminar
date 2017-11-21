@@ -181,11 +181,15 @@
 
 (define-typed-syntax record
   [(_ [label:id e] ...) ⇐ (~Record [label_r:id τ] ...) ≫
-   #:fail-when (not (andmap free-identifier=?
-                            (syntax->list #'(label ...))
-                            (syntax->list #'(label_r ...))))
-               (format "Expected record type with fields in order: ~a"
-                       (syntax->list #'(label_r ...)))
+   #:fail-unless (stx-length=? #'(label ...) #'(label_r ...))
+                 (format "Expected record with ~a fields, but got ~a fields"
+                         (stx-length #'(label_r ...))
+                         (stx-length #'(label ...)))
+   #:fail-unless (andmap free-identifier=?
+                         (syntax->list #'(label ...))
+                         (syntax->list #'(label_r ...)))
+                 (format "Expected record type with fields in order: ~a"
+                         (syntax->list #'(label_r ...)))
    [⊢ e ≫ e- ⇐ τ] ...
    ----
    [⊢ (vector- e- ...)]]
