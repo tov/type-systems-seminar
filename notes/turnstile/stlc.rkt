@@ -5,7 +5,7 @@
          Bool not if
          Int - zero? positive? negative? random
          Vec vec vec-ref vec-set! build-vec vec-len
-         Record
+         Record record project
          ann
          let let* letrec
          λ (rename-out [λ lam])
@@ -32,14 +32,14 @@
 (define-type-constructor Vec #:arity = 1)
 
 (define-typed-syntax λ
-  [(_ ([x:id τ_in:type] ...) e:expr) ≫
-   [[x ≫ x- : τ_in.norm] ... ⊢ e ≫ e- ⇒ τ_out]
-   ----
-   [⊢ (λ- (x- ...) e-) ⇒ (-> τ_in.norm ... τ_out)]]
   [(λ (x:id ...) e:expr) ⇐ (~-> τ_in ... τ_out) ≫
    [[x ≫ x- : τ_in] ... ⊢ e ≫ e- ⇐ τ_out]
    ----
-   [⊢ (λ- (x- ...) e-)]])
+   [⊢ (λ- (x- ...) e-)]]
+  [(_ ([x:id τ_in:type] ...) e:expr) ≫
+   [[x ≫ x- : τ_in.norm] ... ⊢ e ≫ e- ⇒ τ_out]
+   ----
+   [⊢ (λ- (x- ...) e-) ⇒ (-> τ_in.norm ... τ_out)]])
 
 (define-typed-syntax (app e_fn e_arg ...) ≫
   [⊢ e_fn ≫ e_fn- ⇒ (~-> τ_in ... τ_out)]
@@ -68,15 +68,15 @@
                         #:msg "Unsupported literal: ~v" #'x)]])
 
 (define-typed-syntax vec
+  [(_ ei ...) ⇐ (~Vec τ) ≫
+   [⊢ ei ≫ ei- ⇐ τ] ...
+   ----
+   [⊢ (vector- ei- ...)]]
   [(_ e1 ei ...) ≫
    [⊢ e1 ≫ e1- ⇒ τ]
    [⊢ ei ≫ ei- ⇐ τ] ...
    ----
-   [⊢ (vector- e1- ei- ...) ⇒ (Vec τ)]]
-  [(_ ei ...) ⇐ (~Vec τ) ≫
-   [⊢ ei ≫ ei- ⇐ τ] ...
-   ----
-   [⊢ (vector- ei- ...)]])
+   [⊢ (vector- e1- ei- ...) ⇒ (Vec τ)]])
 
 (define-typed-syntax vec-ref
   [(_ e_vec e_ix) ≫
@@ -113,18 +113,24 @@
    [⊢ (begin- e- (void)) ⇒ Unit]])
 
 (define-typed-syntax begin
-  [(_ e_i ... e_n) ≫
-   [⊢ e_i ≫ e_i- ⇐ Unit] ...
-   [⊢ e_n ≫ e_n- ⇒ τ]
-   ----
-   [⊢ (begin- e_i- ... e_n-) ⇒ τ]]
   [(_ e_i ... e_n) ⇐ τ ≫
    [⊢ e_i ≫ e_i- ⇐ Unit] ...
    [⊢ e_n ≫ e_n- ⇐ τ]
    ----
-   [⊢ (begin- e_i- ... e_n-)]])
+   [⊢ (begin- e_i- ... e_n-)]]
+  [(_ e_i ... e_n) ≫
+   [⊢ e_i ≫ e_i- ⇐ Unit] ...
+   [⊢ e_n ≫ e_n- ⇒ τ]
+   ----
+   [⊢ (begin- e_i- ... e_n-) ⇒ τ]])
 
 (define-typed-syntax if
+  [(_ e1 e2 e3) ⇐ τ ≫
+   [⊢ e1 ≫ e1- ⇐ Bool]
+   [⊢ e2 ≫ e2- ⇐ τ]
+   [⊢ e3 ≫ e3- ⇐ τ]
+   ----
+   [⊢ (if- e1- e2- e3-)]]
   [(_ e1 e2 e3) ≫
    [⊢ e1 ≫ e1- ⇐ Bool]
    [⊢ e2 ≫ e2- ⇒ τ]
@@ -132,49 +138,66 @@
    ----
    [⊢ (if- e1- e2- e3-) ⇒ τ]])
 
-(define-internal-type-constructor Record)
+(define-internal-type-constructor Record-internal)
 
-(define-syntax Record
-  (syntax-parser
-    [(_ [label:id τ:type] ...)
-     #'(Record- (list 'label τ.norm) ...)]))
+(define-simple-macro (Record [label:id τ:type] ...)
+  #:fail-when (check-duplicate-identifier (syntax->list #'(label ...)))
+              "duplicate field name"
+  #:with out (mk-type #'(Record-internal- ('label τ.norm) ...))
+  out)
 
-#;
-(define (record-type)
-  (error "Not for run time!"))
-#;
 (begin-for-syntax
   (define-syntax ~Record
     (pattern-expander
      (syntax-parser
-       [(head [label:id τ] ...)
-        (begin
-          (displayln #'record)
-          (~seq _ [label τ] ...))]))))
-#;
+       [(_ [label τ] (~and ooo (~literal ...)))
+        #'(~Record-internal
+           ((~literal #%plain-app) ((~literal quote) label) τ) ooo)]))))
+
 (define-typed-syntax record
+  [(_ [label:id e] ...) ⇐ (~Record [label_r:id τ] ...) ≫
+   #:fail-when (not (andmap free-identifier=?
+                            (syntax->list #'(label ...))
+                            (syntax->list #'(label_r ...))))
+               (format "Expected record type with fields in order: ~a"
+                       (syntax->list #'(label_r ...)))
+   [⊢ e ≫ e- ⇐ τ] ...
+   ----
+   [⊢ (vector- e- ...)]]
   [(_ [label:id e] ...) ≫
    [⊢ e ≫ e- ⇒ τ] ...
    ----
    [⊢ (vector- e- ...) ⇒ (Record [label τ] ...)]])
-#;
+
+(begin-for-syntax
+  (define (find/index key stx)
+    (define lst (map syntax->list (syntax->list stx)))
+    (define index (index-where lst
+                               (λ (entry) (free-identifier=? key (car entry)))))
+    (unless index
+      (type-error #:src stx
+                  #:msg "Expected record type with field: ~a" key))
+    (define type (cadr (list-ref lst index)))
+    #`(#,index #,type)))
+
 (define-typed-syntax project
   [(_ e label:id) ≫
-   [⊢ e ≫ e- ⇒ (~Record fields)]
+   [⊢ e ≫ e- ⇒ (~Record [li τi] ...)]
+   #:with (index τ) (find/index #'label #'([li τi] ...))
    ----
-   [⊢ e- ⇒ Int]])
+   [⊢ (vector-ref- e- index) ⇒ τ]])
 
 (define-typed-syntax let
-  [(_ ([x:id rhs:expr] ...) body:expr ...+) ≫
-   [⊢ rhs ≫ rhs- ⇒ τ_rhs] ...
-   [[x ≫ x- : τ_rhs] ... ⊢ (begin body ...) ≫ body- ⇒ τ_body]
-   ----
-   [⊢ (let- ([x- rhs-] ...) body-) ⇒ τ_body]]
   [(_ ([x:id rhs:expr] ...) body:expr ...+) ⇐ τ ≫
    [⊢ rhs ≫ rhs- ⇒ τ_rhs] ...
    [[x ≫ x- : τ_rhs] ... ⊢ (begin body ...) ≫ body- ⇐ τ]
    ----
-   [⊢ (let- ([x- rhs-] ...) body-)]])
+   [⊢ (let- ([x- rhs-] ...) body-)]]
+  [(_ ([x:id rhs:expr] ...) body:expr ...+) ≫
+   [⊢ rhs ≫ rhs- ⇒ τ_rhs] ...
+   [[x ≫ x- : τ_rhs] ... ⊢ (begin body ...) ≫ body- ⇒ τ_body]
+   ----
+   [⊢ (let- ([x- rhs-] ...) body-) ⇒ τ_body]])
 
 (define-typed-syntax let*
   [(_ () body:expr ...+) ≫
@@ -185,16 +208,16 @@
    [≻ (let ([x rhs]) (let* ([x_i rhs_i] ...) body ...))]])
 
 (define-typed-syntax letrec
-  [(_ ([x:id τ:type rhs:expr] ...) body ...+) ≫
-   [[x ≫ x- : τ.norm] ... ⊢ [rhs ≫ rhs- ⇐ τ] ...
-                             [(begin body ...) ≫ body- ⇒ τ_body]]
-   ----
-   [⊢ (letrec- ([x- rhs-] ...) body-) ⇒ τ_body]]
   [(_ ([x:id τ:type rhs:expr] ...) body ...+) ⇐ τ_body ≫
    [[x ≫ x- : τ.norm] ... ⊢ [rhs ≫ rhs- ⇐ τ] ...
                              [(begin body ...) ≫ body- ⇐ τ_body]]
    ----
-   [⊢ (letrec- ([x- rhs-] ...) body-)]])
+   [⊢ (letrec- ([x- rhs-] ...) body-)]]
+  [(_ ([x:id τ:type rhs:expr] ...) body ...+) ≫
+   [[x ≫ x- : τ.norm] ... ⊢ [rhs ≫ rhs- ⇐ τ] ...
+                             [(begin body ...) ≫ body- ⇒ τ_body]]
+   ----
+   [⊢ (letrec- ([x- rhs-] ...) body-) ⇒ τ_body]])
 
 (define-syntax define-type-alias
   (syntax-parser
