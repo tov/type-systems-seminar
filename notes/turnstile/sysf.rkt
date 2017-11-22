@@ -38,6 +38,10 @@
 (define-typed-syntax inst
   [(_ e τi:type ...) ≫
    [⊢ e ≫ e- ⇒ (~all (tv:id ...) τ_body)]
+   #:fail-unless (stx-length=? #'(τi ...) #'(tv ...))
+                 (format "Got ~a where ~a type parameter(s) expected"
+                         (map type->str (syntax->list #'(τi ...)))
+                         (stx-length #'(tv ...)))
    #:with τ (substs #'(τi.norm ...) #'(tv ...) #'τ_body)
    ----
    [⊢ (e-) ⇒ τ]])
