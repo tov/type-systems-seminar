@@ -1,9 +1,10 @@
 #lang turnstile/lang
 
 (extends "stlc.rkt"
-         #:except vec-ref vec-set! build-vec vec-len)
+         #:except #%app vec-ref vec-set! build-vec vec-len)
 (provide All tyλ inst
          vec-ref vec-set! build-vec vec-len
+         (rename-out [app #%app])
          error!)
 
 (define-binding-type All)
@@ -36,6 +37,25 @@
    [⊢ (λ- () e-) ⇒ (All (tv- ...) τ)]])
 
 (define-typed-syntax inst
+  [(_ e τi:type ...) ≫
+   [⊢ e ≫ e- ⇒ (~All (tv:id ...) τ_body)]
+   #:fail-unless (stx-length=? #'(τi ...) #'(tv ...))
+                 (format "Got ~a where ~a type parameter(s) expected"
+                         (map type->str (syntax->list #'(τi ...)))
+                         (stx-length #'(tv ...)))
+   #:with τ (substs #'(τi.norm ...) #'(tv ...) #'τ_body)
+   ----
+   [⊢ (e-) ⇒ τ]])
+
+(define-typed-syntax app
+  [(_ e_fn e_arg ...) ≫
+   [⊢ e_fn ≫ e_fn- ⇒ (~-> τ_in ... τ_out)]
+   #:fail-unless (stx-length=? #'[τ_in ...] #'[e_arg ...])
+                 (format "arity mismatch, expected ~a args, given ~a"
+                         (stx-length #'[τ_in ...]) #'[e_arg ...])
+   [⊢ e_arg ≫ e_arg- ⇐ τ_in] ...
+   ----
+   [⊢ (#%app- e_fn- e_arg- ...) ⇒ τ_out]]
   [(_ e τi:type ...) ≫
    [⊢ e ≫ e- ⇒ (~All (tv:id ...) τ_body)]
    #:fail-unless (stx-length=? #'(τi ...) #'(tv ...))
