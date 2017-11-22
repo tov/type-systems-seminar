@@ -13,7 +13,7 @@
          define-type-alias define
          (rename-out [datum #%datum]
                      [app #%app])
-         (for-syntax current-join) ⊔)
+         (for-syntax current-join current-meet) ⊔ ⊓)
 
 
 ; Functions can have 0 or more arguments:
@@ -83,22 +83,31 @@
    [#:error (type-error #:src #'x
                         #:msg "Unsupported literal: ~v" #'x)]])
 
-(begin-for-syntax 
+(begin-for-syntax
   (define current-join
-    (make-parameter 
-      (λ (x y) 
+    (make-parameter
+      (λ (x y)
         (unless (typecheck? x y)
           (type-error
             #:src x
             #:msg "branches have incompatible types: ~a and ~a" x y))
-        x))))
+        x)))
+  (define current-meet (make-parameter (current-join))))
 
 (define-syntax ⊔
   (syntax-parser
     [(_ τ1 τ2 ...)
-     (for/fold ([τ ((current-type-eval) #'τ1)])
+     (for/fold ([τ1 ((current-type-eval) #'τ1)])
                ([τ2 (in-list (stx-map (current-type-eval) #'[τ2 ...]))])
-       ((current-join) τ τ2))]))
+       ((current-join) τ1 τ2))]))
+
+(define-syntax ⊓
+  (syntax-parser
+    [(_ τ1 τ2 ...)
+     (for/fold ([τ1 ((current-type-eval) #'τ1)])
+               ([τ2 (in-list (stx-map (current-type-eval) #'[τ2 ...]))])
+       ((current-meet) τ1 τ2))]))
+
 
 
 (define-typed-syntax vec

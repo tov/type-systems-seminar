@@ -9,9 +9,11 @@
          (type-out Float) -/Float
          record project
          (rename-out [datum #%datum])
-         (for-syntax current-sub? subs?))
+         (for-syntax current-sub? subs? join-rows meet-rows))
 
-(require (prefix-in stlc: "stlc.rkt"))
+(require "stx-utils.rkt"
+         (prefix-in stlc: "stlc.rkt")
+         racket/set)
 
 (define-base-type Top)
 (define-base-type Bot)
@@ -40,6 +42,9 @@
    (≻ (stlc:#%datum . otherwise))])
 
 (begin-for-syntax
+  (define (not-bot? τ)
+    (not (Bot? ((current-type-eval) τ))))
+  
   (define (sub-row? row1* row2*)
     (define row1 (map syntax->list (syntax->list row1*)))
     (define row2 (map syntax->list (syntax->list row2*)))
@@ -77,6 +82,33 @@
     (and (stx-length=? τs1 τs2)
          (stx-andmap (current-sub?) τs1 τs2)))
 
+  (define (meet-rows row1* row2*)
+    (define row1 (map syntax->list (syntax->list row1*)))
+    (define row2 (map syntax->list (syntax->list row2*)))
+    (define ids1 (map car row1))
+    (define ids2 (map car row2))
+    (append
+     (for/list ([id (free-id-set-intersect ids1 ids2)])
+       (define τ1 (cadr (assoc id row1 free-identifier=?)))
+       (define τ2 (cadr (assoc id row2 free-identifier=?)))
+       (define τ-meet ((current-meet) τ1 τ2))
+       (list id τ-meet))
+     (for/list ([id (free-id-set-difference ids1 ids2)])
+       (assoc id row1 free-identifier=?))
+     (for/list ([id (free-id-set-difference ids2 ids1)])
+       (assoc id row2 free-identifier=?))))
+ 
+  (define (join-rows row1* row2*)
+    (define row1 (map syntax->list (syntax->list row1*)))
+    (define row2 (map syntax->list (syntax->list row2*)))
+    (define ids1 (map car row1))
+    (define ids2 (map car row2))
+    (for/list ([id (free-id-set-intersect ids1 ids2)])
+      (define τ1 (cadr (assoc id row1 free-identifier=?)))
+      (define τ2 (cadr (assoc id row2 free-identifier=?)))
+      (define τ-join ((current-join) τ1 τ2))
+      (list id τ-join)))
+
   (define (meet t1 t2)
     (let ([τ1 ((current-type-eval) t1)]
           [τ2 ((current-type-eval) t2)])
@@ -89,8 +121,14 @@
             #:when (stx-length=? #'(τi1 ...) #'(τi2 ...))
             #:with (τi3 ...) #'((⊔ τi1 τi2) ...)
             #:with τo3 #'(⊓ τo1 τo2)
+            #:when (not-bot? #'τo3)
             #'(-> τi3 ... τo3)]
+           [((~Record [l1 τ1] ...) (~Record [l2 τ2] ...))
+            #:with ([l3 τ3] ...) (meet-rows #'([l1 τ1] ...) #'([l2 τ2] ...))
+            #:when (stx-andmap not-bot? #'(τ3 ...))
+            #'(Record [l3 τ3] ...)]
            [else #'Bot])])))
+  (current-meet meet)
 
   (define (join t1 t2)
     (define τ1 ((current-type-eval) t1))
@@ -105,18 +143,14 @@
          [((~-> τi1 ... τo1) (~-> τi2 ... τo2))
           #:when (stx-length=? #'(τi1 ...) #'(τi2 ...))
           #:with (τi3 ...) #'((⊓ τi1 τi2) ...)
-          #:when (stx-andmap (λ (τ) (not (Bot? τ))) #'(τi3 ...))
+          #:when (stx-andmap not-bot? #'(τi3 ...))
           #:with τo3 #'(⊔ τo1 τo2)
           #'(-> τi3 ... τo3)]
+         [((~Record [l1 τ1] ...) (~Record [l2 τ2] ...))
+          #:with ([l3 τ3] ...) (join-rows #'([l1 τ1] ...) #'([l2 τ2] ...))
+          #'(Record [l3 τ3] ...)]
          [else #'Top])]))
   (current-join join))
-
-(define-syntax ⊓
-  (syntax-parser
-    [(_ τ1 τ2 ...)
-     (for/fold ([τ1 ((current-type-eval) #'τ1)])
-               ([τ2 (in-list (stx-map (current-type-eval) #'[τ2 ...]))])
-       (meet τ1 τ2))]))
 
 (define-typed-syntax record
   [(_ [label:id ei:expr] ...) ≫
