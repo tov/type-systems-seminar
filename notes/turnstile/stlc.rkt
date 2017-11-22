@@ -4,6 +4,7 @@
          Unit void ignore begin
          Bool not if
          Int - zero? positive? negative? random
+         String int->string string-append
          Vec vec vec-ref vec-set! build-vec vec-len
          Record record project
          ann
@@ -29,6 +30,10 @@
 (define-primop positive? (-> Int Bool))
 (define-primop negative? (-> Int Bool))
 (define-primop random (-> Int Int))
+
+(define-base-type String)
+(define-primop int->string number->string (-> Int String))
+(define-primop string-append (-> String String String))
 
 (define-type-constructor Vec #:arity = 1)
 
@@ -63,10 +68,30 @@
   [(_ . b:boolean) ≫
    ----
    [⊢ (#%datum- . b) ⇒ Bool]]
+  [(_ . s:string) ≫
+   ----
+   [⊢ (#%datum- . s) ⇒ String]]
   [(_ . x) ≫
    --------
    [#:error (type-error #:src #'x
                         #:msg "Unsupported literal: ~v" #'x)]])
+
+(begin-for-syntax 
+  (define current-join
+    (make-parameter 
+      (λ (x y) 
+        (unless (typecheck? x y)
+          (type-error
+            #:src x
+            #:msg "branches have incompatible types: ~a and ~a" x y))
+        x))))
+
+(define-syntax ⊔
+  (syntax-parser
+    [(⊔ τ1 τ2 ...)
+     (for/fold ([τ ((current-type-eval) #'τ1)])
+               ([τ2 (in-list (stx-map (current-type-eval) #'[τ2 ...]))])
+       ((current-join) τ τ2))]))
 
 (define-typed-syntax vec
   [(_ ei ...) ⇐ (~Vec τ) ≫
@@ -124,23 +149,6 @@
    [⊢ e_n ≫ e_n- ⇒ τ]
    ----
    [⊢ (begin- e_i- ... e_n-) ⇒ τ]])
-
-(begin-for-syntax 
-  (define current-join
-    (make-parameter 
-      (λ (x y) 
-        (unless (typecheck? x y)
-          (type-error
-            #:src x
-            #:msg "branches have incompatible types: ~a and ~a" x y))
-        x))))
-
-(define-syntax ⊔
-  (syntax-parser
-    [(⊔ τ1 τ2 ...)
-     (for/fold ([τ ((current-type-eval) #'τ1)])
-               ([τ2 (in-list (stx-map (current-type-eval) #'[τ2 ...]))])
-       ((current-join) τ τ2))]))
 
 (define-typed-syntax if
   [(_ e1 e2 e3) ⇐ τ ≫

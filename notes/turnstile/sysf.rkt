@@ -3,7 +3,8 @@
 (extends "stlc.rkt"
          #:except vec-ref vec-set! build-vec vec-len)
 (provide all tyλ inst
-         vec-ref vec-set! build-vec vec-len)
+         vec-ref vec-set! build-vec vec-len
+         error!)
 
 (define-binding-type all)
 
@@ -16,6 +17,8 @@
 (define-poly-primop vec-set! vector-set! (all (X) (-> (Vec X) Int X Unit)))
 (define-poly-primop build-vec build-vector (all (X) (-> Int (-> Int X) (Vec X))))
 (define-poly-primop vec-len vector-length (all (X) (-> (Vec X) Int)))
+
+(define-poly-primop error! error (all (X) (-> String X)))
 
 (define-typed-syntax tyλ
   [(_ (tv:id ...) e) ⇐ (~all (tv_in:id ...) τ_in) ≫

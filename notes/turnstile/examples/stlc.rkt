@@ -8,11 +8,6 @@
 (define (+ [x Int] [y Int] -> Int)
   (- x (negate y)))
 
-(define (swap! [v (Vec Int)] [i Int] [j Int] -> Unit)
-  (let ([old-v-i (vec-ref v i)])
-    (vec-set! v i (vec-ref v j))
-    (vec-set! v j old-v-i)))
-
 (define (< [n Int] [m Int] -> Bool)
   (positive? (- m n)))
 
@@ -20,6 +15,11 @@
   (zero? (- m n)))
 
 ;;;; Sorting
+
+(define (swap! [v (Vec Int)] [i Int] [j Int] -> Unit)
+  (let ([old-v-i (vec-ref v i)])
+    (vec-set! v i (vec-ref v j))
+    (vec-set! v j old-v-i)))
 
 (define (sort! [v (Vec Int)] -> Unit)
   (letrec ([find-min-index
