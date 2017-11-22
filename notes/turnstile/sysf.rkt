@@ -47,21 +47,19 @@
    ----
    [⊢ (e-) ⇒ τ]])
 
+(require (prefix-in stlc: (only-in "stlc.rkt")))
+
 (define-typed-syntax app
-  [(_ e_fn e_arg ...) ≫
-   [⊢ e_fn ≫ e_fn- ⇒ (~-> τ_in ... τ_out)]
-   #:fail-unless (stx-length=? #'[τ_in ...] #'[e_arg ...])
-                 (format "arity mismatch, expected ~a args, given ~a"
-                         (stx-length #'[τ_in ...]) #'[e_arg ...])
-   [⊢ e_arg ≫ e_arg- ⇐ τ_in] ...
-   ----
-   [⊢ (#%app- e_fn- e_arg- ...) ⇒ τ_out]]
-  [(_ e τi:type ...) ≫
+  [(_ e τi-raw ...) ≫
    [⊢ e ≫ e- ⇒ (~All (tv:id ...) τ_body)]
+   #:with (τi:type ...) #'(τi-raw ...)
    #:fail-unless (stx-length=? #'(τi ...) #'(tv ...))
                  (format "Got ~a where ~a type parameter(s) expected"
                          (map type->str (syntax->list #'(τi ...)))
                          (stx-length #'(tv ...)))
    #:with τ (substs #'(τi.norm ...) #'(tv ...) #'τ_body)
    ----
-   [⊢ (e-) ⇒ τ]])
+   [⊢ (e-) ⇒ τ]]
+  [(_ . stx) ≫
+   ----
+   [≻ (stlc:#%app . stx)]])
