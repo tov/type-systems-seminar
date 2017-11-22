@@ -293,3 +293,37 @@
        (λ (_) ((inst error! (CList A)) "ccdr!: not a cCons"))
        (λ (_) ((inst ccdr A) clist))))))
 
+;; Existentials
+
+(define-type-alias (ex A t) (all (R) (-> (all (A) (-> t R)) R)))
+
+(define-type-alias COUNTER (ex A (Record [start A]
+                                         [next (-> A A)]
+                                         [get (-> A Int)])))
+
+(define Counter1 COUNTER
+  (tyλ (R)
+    (λ (k)
+      ((inst k Int)
+       (record [start 0]
+               [next (λ (x) (+ x 1))]
+               [get (λ (x) x)])))))
+(define Counter2 COUNTER
+  (tyλ (R)
+    (λ (k)
+      ((inst k CNat)
+       (record [start c0]
+               [next csucc]
+               [get cnat->int])))))
+
+(define (count-to-2 [Counter COUNTER] -> Int)
+  ((inst Counter Int)
+   (tyλ (counter-type)
+     (λ (r)   
+       ((project r get)
+        ((project r next)
+         ((project r next)
+          (project r start))))))))
+
+(define counted-to-2 (count-to-2 Counter1))
+(define counted-to-2* (count-to-2 Counter2))
