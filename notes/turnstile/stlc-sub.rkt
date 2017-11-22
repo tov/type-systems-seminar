@@ -40,6 +40,19 @@
    (≻ (stlc:#%datum . otherwise))])
 
 (begin-for-syntax
+  (define (sub-row? row1* row2*)
+    (define row1 (map syntax->list (syntax->list row1*)))
+    (define row2 (map syntax->list (syntax->list row2*)))
+    (for/and [(binding2 (in-list row2))]
+      (define label2 (car binding2))
+      (define τ2 (cadr binding2))
+      (cond
+        [(assoc label2 row1 free-identifier=?)
+         =>
+         (λ (binding1) ((current-sub?) (cadr binding1) τ2))]
+        [else
+         #false])))
+    
   (define (sub? t1 t2)
     (define τ1 ((current-type-eval) t1))
     (define τ2 ((current-type-eval) t2))
@@ -52,9 +65,14 @@
           [((~-> τi1 ... τo1) (~-> τi2 ... τo2))
            (and (subs? #'(τi2 ...) #'(τi1 ...))
                 ((current-sub?) #'τo1 #'τo2))]
+          [((~Record [l1 τ1] ...) (~Record [l2 τ2] ...))
+           (sub-row? #'([l1 τ1] ...) #'([l2 τ2] ...))]
           [_ #f])))
+  
   (define current-sub? (make-parameter sub?))
+  
   (current-typecheck-relation sub?)
+  
   (define (subs? τs1 τs2)
     (and (stx-length=? τs1 τs2)
          (stx-andmap (current-sub?) τs1 τs2)))
