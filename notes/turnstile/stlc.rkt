@@ -1,22 +1,29 @@
 #lang turnstile/lang
 
-(provide ->
-         Unit void ignore begin
-         Bool not if
-         Int - zero? positive? negative? random
-         String int->string string-append
-         Vec vec vec-ref vec-set! build-vec vec-len
-         Record record project
+(provide (type-out ->)
+         (type-out Unit) void ignore begin
+         (type-out Bool) not if
+         (type-out Int) - zero? positive? negative? random
+         (type-out String) int->string string-append
+         (type-out Vec) vec vec-ref vec-set! build-vec vec-len
+         (type-out Record) record project
          ann
          let let* letrec
          λ (rename-out [λ lam])
          define-type-alias define
          (rename-out [datum #%datum]
-                     [app #%app]))
+                     [app #%app])
+         (for-syntax current-join) ⊔)
 
 
 ; Functions can have 0 or more arguments:
-(define-type-constructor -> #:arity >= 1)
+(define-type-constructor -> #:arity >= 1
+  ; This lets us reuse some rules in stlc-sub.rkt:
+  #:arg-variances (syntax-parser
+                    [(_ τ_in ... τ_out)
+                     (append
+                      (make-list (stx-length #'[τ_in ...]) contravariant)
+                      (list covariant))]))
 
 (define-base-type Unit)
 (define-primop void (-> Unit))
@@ -88,10 +95,11 @@
 
 (define-syntax ⊔
   (syntax-parser
-    [(⊔ τ1 τ2 ...)
+    [(_ τ1 τ2 ...)
      (for/fold ([τ ((current-type-eval) #'τ1)])
                ([τ2 (in-list (stx-map (current-type-eval) #'[τ2 ...]))])
        ((current-join) τ τ2))]))
+
 
 (define-typed-syntax vec
   [(_ ei ...) ⇐ (~Vec τ) ≫
@@ -167,8 +175,8 @@
 (module record-internal turnstile
   (provide (rename-out [Record- Record-internal-])
            (for-syntax
-            (rename-out [~Record ~Record-internal]
-                        [Record? Record-internal?])))
+            Record?
+            (rename-out [~Record ~Record-internal])))
   (define-internal-type-constructor Record))
 
 (require (submod "." record-internal))
