@@ -1,12 +1,13 @@
 #lang turnstile/lang
 
-(extends "stlc.rkt" #:except #%datum - zero?)
+(extends "stlc.rkt" #:except #%datum record project - zero?)
 (provide (type-out Top)
          ; (type-out Bot)
          zero?
          (type-out Num) -/Num
          -/Int
          (type-out Float) -/Float
+         record project
          (rename-out [datum #%datum])
          (for-syntax current-sub? subs?))
 
@@ -98,4 +99,27 @@
      (for/fold ([τ1 ((current-type-eval) #'τ1)])
                ([τ2 (in-list (stx-map (current-type-eval) #'[τ2 ...]))])
        (meet τ1 τ2))]))
-      
+
+(define-typed-syntax record
+  [(_ [label:id ei:expr] ...) ≫
+   [⊢ ei ≫ ei- ⇒ τi] ...
+   ----
+   [⊢ (list (cons 'label ei-) ...) ⇒ (Record [label τi] ...)]])
+
+(begin-for-syntax
+  (define (record-lookup label a-list)
+    (cond
+      [(assoc label
+              (map syntax->list (syntax->list a-list))
+              free-identifier=?)
+       => cadr]
+      [else
+       (type-error #:src a-list
+                   #:msg "Expected record with field ~a" label)])))
+
+(define-typed-syntax project
+  [(_ e:expr label:id) ≫
+   [⊢ e ≫ e- ⇒ (~Record [label_i:id τi:type] ...)]
+   #:with τ (record-lookup #'label #'([label_i τi] ...))
+   ----
+   [⊢ (cdr (assq 'label e-)) ⇒ τ]])
