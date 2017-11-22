@@ -23,7 +23,7 @@
         ((inst vec-set! A) v j old-v-i)))))
 
 (define sort!
-  (all (A) (-> (Vec A) (-> A A Bool) Unit))
+  (All (A) (-> (Vec A) (-> A A Bool) Unit))
   (tyλ (A)
     (λ (v lt?)
       (letrec ([find-min-index
@@ -66,14 +66,14 @@
 
 ;; The unit type!
 
-(define-type-alias CUnit (all (A) (-> A A)))
+(define-type-alias CUnit (All (A) (-> A A)))
 (define cUnit CUnit
   (tyλ (A)
     (λ (x) x)))
 
 ;; Booleans
 
-(define-type-alias CBool (all (A) (-> A A A)))
+(define-type-alias CBool (All (A) (-> A A A)))
 (define cTrue CBool
   (tyλ (A)
     (λ ([t A] [f A]) t)))
@@ -93,7 +93,7 @@
 (define (cor [b1 CBool] [b2 CBool] -> CBool)
   ((inst b1 CBool) cTrue b2))
 
-(define cif (all (A) (-> CBool (-> CUnit A) (-> CUnit A) A))
+(define cif (All (A) (-> CBool (-> CUnit A) (-> CUnit A) A))
   (tyλ (A)
     (λ (condition t-thunk f-thunk)
       (((inst condition (-> CUnit A)) t-thunk f-thunk)
@@ -101,7 +101,7 @@
 
 ;; Naturals
 
-(define-type-alias CNat (all (A) (-> (-> A A) A A)))
+(define-type-alias CNat (All (A) (-> (-> A A) A A)))
 (define c0 CNat
   (tyλ (A)
     (λ ([s (-> A A)] [z A]) z)))
@@ -135,27 +135,27 @@
 
 ;; Pairs
 
-(define-type-alias (CProd A B) (all (R) (-> (-> A B R) R)))
-(define cPair (all (A B) (-> A B (CProd A B)))
+(define-type-alias (CProd A B) (All (R) (-> (-> A B R) R)))
+(define cPair (All (A B) (-> A B (CProd A B)))
   (tyλ (A B)
     (λ (fst snd)
       (tyλ (R)
         (λ (k)
           (k fst snd))))))
-(define cfst (all (A B) (-> (CProd A B) A))
+(define cfst (All (A B) (-> (CProd A B) A))
   (tyλ (A B)
     (λ (pair)
       ((inst pair A) (λ (fst snd) fst)))))
-(define csnd (all (A B) (-> (CProd A B) B))
+(define csnd (All (A B) (-> (CProd A B) B))
   (tyλ (A B)
     (λ (pair)
       ((inst pair B) (λ (fst snd) snd)))))
 
-(define cpair->rec (all (A B) (-> (CProd A B) (Record [fst A] [snd B])))
+(define cpair->rec (All (A B) (-> (CProd A B) (Record [fst A] [snd B])))
   (tyλ (A B)
     (λ (pair)
       (record [fst ((inst cfst A B) pair)] [snd ((inst csnd A B) pair)]))))
-(define rec->cpair (all (A B) (-> (Record [fst A] [snd B]) (CProd A B)))
+(define rec->cpair (All (A B) (-> (Record [fst A] [snd B]) (CProd A B)))
   (tyλ (A B)
     (λ (rec)
       ((inst cPair A B) (project rec fst) (project rec snd)))))
@@ -193,34 +193,34 @@
 
 ;; Sums
 
-(define-type-alias (CSum A B) (all (R) (-> (-> A R) (-> B R) R)))
-(define cInl (all (A B) (-> A (CSum A B)))
+(define-type-alias (CSum A B) (All (R) (-> (-> A R) (-> B R) R)))
+(define cInl (All (A B) (-> A (CSum A B)))
   (tyλ (A B)
     (λ (vl)
       (tyλ (R)
         (λ (kl kr) (kl vl))))))
-(define cInr (all (A B) (-> B (CSum A B)))
+(define cInr (All (A B) (-> B (CSum A B)))
   (tyλ (A B)
     (λ (vr)
       (tyλ (R)
         (λ (kl kr) (kr vr))))))
 
-(define cinl? (all (A B) (-> (CSum A B) CBool))
+(define cinl? (All (A B) (-> (CSum A B) CBool))
   (tyλ (A B)
     (λ (sum)
       ((inst sum CBool) (λ (_) cTrue) (λ (_) cFalse)))))
-(define cinr? (all (A B) (-> (CSum A B) CBool))
+(define cinr? (All (A B) (-> (CSum A B) CBool))
   (tyλ (A B)
     (λ (sum)
       (cnot ((inst cinl? A B) sum)))))
 
-(define cprjl! (all (A B) (-> (CSum A B) A))
+(define cprjl! (All (A B) (-> (CSum A B) A))
   (tyλ (A B)
     (λ (sum)
       ((inst sum A)
        (λ (va) va)
        (λ (_) ((inst error! A) "cprjl!: not a cInl"))))))
-(define cprjr! (all (A B) (-> (CSum A B) B))
+(define cprjr! (All (A B) (-> (CSum A B) B))
   (tyλ (A B)
     (λ (sum)
       ((inst sum B)
@@ -229,43 +229,43 @@
 
 ;; Lists
 
-(define-type-alias (CList A) (all (R) (-> (-> A R R) R R)))
-(define cNil (all (A) (CList A))
+(define-type-alias (CList A) (All (R) (-> (-> A R R) R R)))
+(define cNil (All (A) (CList A))
   (tyλ (A)
     (tyλ (R)
       (λ (cons nil) nil))))
-(define cCons (all (A) (-> A (CList A) (CList A)))
+(define cCons (All (A) (-> A (CList A) (CList A)))
   (tyλ (A)
     (λ (car cdr)
       (tyλ (R)
         (λ (cons nil) (cons car ((inst cdr R) cons nil)))))))
 
-(define cnil? (all (A) (-> (CList A) CBool))
+(define cnil? (All (A) (-> (CList A) CBool))
   (tyλ (A)
     (λ (clist)
       ((inst clist CBool)
        (λ (car cdr) cTrue)
        cFalse))))
-(define ccons? (all (A) (-> (CList A) CBool))
+(define ccons? (All (A) (-> (CList A) CBool))
   (tyλ (A)
     (λ (clist)
       (cnot ((inst cnil? A) clist)))))
 
-(define clength (all (A) (-> (CList A) CNat))
+(define clength (All (A) (-> (CList A) CNat))
   (tyλ (A)
     (λ (clist)
       ((inst clist CNat)
        (λ (car cdr) (csucc cdr))
        c0))))
 
-(define cmap (all (A B) (-> (-> A B) (CList A) (CList B)))
+(define cmap (All (A B) (-> (-> A B) (CList A) (CList B)))
   (tyλ (A B)
     (λ (f lst)
       ((inst lst (CList B))
        (λ (car cdr) ((inst cCons B) (f car) cdr))
        (inst cNil B)))))
 
-(define ccar! (all (A) (-> (CList A) A))
+(define ccar! (All (A) (-> (CList A) A))
   (tyλ (A)
     (λ (clist)
       (((inst clist (-> CUnit A))
@@ -274,7 +274,7 @@
        cUnit))))
 
 ; my gosh, ccdr is linear time (just like cpred)!
-(define ccdr (all (A) (-> (CList A) (CList A)))
+(define ccdr (All (A) (-> (CList A) (CList A)))
   (tyλ (A)
     (λ (clist)
       ((inst cfst (CList A) (CList A))
@@ -285,7 +285,7 @@
            ((inst cCons A) car ((inst csnd (CList A) (CList A)) cdr))))
         ((inst cPair (CList A) (CList A)) (inst cNil A) (inst cNil A)))))))
 
-(define ccdr! (all (A) (-> (CList A) (CList A)))
+(define ccdr! (All (A) (-> (CList A) (CList A)))
   (tyλ (A)
     (λ (clist)
       ((inst cif (CList A))
@@ -295,7 +295,7 @@
 
 ;; Existentials
 
-(define-type-alias (ex A t) (all (R) (-> (all (A) (-> t R)) R)))
+(define-type-alias (ex A t) (All (R) (-> (All (A) (-> t R)) R)))
 
 (define-type-alias COUNTER (ex A (Record [start A]
                                          [next (-> A A)]

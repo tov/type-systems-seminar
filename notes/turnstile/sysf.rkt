@@ -2,26 +2,26 @@
 
 (extends "stlc.rkt"
          #:except vec-ref vec-set! build-vec vec-len)
-(provide all tyλ inst
+(provide All tyλ inst
          vec-ref vec-set! build-vec vec-len
          error!)
 
-(define-binding-type all)
+(define-binding-type All)
 
 (define-simple-macro (define-poly-primop name:id defn:expr τ:type)
   (begin
     (define (internal) defn)
     (define-primop name internal τ)))
 
-(define-poly-primop vec-ref vector-ref (all (X) (-> (Vec X) Int X)))
-(define-poly-primop vec-set! vector-set! (all (X) (-> (Vec X) Int X Unit)))
-(define-poly-primop build-vec build-vector (all (X) (-> Int (-> Int X) (Vec X))))
-(define-poly-primop vec-len vector-length (all (X) (-> (Vec X) Int)))
+(define-poly-primop vec-ref vector-ref (All (X) (-> (Vec X) Int X)))
+(define-poly-primop vec-set! vector-set! (All (X) (-> (Vec X) Int X Unit)))
+(define-poly-primop build-vec build-vector (All (X) (-> Int (-> Int X) (Vec X))))
+(define-poly-primop vec-len vector-length (All (X) (-> (Vec X) Int)))
 
-(define-poly-primop error! error (all (X) (-> String X)))
+(define-poly-primop error! error (All (X) (-> String X)))
 
 (define-typed-syntax tyλ
-  [(_ (tv:id ...) e) ⇐ (~all (tv_in:id ...) τ_in) ≫
+  [(_ (tv:id ...) e) ⇐ (~All (tv_in:id ...) τ_in) ≫
    #:fail-unless (stx-length=? #'(tv ...) #'(tv_in ...))
                  (format "Expected ~a bound type variables but got ~a"
                          (stx-length #'(tv_in ...))
@@ -33,11 +33,11 @@
   [(_ (tv:id ...) e) ≫
    [[tv ≫ tv- :: #%type] ... ⊢ e ≫ e- ⇒ τ]
    ----
-   [⊢ (λ- () e-) ⇒ (all (tv- ...) τ)]])
+   [⊢ (λ- () e-) ⇒ (All (tv- ...) τ)]])
 
 (define-typed-syntax inst
   [(_ e τi:type ...) ≫
-   [⊢ e ≫ e- ⇒ (~all (tv:id ...) τ_body)]
+   [⊢ e ≫ e- ⇒ (~All (tv:id ...) τ_body)]
    #:fail-unless (stx-length=? #'(τi ...) #'(tv ...))
                  (format "Got ~a where ~a type parameter(s) expected"
                          (map type->str (syntax->list #'(τi ...)))
