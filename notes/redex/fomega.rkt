@@ -1,6 +1,6 @@
 #lang racket/base
 
-(provide fomega ->type ->val kinds types)
+(provide fomega ->type ->val ≡ kinds types)
 
 (require redex/reduction-semantics
          "util.rkt")
@@ -62,6 +62,44 @@
    (lookup Γ a)
    (side-condition (not (equal? (term a) (term b))))])
 
+(define-judgment-form fomega
+  #:mode (≡ I I)
+  #:contract (≡ t t)
+  
+  [---- refl
+   (≡ t t)]
+
+  [(≡ t_2 t_1)
+   ---- sym
+   (≡ t_1 t_2)]
+
+  [(where/hidden t_2 fake-type)
+   (≡ t_1 t_2)
+   (≡ t_2 t_3)
+   ---- trans
+   (≡ t_1 t_3)]
+
+  [(≡ t_1 t_3)
+   (≡ t_2 t_4)
+   ---- arr
+   (≡ (-> t_1 t_2) (-> t_3 t_4))]
+
+  [(≡ t_1 t_2)
+   ---- all
+   (≡ (all a k t_1) (all a k t_2))]
+
+  [(≡ t_1 t_2)
+   ---- abs
+   (≡ (λ a k t_1) (λ a k t_2))]
+
+  [(≡ t_1 t_3)
+   (≡ t_2 t_4)
+   ---- app
+   (≡ (ap t_1 t_2) (ap t_3 t_4))]
+
+  [---- β
+   (≡ (ap (λ a k t_1) t_2) (substitute t_1 a t_2))])
+
 (define ->type
   (reduction-relation
    fomega #:domain t
@@ -70,11 +108,11 @@
         β-type)))
 
 (define-judgment-form fomega
-  #:mode (≡ I O)
-  #:contract (≡ t t)
+  #:mode (-->* I O)
+  #:contract (-->* t t)
   [(where t_2 ,(car (apply-reduction-relation* ->type (term t_1))))
    ---- equiv
-   (≡ t_1 t_2)])
+   (-->* t_1 t_2)])
 
 (define ->val
   (reduction-relation
@@ -126,8 +164,8 @@
 
   [(types Γ e_1 t_1)
    (types Γ e_2 t_2)
-   (≡ t_1 (-> t_2* t))
-   (≡ t_2 t_2*)
+   (-->* t_1 (-> t_2* t))
+   (-->* t_2 t_2*)
    ---- app
    (types Γ (ap e_1 e_2) t)]
 
@@ -137,6 +175,6 @@
 
   [(kinds Γ t k)
    (types Γ e t_1)
-   (≡ t_1 (all a k t_1*))
+   (-->* t_1 (all a k t_1*))
    ---- tapp
    (types Γ (Ap e t) (substitute t_1* a t))])
