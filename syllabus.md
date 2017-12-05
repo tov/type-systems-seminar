@@ -32,8 +32,8 @@
   - 02/08: Typed Racket
 
   - 02/13: [Higher-order types][fomega] and dependent types
-      - Pre-reading: Lambda Cube: Barendregt, *Lambda Calculi with Types,*
-        §5 “Typing à la Church”
+      - Pre-reading: Lambda Cube: [Barendregt, *Lambda Calculi with
+        Types,*][barendregt] §5 “Typing à la Church”
 
   - 02/15: Dependent types continued
 
@@ -113,3 +113,6 @@ Your grade will be based on three things:
 
 [tov12]:
     http://users.eecs.northwestern.edu/~jesse/pubs/dissertation/tov-dissertation-screen.pdf
+
+[barendregt]:
+    https://github.com/tov/type-theory-seminar/blob/master/reading/Barendregt%20-%20Lambda%20Calculi%20with%20Types.pdf
