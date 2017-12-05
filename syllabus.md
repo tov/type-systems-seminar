@@ -1,43 +1,58 @@
-# Schedule
+# Type Systems Seminar (Winter 2018 @ Northwestern)
 
-  - 01/09–11: Intro to type systems: [let/zl][letzl]
+## Schedule
 
-  - 01/16–18: [Simply-typed lambda calculus][stlc]
+  - 01/09: [Intro to type systems: let/zl][letzl]
 
-  - Subtyping with record types
-     - Pre-reading: TAPL, Chapter 11 "Simple Extensions"
+  - 01/11: continued
+
+  - 01/16: [Simply-typed lambda calculus][stlc]
+
+  - 01/18: continued
+
+  - 01/23: [Subtyping with record types][lamsub]
+     - Pre-reading: TAPL, Chapter 11 “Simple Extensions”
          - It looks long, but skip the exercises and skim some
          - Be sure to read the section on records, since we’ll be using that
 
-  - System F
-      - Pre-reading: Reynolds 1974, "Towards a Theory of Type Structure"
-      (pages 1–8)
-      - Parametricity?
-      - Reading: Theorem for free?
+  - 01/25: [System F][sysf]
+      - Pre-reading: [Reynolds 1974, “Towards a Theory of Type
+        Structure”][reynolds74] (pages 1–8)
+      - Post-reading: [Wadler 1989, “Theorems for Free”][wadler89]
 
-  - Damas–Hindley–Milner type inference
+  - 02/01: [Damas–Hindley–Milner type inference][mlinf]
       - Pre-reading: [Damas and Milner 1982, "Principal type-schemes for
         functional programs"][dm82]
-      - Constraint-based inference?
-         - Reading: Wand
-         - Reading: Pottier and Rémy, "The Essence of ML Type Inference"
 
-  - Qualified types
-      - for overloading à la Haskell
-      - for subtyping
-      - evidence translation
-    (Jones 1992, "A Theory of Qualified Types")
+  - 02/06: Qualified types
+      - Pre-reading Jones 1992, "A Theory of Qualified Types"
 
-  - Higher-order and Dependent types
-      - Lambda Cube: Barendregt, "Lambda Calculi with Types", §5 "Typing
-        à la Church"
-      - LF
-      - CoC
+  - 02/08: Typed Racket
 
-  - Substructural types
+  - 02/13: [Higher-order types][fomega] and dependent types
+      - Pre-reading: Lambda Cube: Barendregt, *Lambda Calculi with Types,*
+        §5 “Typing à la Church”
+
+  - 02/15: Dependent types continued
+
+  - 02/20: Substructural types
       - Reading: Tov 2012, chapter 2
 
-# Suggested presentation topics:
+  - 02/22: student-led [TBA]
+
+  - 02/27: student-led [TBA]
+
+  - 03/01: student-led [TBA]
+
+  - 03/06: student-led [TBA]
+
+  - 03/08: student-led [TBA]
+
+  - 03/13: student-led [TBA]
+
+  - 03/15: student-led [TBA]
+
+## Suggested presentation topics:
 
   - Extensible records and variants
   - Mixing Hindley-Milner and System F
@@ -62,3 +77,20 @@
 [stlc]:
     http://users.eecs.northwestern.edu/~jesse/course/type-systems/main/The_simply-typed_lambda_calculus__-st.html
 
+[lamsub]:
+    http://users.eecs.northwestern.edu/~jesse/course/type-systems/main/_-sub__subtyping_with_records.html
+
+[sysf]:
+    http://users.eecs.northwestern.edu/~jesse/course/type-systems/main/The_polymorphic_lambda_calculus__-2.html
+
+[mlinf]:
+    http://users.eecs.northwestern.edu/~jesse/course/type-systems/main/ML_type_inference.html
+
+[fomega]:
+    http://users.eecs.northwestern.edu/~jesse/course/type-systems/main/The_higher-order_lambda_calculus__-_.html
+
+[wadler89]:
+    https://people.mpi-sws.org/~dreyer/tor/papers/wadler.pdf
+
+[reynolds74]:
+    http://repository.cmu.edu/cgi/viewcontent.cgi?article=2289&context=compsci

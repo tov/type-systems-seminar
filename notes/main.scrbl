@@ -10,3 +10,4 @@
 @include-section["sub.scrbl"]
 @include-section["sysf.scrbl"]
 @include-section["ml.scrbl"]
+@include-section["fomega.scrbl"]
