@@ -23,8 +23,8 @@
       - Post-reading: [Wadler 1989, “Theorems for Free”][wadler89]
 
   - 02/01: [Damas–Hindley–Milner type inference][mlinf]
-      - Pre-reading: [Damas and Milner 1982, "Principal type-schemes for
-        functional programs"][dm82]
+      - Pre-reading: [Damas and Milner 1982, “Principal type-schemes for
+        functional programs”][dm82]
 
   - 02/06: Qualified types
       - Pre-reading: [Jones 1992, “A Theory of Qualified Types”][jones92]
