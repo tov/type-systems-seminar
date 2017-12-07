@@ -115,124 +115,123 @@
   [(type-of =)     (all (a) [(Eq a)] (-> (Prod a a) Int))]
   [(type-of <)     (all (a) [(Ord a)] (-> (Prod a a) Int))])
    
+(define-metafunction λ-qual
+  lookup : Γ x -> σ
+  [(lookup (extend Γ x σ) x)
+   σ]
+  [(lookup (extend Γ y σ) x)
+   (lookup Γ x)
+   (side-condition (not (equal? (term x) (term y))))])
 
-;(define-metafunction λ-ml
-;  lookup : Γ x -> σ
-;  [(lookup (extend Γ x σ) x)
-;   σ]
-;  [(lookup (extend Γ y σ) x)
-;   (lookup Γ x)
-;   (side-condition (not (equal? (term x) (term y))))])
-;
-;(define-metafunction λ-ml
-;  \\ : (a ...) (a ...) -> (a ...)
-;  [(\\ (a ...) (b ...))
-;   ,(set-subtract (term (a ...)) (term (b ...)))])
-;
-;(define-metafunction λ-ml
-;  ∪ : (a ...) ... -> (a ...)
-;  [(∪ (a ...) ...)
-;   ,(apply set-union (term ((a ...) ...)))])
-;
-;(define-metafunction λ-ml
-;  ftv : any -> (a ...)
-;  ; Type variables
-;  [(ftv a)                       (a)]
-;  ; Types
-;  [(ftv (-> t_1 t_2))            (∪ (ftv t_1) (ftv t_2))]
-;  [(ftv bool)                    ()]
-;  ; Type schemes
-;  [(ftv (all a σ))               (\\ (ftv σ) (a))]
-;  ; Environments
-;  [(ftv •)                       ()]
-;  [(ftv (extend Γ x σ))          (∪ (ftv Γ) (ftv σ))]
-;  ; Substitutions
-;  [(ftv (extend-subst S a t))    (∪ (ftv S) (ftv t))]
-;  ; Constraints
-;  [(ftv ⊤)                       ()]
-;  [(ftv (∧ C_1 C_2))             (∪ (ftv C_1) (ftv C_2))]
-;  [(ftv (= t_1 t_2))             (∪ (ftv t_1) (ftv t_2))]
-;  [(ftv (∃ a C))                 (\\ (ftv C) (a))])
-;
-;(define-metafunction λ-ml
-;  apply-subst : S any -> any
-;  [(apply-subst • any)
-;   any]
-;  ; This case should not be necessary by my understanding, but it
-;  ; avoids a problem.
-;  [(apply-subst S (extend-subst S_rest a t))
-;   (extend-subst (apply-subst S S_rest) a (apply-subst S t))]
-;  [(apply-subst (extend-subst S a t) any)
-;   (apply-subst S (substitute any a t))])
-;
-;(define-metafunction λ-ml
-;  concat-subst : S S -> S
-;  [(concat-subst S •)
-;   S]
-;  [(concat-subst S (extend-subst S_1 a t))
-;   (extend-subst (concat-subst S S_1) a t)])
-;
-;(define-metafunction λ-ml
-;  compose-subst : S S -> S
-;  [(compose-subst S_1 S_2) (concat-subst S_1 (apply-subst S_1 S_2))])
-;
-;(define-metafunction λ-ml
-;  fresh : a any -> a
-;  [(fresh a any)
-;   ,(variable-not-in (term any) (term a))])
-;
-;(define-judgment-form λ-ml
-;  #:mode (∈ I I)
-;  #:contract (∈ a (a ...))
-;  [---- in
-;   (∈ a (b_i ... a b_j ...))])
-;
-;(define-judgment-form λ-ml
-;  #:mode (∉ I I)
-;  #:contract (∉ a (a ...))
-;  [(side-condition ,(not (member (term a) (term (b ...)))))
-;    ---- not-in
-;   (∉ a (b ...))])
-;
-;(define-judgment-form λ-ml
-;  #:mode (not-a-type-variable I)
-;  #:contract (not-a-type-variable t)
-;  [(side-condition ,(not (redex-match? λ-ml a (term t))))
-;    ---- only
-;   (not-a-type-variable t)])
-;
-;(define-judgment-form λ-ml
-;  #:mode (unify I I O)
-;  #:contract (unify t t S)
-;  
-;  [---- var-same
-;   (unify a a •)]
-;  
-;  [(∉ a (ftv t))
-;   ---- var-left
-;   (unify a t (extend-subst • a t))]
-;  
-;  [(not-a-type-variable t)
-;   (unify a t S)
-;   ---- var-right
-;   (unify t a S)]
-;
-;  [---- bool
-;   (unify bool bool •)]
-;  
-;  [(unify t_11 t_21 S_1)
-;   (unify (apply-subst S_1 t_12) (apply-subst S_1 t_22) S_2)
-;   ---- arr
-;   (unify (-> t_11 t_12) (-> t_21 t_22) (compose-subst S_2 S_1))])
-;
-;(define-metafunction λ-ml
-;  inst : (a ...) σ -> t
-;  [(inst (a ...) t)
-;   t]
-;  [(inst (a ...) (all b σ))
-;   (inst (a ... b_1) (substitute σ b b_1))
-;   (where b_1 (fresh b (a ...)))])
-;  
+(define-metafunction λ-qual
+  \\ : as as -> as
+  [(\\ (a ...) (b ...))
+   ,(set-subtract (term (a ...)) (term (b ...)))])
+
+(define-metafunction λ-qual
+  ∪ : as ... -> as
+  [(∪)
+   ()]
+  [(∪ (a ...) (b ...) ...)
+   ,(apply set-union (term ((a ...) (b ...) ...)))])
+
+(define-metafunction λ-qual
+  ftv : any -> (a ...)
+  ; Type variables
+  [(ftv a)                       (a)]
+  ; Types
+  [(ftv (-> t_1 t_2))            (∪ (ftv t_1) (ftv t_2))]
+  [(ftv Int)                     ()]
+  ; Constraints
+  [(ftv (C t))                   (ftv t)]
+  [(ftv [π ...])                 (∪ (ftv π) ...)]
+  ; Type schemes
+  [(ftv (all as P t))            (\\ (∪ (ftv P) (ftv t)) as)]
+  ; Environments
+  [(ftv •)                       ()]
+  [(ftv (extend Γ x σ))          (∪ (ftv Γ) (ftv σ))]
+  ; Substitutions
+  [(ftv (extend-subst S a t))    (∪ (ftv S) (ftv t))])
+
+(define-metafunction λ-qual
+  apply-subst : S any -> any
+  [(apply-subst • any)
+   any]
+  ; This case should not be necessary by my understanding, but it
+  ; avoids a problem.
+  [(apply-subst S (extend-subst S_rest a t))
+   (extend-subst (apply-subst S S_rest) a (apply-subst S t))]
+  [(apply-subst (extend-subst S a t) any)
+   (apply-subst S (substitute any a t))])
+
+(define-metafunction λ-qual
+  concat-subst : S S -> S
+  [(concat-subst S •)
+   S]
+  [(concat-subst S (extend-subst S_1 a t))
+   (extend-subst (concat-subst S S_1) a t)])
+
+(define-metafunction λ-qual
+  compose-subst : S S -> S
+  [(compose-subst S_1 S_2) (concat-subst S_1 (apply-subst S_1 S_2))])
+
+(define-metafunction λ-qual
+  fresh : a any -> a
+  [(fresh a any)
+   ,(variable-not-in (term any) (term a))])
+
+(define-judgment-form λ-qual
+  #:mode (∈ I I)
+  #:contract (∈ a (a ...))
+  [---- in
+   (∈ a (b_i ... a b_j ...))])
+
+(define-judgment-form λ-qual
+  #:mode (∉ I I)
+  #:contract (∉ a (a ...))
+  [(side-condition ,(not (member (term a) (term (b ...)))))
+    ---- not-in
+   (∉ a (b ...))])
+
+(define-judgment-form λ-qual
+  #:mode (not-a-type-variable I)
+  #:contract (not-a-type-variable t)
+  [(side-condition ,(not (redex-match? λ-qual a (term t))))
+    ---- only
+   (not-a-type-variable t)])
+
+(define-judgment-form λ-qual
+  #:mode (unify I I O)
+  #:contract (unify t t S)
+  
+  [---- var-same
+   (unify a a •)]
+  
+  [(∉ a (ftv t))
+   ---- var-left
+   (unify a t (extend-subst • a t))]
+  
+  [(not-a-type-variable t)
+   (unify a t S)
+   ---- var-right
+   (unify t a S)]
+
+  [---- int
+   (unify Int Int •)]
+  
+  [(unify t_11 t_21 S_1)
+   (unify (apply-subst S_1 t_12) (apply-subst S_1 t_22) S_2)
+   ---- arr
+   (unify (-> t_11 t_12) (-> t_21 t_22) (compose-subst S_2 S_1))])
+
+(define-metafunction λ-qual
+  inst : (a ...) σ -> t
+  [(inst (a ...) (all () P t))
+   t]
+  [(inst (a ...) (all (b b_i ...) P t))
+   (inst (a ... b_1) (substitute (all (b_i ...) P t) b b_1))
+   (where b_1 (fresh b (b_i ... a ...)))])
+  
 ;(define-metafunction λ-ml
 ;  gen : (a ...) t -> σ
 ;  [(gen () t)
