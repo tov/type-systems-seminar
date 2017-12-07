@@ -162,6 +162,7 @@
   [(ftv a)                       (a)]
   ; Types
   [(ftv (-> t_1 t_2))            (∪ (ftv t_1) (ftv t_2))]
+  [(ftv (Prod t_1 t_2))          (∪ (ftv t_1) (ftv t_2))]
   [(ftv Int)                     ()]
   ; Constraints
   [(ftv (C t))                   (ftv t)]
