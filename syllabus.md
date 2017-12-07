@@ -30,7 +30,8 @@
       - Pre-reading: [Jones 1992, “A Theory of Qualified Types”][jones92]
 
   - 02/08: Occurrence Typing in Typed Racket
-      - Pre-reading: [*Logical Types for Untyped Languages*][samth2010]
+      - Pre-reading: [Tobin-Hochstadt 2010, “Logical Types for Untyped
+        Languages”][samth2010]
 
   - 02/13: [Higher-order types][fomega] and dependent types
       - Pre-reading: Lambda Cube: [Barendregt, *Lambda Calculi with
@@ -119,4 +120,4 @@ Your grade will be based on three things:
     https://github.com/tov/type-theory-seminar/blob/master/reading/Barendregt%20-%20Lambda%20Calculi%20with%20Types.pdf
 
 [samth2010]:
-  https://www.ccs.neu.edu/racket/pubs/icfp10-thf.pdf
+    https://www.ccs.neu.edu/racket/pubs/icfp10-thf.pdf
