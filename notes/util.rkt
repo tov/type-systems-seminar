@@ -36,6 +36,7 @@
     ['<:     (rewriter [(t_1 t_2)    "" t_1 " <: " t_2])]
     ['<:~>   (rewriter [(t_1 t_2 e)  "" t_1 " <: " t_2 " ↝ " e])]
     ['\\     (rewriter [(as bs)      "" as " \\ " bs])]
+    ['∪      (rewriter [(as bs)      "" as " ∪ " bs ""])]
     ['≡      (rewriter [(t_1 t_2)    "" t_1 " ≡ " t_2 ""])]
     ['apply-subst
              (rewriter [(S σ)        "" S "" σ ""])]
@@ -59,8 +60,17 @@
     ['member (rewriter [(a Δ)        "" a " ∈ " Δ])]
     ['meta-+ (rewriter [(e_1 e_2)    "" e_1 " + " e_2])]
     ['meta-* (rewriter [(e_1 e_2)    "" e_1 " × " e_2])]
+    ['meta-- (rewriter [(e_1 e_2)    "" e_1 " – " e_2])]
+    ['meta-= (rewriter [(e_1 e_2)    "" e_1 " == " e_2 " ? 0 : 1"])]
+    ['meta-< (rewriter [(e_1 e_2)    "" e_1 " < " e_2 " ? 0 : 1"])]
+    ['non-zero?
+             (rewriter [(z)          "" z " ≠ 0"])]
     ['not-a-type-variable
              (rewriter [(t)          "" t " is not a type variable"])]
+    ['parens (rewriter [(any)        "(" any ")"])]
+    ['qimplies
+             (rewriter [(P_1 P_2)    "" P_1 " ⊩ " P_2 ""])]
+    ['qtypes (rewriter [(P Γ e t)    "" P " | " Γ " ⊢ " e " : " t ""])]
     ['satisfies
              (rewriter [(γ Γ)        "" γ " ⊨ " Γ])]
     ['SN     (rewriter [(t e)        "(SN " t " " e ")"])]

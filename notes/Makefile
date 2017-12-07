@@ -1,4 +1,4 @@
-GOAL = fomega
+GOAL = qual
 
 html: out/$(GOAL).html
 
@@ -19,5 +19,7 @@ out/%.html: %.scrbl util.rkt
 out/%.pdf: %.scrbl util.rkt
 	raco make -j 4 $<
 	scribble --dest out --pdf $<
+
+out/qual.html: redex/qual.rkt
 
 .PHONY: html pdf upload
