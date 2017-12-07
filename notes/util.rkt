@@ -70,6 +70,7 @@
     ['parens (rewriter [(any)        "(" any ")"])]
     ['qimplies
              (rewriter [(P_1 P_2)    "" P_1 " ⊩ " P_2 ""])]
+    ['qjoin  (rewriter [(P_1 P_2)    "" P_1 " ∪ " P_2 ""])]
     ['qtypes (rewriter [(P Γ e t)    "" P " | " Γ " ⊢ " e " : " t ""])]
     ['satisfies
              (rewriter [(γ Γ)        "" γ " ⊨ " Γ])]
@@ -88,7 +89,9 @@
                                      "" Γ " ⊢ " e " : " t " ↝ " e_out])]
     ['types* (rewriter [(e t)        "" e " : " t])]
     ['unify  (rewriter [(t_1 t_2 S)  "" t_1 " ~ " t_2 " ↝ " S])]
-    ['W      (rewriter [(Γ e S t)   "W(" Γ "; " e ") = (" S "; " t ")"])])
+    ['W      (rewriter [(Γ e S t)   "W(" Γ "; " e ") = (" S "; " t ")"]
+                       [(Γ e S t P) "W(" Γ "; " e ") = ("
+                                         S "; " t "; " P ")"])])
    (with-atomic-rewriter 't "τ"
     (with-atomic-rewriter 'l "ℓ"
      (with-atomic-rewriter 'k "κ"

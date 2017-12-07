@@ -4,12 +4,14 @@
          ->val δ
          type-of
          > qimplies qtypes
-         unify inst
-         )
+         unify inst W)
 
 (require redex/reduction-semantics
          racket/set
+         (only-in racket/list remove-duplicates)
          "util.rkt")
+
+(caching-enabled? #f)
 
 (define-language λ-qual
   (e ::=
@@ -125,7 +127,11 @@
   [(type-of -)     (all () (=> [] (-> (Prod Int Int) Int)))]
   [(type-of =)     (all (a) (=> [(Eq a)] (-> (Prod a a) Int)))]
   [(type-of <)     (all (a) (=> [(Ord a)] (-> (Prod a a) Int)))])
-   
+
+(define-metafunction λ-qual
+  qjoin : P P -> P
+  [(qjoin [π_1 ...] [π_2 ...]) [π_1 ... π_2 ...]])
+
 (define-metafunction λ-qual
   lookup : Γ x -> σ
   [(lookup (extend Γ x σ) x)
@@ -220,14 +226,14 @@
 (define-judgment-form λ-qual
   #:mode (unify I I O)
   #:contract (unify t t S)
-  
+
   [---- var-same
    (unify a a •)]
-  
+
   [(∉ a (ftv t))
    ---- var-left
    (unify a t (extend-subst • a t))]
-  
+
   [(not-a-type-variable t)
    (unify a t S)
    ---- var-right
@@ -235,7 +241,12 @@
 
   [---- int
    (unify Int Int •)]
-  
+
+  [(unify t_11 t_21 S_1)
+   (unify (apply-subst S_1 t_12) (apply-subst S_1 t_22) S_2)
+   ---- prod
+   (unify (Prod t_11 t_12) (Prod t_21 t_22) (compose-subst S_2 S_1))]
+
   [(unify t_11 t_21 S_1)
    (unify (apply-subst S_1 t_12) (apply-subst S_1 t_22) S_2)
    ---- arr
@@ -249,47 +260,69 @@
    (inst (a ... b_1) (substitute (all (b_i ...) ρ) b b_1))
    (where b_1 (fresh b (b_i ... a ...)))])
 
-;(define-judgment-form λ-ml
-;  #:mode (W I I O O)
-;  #:contract (W Γ e S t)
-;
-;  [(where t (inst (ftv Γ) (lookup Γ x)))
-;   ---- var
-;   (W Γ x • t)]
-;
-;  [(W Γ e_1 S_1 t_1)
-;   (W (apply-subst S_1 Γ) e_2 S_2 t_2)
-;   (where a (fresh β (Γ S_1 S_2 t_1 t_2)))
-;   (unify (apply-subst S_2 t_1) (-> t_2 a) S_3)
-;   ---- app
-;   (W Γ (ap e_1 e_2) (compose-subst S_3 (compose-subst S_2 S_1)) (apply-subst S_3 a))]
-;
-;  [(where a (fresh α Γ))
-;   (W (extend Γ x a) e S t)
-;   ---- abs
-;   (W Γ (λ x e) S (-> (apply-subst S a) t))]
-;
-;  [(W Γ e_1 S_1 t_1)
-;   (where σ (gen (\\ (ftv t_1) (ftv (apply-subst S_1 Γ))) t_1))
-;   (W (extend (apply-subst S_1 Γ) x σ) e_2 S_2 t_2)
-;   ---- let
-;   (W Γ (let x e_1 e_2) (compose-subst S_2 S_1) t_2)]
-;
-;  [---- true
-;   (W Γ true • bool)]
-;
-;  [---- false
-;   (W Γ false • bool)]
-;
-;  [(W Γ e_1 S_1 t_1)
-;   (W (apply-subst S_1 Γ) e_2 S_2 t_2)
-;   (W (apply-subst (compose-subst S_2 S_1) Γ) e_3 S_3 t_3)
-;   (unify (apply-subst (compose-subst S_3 S_2) t_1) bool S_4)
-;   (unify (apply-subst (compose-subst S_4 S_3) t_2) (apply-subst S_4 t_3) S_5)
-;   (where S (compose-subst S_5 (compose-subst S_4 (compose-subst S_3 (compose-subst S_2 S_1)))))
-;   ---- if
-;   (W Γ (if e_1 e_2 e_3) S (apply-subst (compose-subst S_5 S_4) t_3))])
-;
+(define-metafunction λ-qual
+  qsimplify : P -> P
+  [(qsimplify [])
+   []]
+  [(qsimplify [(Eq Int) π_i ...])
+   (qsimplify [π_i ...])]
+  [(qsimplify [(Eq (Prod t_1 t_2)) π_i ...])
+   (qsimplify [(Eq t_1) (Eq t_2) π_i ...])]
+  [(qsimplify [(Ord Int) π_i ...])
+   (qsimplify [π_i ...])]
+  [(qsimplify [(C a) π_i ...])
+   (qjoin [(C a)] (qsimplify [π_i ...]))])
+
+(define-metafunction λ-qual
+  qreduce : P -> P
+  [(qreduce P)
+   ,(remove-duplicates (term (qsimplify P)))])
+
+(define-judgment-form λ-qual
+  #:mode (W I I O O O)
+  #:contract (W Γ e S t P)
+
+  [(where (=> P t) (inst (ftv Γ) (lookup Γ x)))
+   ---- var
+   (W Γ x • t P)]
+
+  [(where (=> P t) (inst (ftv Γ) (type-of c)))
+   ---- const
+   (W Γ c • t P)]
+
+  [(W Γ e_1 S_1 t_1 P_1)
+   (W (apply-subst S_1 Γ) e_2 S_2 t_2 P_2)
+   (where a (fresh β (Γ S_1 S_2 t_1 t_2 P_1 P_2)))
+   (unify (apply-subst S_2 t_1) (-> t_2 a) S_3)
+   ---- app
+   (W Γ (ap e_1 e_2) (compose-subst S_3 (compose-subst S_2 S_1)) (apply-subst S_3 a) [qjoin (apply-subst (compose-subst S_3 S_2) P_1) (apply-subst S_3 P_2)])]
+
+  [(where a (fresh α Γ))
+   (W (extend Γ x (all () (=> [] a))) e S t P)
+   ---- abs
+   (W Γ (λ x e) S (-> (apply-subst S a) t) P)]
+
+  [(W Γ e_1 S_1 t_1 P_1)
+   (W (apply-subst S_1 Γ) e_2 S_2 t_2 P_2)
+   ---- prod
+   (W Γ (pair e_1 e_2) (compose-subst S_2 S_1) (Prod (apply-subst S_2 t_1) t_2) (qjoin (apply-subst S_2 P_1) P_2))]
+
+  [(W Γ e_1 S_1 t_1 P_1)
+   (W (apply-subst S_1 Γ) e_2 S_2 t_2 P_2)
+   (W (apply-subst (compose-subst S_2 S_1) Γ) e_3 S_3 t_3 P_3)
+   (unify (apply-subst (compose-subst S_3 S_2) t_1) Int S_4)
+   (unify (apply-subst (compose-subst S_4 S_3) t_2) (apply-subst S_4 t_3) S_5)
+   (where S (compose-subst S_5 (compose-subst S_4 (compose-subst S_3 (compose-subst S_2 S_1)))))
+   ---- if0
+   (W Γ (if e_1 e_2 e_3) S (apply-subst (compose-subst S_5 S_4) t_3) (qjoin (apply-subst (compose-subst S_5 (compose-subst S_4 (compose-subst S_3 S_2))) P_1) (qjoin (apply-subst (compose-subst S_5 (compose-subst S_4 S_3)) P_2) (apply-subst (compose-subst S_5 S_4) P_3))))]
+
+  [(W Γ e_1 S_1 t_1 P_1)
+   (where P (qreduce P_1))
+   (where σ (all (parens (\\ (parens (∪ (ftv P) (ftv t_1))) (ftv (apply-subst S_1 Γ)))) (=> P t_1)))
+   (W (extend (apply-subst S_1 Γ) x σ) e_2 S_2 t_2 P_2)
+   ---- let
+   (W Γ (let x e_1 e_2) (compose-subst S_2 S_1) t_2 P_2)])
+
 (define-judgment-form λ-qual
   #:mode (> I O)
   #:contract (> σ ρ)
@@ -317,7 +350,11 @@
 
   [(qimplies P [π_i ... (Eq t_1) (Eq t_2) π_j ...])
    --- eq-prod
-   (qimplies P [π_i ... (Eq (Prod t_1 t_2)) π_j ...])])
+   (qimplies P [π_i ... (Eq (Prod t_1 t_2)) π_j ...])]
+
+  [(qimplies P [π_i ... π_j ...])
+   ---- ord-int
+   (qimplies P [π_i ... (Ord Int) π_j ...])])
 
 (define-judgment-form λ-qual
   #:mode (qtypes O I I O)
@@ -336,10 +373,21 @@
    ---- abs
    (qtypes P Γ (λ x e) (-> t_1 t_2))]
 
-  [(qtypes [π_1 ...] Γ e_1 (-> t_2 t))
-   (qtypes [π_2 ...] Γ e_2 t_2)
+  [(qtypes P_1 Γ e_1 (-> t_2 t))
+   (qtypes P_2 Γ e_2 t_2)
    ---- app
-   (qtypes [π_1 ... π_2 ...] Γ (ap e_1 e_2) t)]
+   (qtypes [qjoin P_1 P_2] Γ (ap e_1 e_2) t)]
+
+  [(qtypes P_1 Γ e_1 Int)
+   (qtypes P_2 Γ e_2 t)
+   (qtypes P_3 Γ e_3 t)
+   --- if0
+   (qtypes (qjoin P_1 (qjoin P_2 P_3)) Γ (if0 e_1 e_2 e_3) t)]
+
+  [(qtypes P_1 Γ e_1 t_1)
+   (qtypes P_2 Γ e_2 t_2)
+   ---- prod
+   (qtypes (qjoin P_1 P_2) Γ (pair e_1 e_2) (Prod t_1 t_2))]
 
   [(qtypes P_1 Γ e_1 t_1)
    (qimplies P P_1)

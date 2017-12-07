@@ -12,6 +12,8 @@
          racket/set
          "util.rkt")
 
+(caching-enabled? #f)
+
 (define-language λ-ml/no-bool
   (e ::=
      x
