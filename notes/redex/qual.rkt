@@ -5,7 +5,7 @@
          type-of
          > qimplies qtypes
          unify inst W
-         app-evidence abs-evidence qtranslates)
+         get-evidence app-evidence abs-evidence qtranslates)
 
 (require redex/reduction-semantics
          racket/set
@@ -401,15 +401,38 @@
    (qtypes P_2 Γ (let x e_1 e_2) t)])
 
 (define-judgment-form λ-qual
+  #:mode (get-evidence I O I)
+
+  [(where/hidden =/int fake)
+   ---- eq-int
+   (get-evidence Δ =/int (Eq Int))]
+
+  [(where/hidden </int fake)
+   ---- ord-int
+   (get-evidence Δ </int (Ord Int))]
+
+  [(get-evidence Δ e_1 (Eq t_1))
+   (get-evidence Δ e_2 (Eq t_2))
+   (where e_out (λ p (if0 (ap e_1 (pair (ap fst (ap fst p)) (ap fst (ap snd p))))
+                          (ap e_2 (pair (ap snd (ap fst p)) (ap snd (ap snd p))))
+                          1)))
+   ---- eq-prod
+   (get-evidence Δ e_out (Eq (Prod t_1 t_2)))]
+
+  [---- lookup
+   (get-evidence [(x_i π_i) ... (x π) (x_j π_j) ...] x π)])
+
+(define-judgment-form λ-qual
   #:mode (app-evidence I I I O)
   #:contract (app-evidence Δ P e e)
 
   [---- nil
    (app-evidence Δ [] e e)]
 
-  [(app-evidence Δ [π_i ...] (ap e y) e_out)
+  [(get-evidence Δ e_ev π)
+   (app-evidence Δ [π_i ...] (ap e e_ev) e_out)
    ---- cons
-   (app-evidence (name Δ [(x_j π_j) ... (y π) (x_k π_k) ...]) [π π_i ...] e e_out)])
+   (app-evidence Δ [π π_i ...] e e_out)])
 
 (define-judgment-form λ-qual
   #:mode (abs-evidence I I O O)
@@ -461,8 +484,8 @@
    (qtranslates Δ_1 Γ e_1 e_1^† t_1)
    (abs-evidence Δ_1 e_1^† P e_1^‡)
    (where σ_1 (all (parens (\\ (parens (∪ (ftv P) (ftv t_1))) (ftv Γ))) (=> P t_1)))
-   (qtranslates Δ (extend Γ x σ_1) e_2 e_2^† t)
+   (qtranslates Δ_2 (extend Γ x σ_1) e_2 e_2^† t)
    ---- let
-   (qtranslates Δ Γ (let x e_1 e_2) (let x e_1^‡ e_2^†) t)])
+   (qtranslates Δ_2 Γ (let x e_1 e_2) (let x e_1^‡ e_2^†) t)])
 
 

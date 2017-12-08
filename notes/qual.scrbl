@@ -46,6 +46,8 @@
 
 @render-nonterminals[r:λ-qual Δ]
 
+@render-judgment-rules[r:get-evidence eq-int ord-int eq-prod lookup]
+
 @render-judgment-rules[r:app-evidence nil cons]
 
 @render-judgment-rules[r:abs-evidence nil cons]

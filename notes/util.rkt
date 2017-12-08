@@ -56,6 +56,8 @@
     ['ftv    (rewriter [(t)          "ftv(" t ")"])]
     ['generate
              (rewriter [(Γ e t)      "⟦" Γ " ⊢ " e " : " t "⟧"])]
+    ['get-evidence
+             (rewriter [(Δ e t)      "" Δ " ⊩ " e " : " t ""])]
     ['kinds  (rewriter [(Δ t)        "" Δ " ⊢ " t]
                        [(Γ t k)      "" Γ " ⊢ " t " :: " k ""])]
     ['kinds/env
