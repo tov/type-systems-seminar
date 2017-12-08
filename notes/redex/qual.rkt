@@ -17,12 +17,12 @@
 (define-language λ-qual
   (e ::=
      x
-     c
      (λ x e)
      (ap e e)
+     (let x e e)
+     c
      (if0 e e e)
-     (pair e e)
-     (let x e e))
+     (pair e e))
   (v ::=
      c
      (λ x e)
@@ -338,27 +338,28 @@
    (> (all (a a_i ...) ρ_0) ρ)])
 
 (define-judgment-form λ-qual
-  #:mode (qimplies O I)
+  #:mode (qimplies I I)
   #:contract (qimplies P P)
 
   [---- refl
    (qimplies P P)]
 
-  [(qimplies P [π_i ... π π_j ... π_k ...])
-   ---- dup
-   (qimplies P [π_i ... π π_j ... π π_k ...])]
+  [(where/hidden P_2 fake-P)
+   (qimplies P_1 P_2) (qimplies P_2 P_3)
+   ---- trans
+   (qimplies P_1 P_3)]
 
-  [(qimplies P [π_i ... π_j ...])
-   ---- eq-int
-   (qimplies P [π_i ... (Eq Int) π_j ...])]
+  [---- dup
+   (qimplies [π_i ... π π_j ... π_k ...] [π_i ... π π_j ... π π_k ...])]
 
-  [(qimplies P [π_i ... (Eq t_1) (Eq t_2) π_j ...])
-   --- eq-prod
-   (qimplies P [π_i ... (Eq (Prod t_1 t_2)) π_j ...])]
+  [---- eq-int
+   (qimplies [π_i ... π_j ...] [π_i ... (Eq Int) π_j ...])]
 
-  [(qimplies P [π_i ... π_j ...])
-   ---- ord-int
-   (qimplies P [π_i ... (Ord Int) π_j ...])])
+  [--- eq-prod
+   (qimplies [π_i ... (Eq t_1) (Eq t_2) π_j ...] [π_i ... (Eq (Prod t_1 t_2)) π_j ...])]
+
+  [---- ord-int
+   (qimplies [π_i ... π_j ...] [π_i ... (Ord Int) π_j ...])])
 
 (define-judgment-form λ-qual
   #:mode (qtypes O I I O)
@@ -394,9 +395,10 @@
    (qtypes (qjoin P_1 P_2) Γ (pair e_1 e_2) (Prod t_1 t_2))]
 
   [(qtypes P_1 Γ e_1 t_1)
+   (where/hidden P fake-P)
    (qimplies P P_1)
-   (where σ_1 (all (parens (\\ (parens (∪ (ftv P) (ftv t_1))) (ftv Γ))) (=> P t_1)))
-   (qtypes P_2 (extend Γ x σ_1) e_2 t)
+   (where σ (all (parens (\\ (parens (∪ (ftv P) (ftv t_1))) (ftv Γ))) (=> P t_1)))
+   (qtypes P_2 (extend Γ x σ) e_2 t)
    ---- let-gen
    (qtypes P_2 Γ (let x e_1 e_2) t)])
 
@@ -483,8 +485,8 @@
   [(where/hidden Δ_1 fake-Δ)
    (qtranslates Δ_1 Γ e_1 e_1^† t_1)
    (abs-evidence Δ_1 e_1^† P e_1^‡)
-   (where σ_1 (all (parens (\\ (parens (∪ (ftv P) (ftv t_1))) (ftv Γ))) (=> P t_1)))
-   (qtranslates Δ_2 (extend Γ x σ_1) e_2 e_2^† t)
+   (where σ (all (parens (\\ (parens (∪ (ftv P) (ftv t_1))) (ftv Γ))) (=> P t_1)))
+   (qtranslates Δ_2 (extend Γ x σ) e_2 e_2^† t)
    ---- let
    (qtranslates Δ_2 Γ (let x e_1 e_2) (let x e_1^‡ e_2^†) t)])
 
