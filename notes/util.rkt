@@ -35,13 +35,17 @@
     ['-->*   (rewriter [(e_1 e_2)    "" e_1 " ⟶* " e_2])]
     ['<:     (rewriter [(t_1 t_2)    "" t_1 " <: " t_2])]
     ['<:~>   (rewriter [(t_1 t_2 e)  "" t_1 " <: " t_2 " ↝ " e])]
-    ['\\     (rewriter [(as bs)      "" as " \\ " bs])]
+    ['\\     (rewriter [(as bs)      "" as " \\ " bs ""])]
     ['∪      (rewriter [(as bs)      "" as " ∪ " bs ""])]
     ['≡      (rewriter [(t_1 t_2)    "" t_1 " ≡ " t_2 ""])]
     ['apply-subst
              (rewriter [(S σ)        "" S "" σ ""])]
     ['compose-subst
              (rewriter [(S_1 S_2)    "" S_1 "∘" S_2 ""])]
+    ['abs-evidence
+             (rewriter [(Δ e_0 P e)  "" Δ " ⊢ " e_0 " ⇝ " P " ⇒ " e ""])]
+    ['app-evidence
+             (rewriter [(Δ P e_0 e)  "" Δ " ⊢ " P " ⇒ " e_0 " ⇝ " e ""])]
     ['apply-substitution
              (rewriter [(e γ)        "" e "" γ ""])]
     ['extend (rewriter [(Γ x t)      "" Γ ", " x ":" t ""]
@@ -71,6 +75,9 @@
     ['qimplies
              (rewriter [(P_1 P_2)    "" P_1 " ⊩ " P_2 ""])]
     ['qjoin  (rewriter [(P_1 P_2)    "" P_1 " ∪ " P_2 ""])]
+    ['qtranslates
+             (rewriter [(Δ Γ e_0 e t)"" Δ " | " Γ " ⊢ " e_0
+                                          " ⇝ " e " : " t ""])]
     ['qtypes (rewriter [(P Γ e t)    "" P " | " Γ " ⊢ " e " : " t ""])]
     ['satisfies
              (rewriter [(γ Γ)        "" γ " ⊨ " Γ])]

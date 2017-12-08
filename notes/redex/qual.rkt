@@ -4,7 +4,8 @@
          ->val δ
          type-of
          > qimplies qtypes
-         unify inst W)
+         unify inst W
+         app-evidence abs-evidence qtranslates)
 
 (require redex/reduction-semantics
          racket/set
@@ -62,6 +63,8 @@
   (Γ ::=
      •
      (extend Γ x σ))
+  (Δ ::=
+     [(x π) ...])
   (S ::=
      •
      (extend-subst S a t))
@@ -396,4 +399,70 @@
    (qtypes P_2 (extend Γ x σ_1) e_2 t)
    ---- let-gen
    (qtypes P_2 Γ (let x e_1 e_2) t)])
+
+(define-judgment-form λ-qual
+  #:mode (app-evidence I I I O)
+  #:contract (app-evidence Δ P e e)
+
+  [---- nil
+   (app-evidence Δ [] e e)]
+
+  [(app-evidence Δ [π_i ...] (ap e y) e_out)
+   ---- cons
+   (app-evidence (name Δ [(x_j π_j) ... (y π) (x_k π_k) ...]) [π π_i ...] e e_out)])
+
+(define-judgment-form λ-qual
+  #:mode (abs-evidence I I O O)
+  #:contract (abs-evidence Δ e P e)
+
+  [---- nil
+   (abs-evidence [] e [] e)]
+
+  [(abs-evidence [(x_i π_i) ...] (λ x e) [π_out ...] e_out)
+   ---- cons
+   (abs-evidence [(x π) (x_i π_i) ...] e [π π_out ...] e_out)])
+
+(define-judgment-form λ-qual
+  #:mode (qtranslates I I I O O)
+  #:contract (qtranslates Δ Γ e e t)
+
+  [(> (lookup Γ x) (=> P t))
+   (app-evidence Δ P x e)
+   ---- var
+   (qtranslates Δ Γ x e t)]
+
+  [(> (type-of c) (=> P t))
+   (app-evidence Δ P c e)
+   ---- const
+   (qtranslates Δ Γ c e t)]
+
+  [(where/hidden t_1 guess-type)
+   (qtranslates Δ (extend Γ x t_1) e e_^† t_2)
+   ---- abs
+   (qtranslates Δ Γ (λ x e) e_^† (-> t_1 t_2))]
+
+  [(qtranslates Δ Γ e_1 e_1^† (-> t_2 t))
+   (qtranslates Δ Γ e_2 e_2^† t_2)
+   ---- app
+   (qtranslates Δ Γ (ap e_1 e_2) (ap e_1^† e_2^†) t)]
+
+  [(qtranslates Δ Γ e_1 e_1^† Int)
+   (qtranslates Δ Γ e_2 e_2^† t)
+   (qtranslates Δ Γ e_3 e_3^† t)
+   --- if0
+   (qtranslates Δ Γ (if0 e_1 e_2 e_3) (if0 e_1^† e_2^† e_3^†) t)]
+
+  [(qtranslates Δ Γ e_1 e_1^† t_1)
+   (qtranslates Δ Γ e_2 e_2^† t_2)
+   ---- prod
+   (qtranslates Δ Γ (pair e_1 e_2) (pair e_1^† e_2^†) (Prod t_1 t_2))]
+
+  [(where/hidden Δ_1 fake-Δ)
+   (qtranslates Δ_1 Γ e_1 e_1^† t_1)
+   (abs-evidence Δ_1 e_1^† P e_1^‡)
+   (where σ_1 (all (parens (\\ (parens (∪ (ftv P) (ftv t_1))) (ftv Γ))) (=> P t_1)))
+   (qtranslates Δ (extend Γ x σ_1) e_2 e_2^† t)
+   ---- let
+   (qtranslates Δ Γ (let x e_1 e_2) (let x e_1^‡ e_2^†) t)])
+
 

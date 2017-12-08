@@ -41,3 +41,13 @@
 @render-judgment-rules[r:unify var-same var-left var-right int prod arr]
 
 @render-judgment-rules[r:W var const abs app prod if0 let]
+
+@section[#:tag "qual-evidence"]{Evidence translation}
+
+@render-nonterminals[r:λ-qual Δ]
+
+@render-judgment-rules[r:app-evidence nil cons]
+
+@render-judgment-rules[r:abs-evidence nil cons]
+
+@render-judgment-rules[r:qtranslates var const abs app if0 prod let]
