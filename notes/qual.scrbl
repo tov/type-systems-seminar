@@ -32,7 +32,7 @@
 
 @render-judgment-rules[r:qimplies refl dup eq-int eq-prod ord-int]
                                                         
-@render-judgment-rules[r:qtypes var-inst const-inst abs app if0 prod let-gen]
+@render-judgment-rules[r:qtypes var-inst const-inst abs app if0 pair let-gen]
 
 @section[#:tag "qual-inference"]{Type inference algorithm}
 
@@ -40,7 +40,7 @@
 
 @render-judgment-rules[r:unify var-same var-left var-right int prod arr]
 
-@render-judgment-rules[r:W var const abs app prod if0 let]
+@render-judgment-rules[r:W var const abs app pair if0 let]
 
 @section[#:tag "qual-evidence"]{Evidence translation}
 
@@ -50,4 +50,4 @@
 
 @render-judgment-rules[r:abs-evidence nil cons]
 
-@render-judgment-rules[r:qtranslates var const abs app if0 prod let]
+@render-judgment-rules[r:qtranslates var const abs app if0 pair let]

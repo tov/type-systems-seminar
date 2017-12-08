@@ -308,7 +308,7 @@
 
   [(W Γ e_1 S_1 t_1 P_1)
    (W (apply-subst S_1 Γ) e_2 S_2 t_2 P_2)
-   ---- prod
+   ---- pair
    (W Γ (pair e_1 e_2) (compose-subst S_2 S_1) (Prod (apply-subst S_2 t_1) t_2) (qjoin (apply-subst S_2 P_1) P_2))]
 
   [(W Γ e_1 S_1 t_1 P_1)
@@ -390,7 +390,7 @@
 
   [(qtypes P_1 Γ e_1 t_1)
    (qtypes P_2 Γ e_2 t_2)
-   ---- prod
+   ---- pair
    (qtypes (qjoin P_1 P_2) Γ (pair e_1 e_2) (Prod t_1 t_2))]
 
   [(qtypes P_1 Γ e_1 t_1)
@@ -454,7 +454,7 @@
 
   [(qtranslates Δ Γ e_1 e_1^† t_1)
    (qtranslates Δ Γ e_2 e_2^† t_2)
-   ---- prod
+   ---- pair
    (qtranslates Δ Γ (pair e_1 e_2) (pair e_1^† e_2^†) (Prod t_1 t_2))]
 
   [(where/hidden Δ_1 fake-Δ)
