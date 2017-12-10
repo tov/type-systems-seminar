@@ -121,8 +121,8 @@ So this suggests a different way to type @term[(let x e_1 e_2)]: copy
 @;
 with this rule, the example from the exercise types correctly. However, other
 things that shouldn’t type also type. In particular, a term like
-@term[(let f (λ x (ap x x)) true)] has type @term[bool], even though the
-subterm @term[(λ x (ap x x))] has no type. To remedy this, we ensure that
+@term[(let f (ap true true) true)] has type @term[bool], even though the
+subterm @term[(ap true true)] has no type. To remedy this, we ensure that
 @term[e_1] has a type, even though we don’t restrict it to have that particular
 type in @term[e_2]:
 @;
