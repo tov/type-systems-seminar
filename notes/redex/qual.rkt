@@ -4,7 +4,7 @@
          ->val δ
          type-of
          > qimplies qtypes
-         unify inst W
+         unify inst qreduce W
          get-evidence app-evidence abs-evidence qtranslates)
 
 (require redex/reduction-semantics

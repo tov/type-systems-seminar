@@ -229,7 +229,7 @@ apply them to type environments and types.
 Finally, the let rule follows the let rule from the previous section,
 packaging up the predicate context generated for @term[e_1] in the type
 scheme assigned to @term[x]. We (optionally) assume a metafunction
-@term[(qreduce P)] that simplifies the predicate context before
+@term[(r:qreduce P)] that simplifies the predicate context before
 constructing the type scheme.
 @;
 @render-judgment-rules[r:W let]
