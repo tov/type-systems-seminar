@@ -236,7 +236,36 @@ constructing the type scheme.
 
 @section[#:tag "qual-evidence"]{Evidence translation}
 
+@exercise{
+What is the most general type scheme of the term
+@term[(λ (x) (λ (y) (if0 (= (pair x y)) x y)))]?
+}
+
+How would you implement such a function—in particular, how does it
+figure out the equality for a generic/unknown type parameter? Well, our
+operational semantics cheated by relying on Racket’s underlying
+polymorphic @tt{equal?} function. Racket's @tt{equal?} relies on
+Racket's object representations, which include tags that distinguish
+number from Booleans from pairs, etc. But what about in a typed language
+that does not use tags and thus cannot support polymorphic equality?
+
+One solution is called evidence passing, wherein using a qualified type
+requires passing evidence that it is inhabited, where this evidence
+specifies some information about how to perform the associated
+operations. In our type classes example, the evidence is the equality or
+less-than function specialized to the required type. (In a real
+evidence-passing implementation such as how Haskell is traditionally
+implemented, the evidence is a dictionary of methods. Rust uses
+monomorphization to implement traits rather than evidence passing.)
+
+We can translate implicitly-typed @λ-qual programs like the above into
+programs that pass evidence explicitly. We do this by typing them in an
+evidence environment, which names the evidence for each predicate:
+@;
 @render-nonterminals[r:λ-qual Δ]
+
+We can use the evidence environment to summon or construct evidence if
+it's available. In particular, the judgment @term[(r:get-evidence Δ e π)]
 
 @render-judgment-rules[r:get-evidence eq-int ord-int eq-prod lookup]
 
