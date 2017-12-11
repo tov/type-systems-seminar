@@ -299,7 +299,7 @@
    (where a (fresh β (Γ S_1 S_2 t_1 t_2 P_1 P_2)))
    (unify (apply-subst S_2 t_1) (-> t_2 a) S_3)
    ---- app
-   (W Γ (ap e_1 e_2) (compose-subst S_3 (compose-subst S_2 S_1)) (apply-subst S_3 a) [qjoin (apply-subst (compose-subst S_3 S_2) P_1) (apply-subst S_3 P_2)])]
+   (W Γ (ap e_1 e_2) (compose-subst S_3 (compose-subst S_2 S_1)) (apply-subst S_3 a) (apply-subst S_3 (parens (qjoin (apply-subst S_2 P_1) P_2))))]
 
   [(where a (fresh α Γ))
    (W (extend Γ x (all () (=> [] a))) e S t P)
@@ -313,12 +313,12 @@
 
   [(W Γ e_1 S_1 t_1 P_1)
    (W (apply-subst S_1 Γ) e_2 S_2 t_2 P_2)
-   (W (apply-subst (compose-subst S_2 S_1) Γ) e_3 S_3 t_3 P_3)
-   (unify (apply-subst (compose-subst S_3 S_2) t_1) Int S_4)
-   (unify (apply-subst (compose-subst S_4 S_3) t_2) (apply-subst S_4 t_3) S_5)
+   (W (apply-subst S_2 (apply-subst S_1 Γ)) e_3 S_3 t_3 P_3)
+   (unify (apply-subst S_3 (apply-subst S_2 t_1)) Int S_4)
+   (unify (apply-subst S_4 (apply-subst S_3 t_2)) (apply-subst S_4 t_3) S_5)
    (where S (compose-subst S_5 (compose-subst S_4 (compose-subst S_3 (compose-subst S_2 S_1)))))
    ---- if0
-   (W Γ (if e_1 e_2 e_3) S (apply-subst (compose-subst S_5 S_4) t_3) (qjoin (apply-subst (compose-subst S_5 (compose-subst S_4 (compose-subst S_3 S_2))) P_1) (qjoin (apply-subst (compose-subst S_5 (compose-subst S_4 S_3)) P_2) (apply-subst (compose-subst S_5 S_4) P_3))))]
+   (W Γ (if e_1 e_2 e_3) S (apply-subst S_5 (apply-subst S_4 t_3)) (apply-subst S_5 (apply-subst S_4 (parens (qjoin (apply-subst S_3 (parens (qjoin (apply-subst S_2 P_1) P_2))) P_3)))))]
 
   [(W Γ e_1 S_1 t_1 P_1)
    (where P (qreduce P_1))
