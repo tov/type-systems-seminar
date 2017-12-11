@@ -1,4 +1,4 @@
-GOAL = qual
+GOAL = fomega
 
 html: out/$(GOAL).html
 
