@@ -43,7 +43,7 @@
 (define v (vec 3 2 1))
 (sort! v)
 
-;;;; Tarjan's union-find
+;;;; Weighted, path-compressing union-find
 
 (define-type-alias UF (Record [id (Vec Int)] [sz (Vec Int)]))
 

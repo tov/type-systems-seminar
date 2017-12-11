@@ -498,3 +498,5 @@ where the else-branch has the predecessor bound.
 @exercise{Extend type safety for @term[fix].}
 
 @exercise{Where does the normalization proof break down if we add @term[fix]?}
+
+@exercise{Implement a union-find in STLC with records and vectors.}

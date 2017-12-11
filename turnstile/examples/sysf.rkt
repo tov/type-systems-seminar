@@ -319,7 +319,7 @@
 (define (count-to-2 [Counter COUNTER] -> Int)
   ((Counter Int)
    (tyλ (counter-type)
-     (λ (r)   
+     (λ (r)
        ((project r get)
         ((project r next)
          ((project r next)

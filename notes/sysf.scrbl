@@ -240,6 +240,11 @@ Consider this alternate definition of Counter:
 }
 
 It should be indistinguishable from the original definition in all contexts.
-Can we prove it?
 
-                              
+@exercise{Can we prove it?}
+
+@exercise{
+    Write a generic sorting function that takes a vector and a
+    comparison function and sorts the vector in place.
+}
+

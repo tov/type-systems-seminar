@@ -328,3 +328,7 @@ to coerce the argument to the function:
 @;
 @render-judgment-rules[r:types~> app]
 
+@exercise{Define a Point as a record with fields x and y, which are
+integers. Define a ColorPoint as a Point with an additional field, the
+color, which is a string. Define a function that takes a Point. Show
+that your function can be used on a ColorPoint.}
