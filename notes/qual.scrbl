@@ -256,8 +256,7 @@ specifies some information about how to perform the associated
 operations. In our type classes example, the evidence is the equality or
 less-than function specialized to the required type. (In a real
 evidence-passing implementation such as how Haskell is traditionally
-implemented, the evidence is a dictionary of methods. Rust uses
-monomorphization to implement traits rather than evidence passing.)
+implemented, the evidence is a dictionary of methods.)
 
 We can translate implicitly-typed @λ-qual programs like the above into
 programs that pass evidence explicitly. We do this by typing them in an
@@ -316,3 +315,7 @@ The let form, as above, generalizes, by abstracting the right-hand side
 @;
 @render-judgment-rules[r:qtranslates let]
 
+@exercise{Rust uses monomorphization to implement generics and traits.
+It does this by duplicating polymorphic code, specializing it at each
+required type. Write a relation that formalizes monomorphization for
+describes @|λ-qual|.}

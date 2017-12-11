@@ -43,9 +43,9 @@
     ['compose-subst
              (rewriter [(S_1 S_2)    "" S_1 "∘" S_2 ""])]
     ['abs-evidence
-             (rewriter [(Δ e_0 P e)  "" Δ " ⊢ " e_0 " ⇝ " P " ⇒ " e ""])]
+             (rewriter [(Δ e_0 P e)  "" Δ " ⊩ " e_0 " ⇝ " P " ⇒ " e ""])]
     ['app-evidence
-             (rewriter [(Δ P e_0 e)  "" Δ " ⊢ " P " ⇒ " e_0 " ⇝ " e ""])]
+             (rewriter [(Δ P e_0 e)  "" Δ " ⊩ " P " ⇒ " e_0 " ⇝ " e ""])]
     ['apply-substitution
              (rewriter [(e γ)        "" e "" γ ""])]
     ['extend (rewriter [(Γ x t)      "" Γ ", " x ":" t ""]
