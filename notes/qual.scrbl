@@ -1,6 +1,7 @@
 #lang scribble/base
 
 @(require (prefix-in r: "redex/qual.rkt")
+          (only-in "redex/qual.rkt" get-evidence)
           "util.rkt"
           (only-in redex default-language)
           redex/pict)
@@ -265,12 +266,53 @@ evidence environment, which names the evidence for each predicate:
 @render-nonterminals[r:λ-qual Δ]
 
 We can use the evidence environment to summon or construct evidence if
-it's available. In particular, the judgment @term[(r:get-evidence Δ e π)]
+it's available. In particular, the judgment @term[(get-evidence Δ e π)]
+uses evidence environment @term[Δ] to construct @term[e], which is
+evidence of predicate @term[π]. In particular, if @term[π] is
+@term[(Eq t)] then @term[e] should be an equality function of type
+@term[(-> (Prod t t) Int)]; if @term[π] is @term[(Ord t)] then @term[e]
+should be a less-than function of type @term[(-> (Prod t t) Int)].
 
-@render-judgment-rules[r:get-evidence eq-int ord-int eq-prod lookup]
+For base type @term[Int], the evidence is just a primitive function
+performing the correct operation:
+@;
+@render-judgment-rules[r:get-evidence eq-int ord-int]
 
+For a product type, we summon evidence for each component type, and then
+construct the equality function for the product.
+@;
+@render-judgment-rules[r:get-evidence eq-prod]
+
+Other types are looked up in the evidence environment:
+@;
+@render-judgment-rules[r:get-evidence lookup]
+@;
+Note that if difference evidence appears for the same repeated
+predicate, then the behavior can be incoherent.
+
+The evidence translation uses two more auxiliary judgments. The first is
+for applying a term that expect evidence to its expected evidence:
+@;
 @render-judgment-rules[r:app-evidence nil cons]
 
+The second abstracts over the evidence expected by a term based on its
+context:
+@;
 @render-judgment-rules[r:abs-evidence nil cons]
 
-@render-judgment-rules[r:qtranslates var const abs app if0 pair let]
+Four rules of the typing judgment are unremarkable, simply passing the
+evidence environment through and translating homomorphically:
+
+@render-judgment-rules[r:qtranslates abs app if0 pair]
+
+The rules for variables and constants take a polymorphic value and apply
+it to the required evidence for any predicates contained in its
+qualified type, using the evidence application judgment:
+@;
+@render-judgment-rules[r:qtranslates var const]
+
+The let form, as above, generalizes, by abstracting the right-hand side
+@term[e_1] over evidence corresponding to its inferred evidence context:
+@;
+@render-judgment-rules[r:qtranslates let]
+
