@@ -189,6 +189,99 @@ into those relevant to @term[t_1], which we would package up in the type
 scheme, and those irrelevant to @term[t_2], which we would propogate
 upward.
 
+@exercise{
+ Use Haskell's type classes to implement bijections
+ between the natural numbers lists.}
+
+To get started,
+ install @tt{ghc} (and be sure that QuickCheck is installed,
+ perhaps by issuing the command @tt{cabal install quickcheck}).
+ 
+ Here are some declarations to get started:
+ @verbatim{
+
+@"{"-# LANGUAGE ScopedTypeVariables #-@"}"
+import Test.QuickCheck
+import Numeric.Natural
+
+class XEnum a where
+  into  :: a -> Natural
+  outof :: Natural -> a
+
+instance XEnum Natural where
+  into n = n
+  outof n = n
+
+ }
+
+ The @tt{class} declaration introduces a new predicate @tt{XEnum} that supports two
+ operations, @tt{into} and @tt{outof}. These are two functions
+ that realize a bijection between the type @tt{a} and the
+ natural numbers.
+
+ The @tt{instance} declaration says that the type @tt{Natural} supports
+ enumeration by giving the functions that translate from the naturals
+ to the naturals (i.e., the identity function).
+
+ For our first substantial instance, fill in the @tt{into} and
+ @tt{outof} functions to define a bijection between the natural
+ numbers and the integers:
+
+@verbatim{
+instance XEnum Integer where
+  into x = error "not implemented"
+  outof n = error "not implemented"
+}
+
+There is more than one way to do this, but it is also easy to make
+arithmetic errors when doing it. So we can use Quick Check to help find those
+errors. Add this declaration to the end of your program:
+@verbatim{
+prop_inout :: (Eq a, XEnum a) => a -> Bool
+prop_inout x = outof (into x) == x
+main = quickCheck (prop_inout :: Integer -> Bool)
+}
+If you do not see output like @tt{+++ OK, passed 100 tests.},
+then you have a bug in your bijections.
+
+ Once you have finished that, add the support for (disjoint)
+ unions. To do that we need to assume we have two enumerable
+ things and then we are going to add a bijection using
+ the @tt{Either} type:
+ 
+ @verbatim{
+instance (XEnum a , XEnum b) => XEnum (Either a b) where
+  into (Left x)  = error "not implemented"
+  into (Right x) = error "not implemented"
+  outof n = error "not implemented"
+}
+ The idea of this bijection is to use the odd numbers for either
+ @tt{Left} or @tt{Right} values, and use the even numbers for
+ the other. So we can embed two enumerable values into one.
+Also test this one with Quick Check,
+ using @tt{prop_inout :: (Either Integer Natural) -> Bool}.
+
+ Next up, pairs. 
+ @verbatim{
+instance (XEnum a , XEnum b) => XEnum (a , b) where
+  into (a , b) = error "not implemented"
+  outof n = error "not implemented"
+}
+The formulas for these ones are more complex; I recommend using Szudzik's ``elegant''
+ pairing function, found on page 8 of
+ @url{https://pdfs.semanticscholar.org/68e8/7ad59107481bc3cfdf1669706fd0368cce60.pdf}.
+Page 9 shows the geometric intuition for the bijection. To implement it,
+ you will need an exact square root function; see
+ @url{https://stackoverflow.com/questions/19965149/integer-square-root-function-in-haskell}
+ for two definitions.
+
+ Once you have that all working, define enumerations for lists.
+ @verbatim{
+ instance XEnum a => XEnum [a] where
+   into l = error "not implemented"
+   outof n = error "not implemented"
+}
+
 @section[#:tag "qual-inference"]{Type inference algorithm}
 
 The above type system provides a satisfactory account of which terms
