@@ -26,6 +26,9 @@ instance (XEnum a , XEnum b) => XEnum (Either a b) where
     | even x    = Left  (outof (x `div` 2))
     | otherwise = Right (outof (x `div` 2))
 
+{- function courtesy of https://stackoverflow.com/users/2124786/enrique via
+   https://stackoverflow.com/questions/19965149/integer-square-root-function-in-haskell
+ -}
 squareRoot :: Natural -> Natural
 squareRoot n
    | n > 0    = babylon n
