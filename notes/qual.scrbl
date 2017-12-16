@@ -282,6 +282,27 @@ Page 9 shows the geometric intuition for the bijection. To implement it,
    outof n = error "not implemented"
 }
 
+Be aware that the formulas and the bijections you've built work
+only for infinite sets (i.e., the naturals, the integers, pairs of them, etc.)
+If you want to use these bijections on sets that are finite, you need
+to add a @tt{size} operation:
+
+@verbatim{
+data ENatural = Fin Natural | Inf
+          
+class XEnum a where
+  into  :: a -> Natural
+  outof :: Natural -> a
+  size  :: ENatural
+}
+The size of an @tt{Either} is the sum of the sizes and the size
+of a pair enumeration is the product of the sizes. Also note
+that the corresponding formulas will need adjustment to handle the
+case where one of sides is finite. If you get stuck trying to figure
+out the formulas, look in this paper:
+@url{https://www.eecs.northwestern.edu/~robby/pubs/papers/jfp2017-nfmf.pdf},
+
+
 @section[#:tag "qual-inference"]{Type inference algorithm}
 
 The above type system provides a satisfactory account of which terms
