@@ -55,15 +55,15 @@ instance (XEnum a, XEnum b) => XEnum (a, b) where
 
 data NElist a =
     NELast a
-  | NECons (a, NElist a) deriving (Eq, Show)
+  | NECons a (NElist a) deriving (Eq, Show)
 
 toNElist :: a -> [a] -> NElist a
 toNElist a [] = NELast a
-toNElist a (x : xs) = NECons (a, toNElist x xs)
+toNElist a (x : xs) = NECons a (toNElist x xs)
 
 fromNElist :: NElist a -> [a]
 fromNElist (NELast a) = [a]
-fromNElist (NECons (a, b)) = a : fromNElist b
+fromNElist (NECons a b) = a : fromNElist b
 
 instance Arbitrary a => Arbitrary (NElist a) where
   arbitrary = do
@@ -73,13 +73,12 @@ instance Arbitrary a => Arbitrary (NElist a) where
 
 instance XEnum a => XEnum (NElist a) where
   into (NELast a) =    into (Left a             :: Either a (a, Natural))
-  into (NECons (a, b)) = into (Right (a, into b) :: Either a (a, Natural))
+  into (NECons a b) = into (Right (a, into b) :: Either a (a, Natural))
 
   outof n = f (outof n) where
-
     f :: Either a (a, Natural) -> NElist a
     f (Left a) = NELast a
-    f (Right (a, n)) = NECons (a, outof n)
+    f (Right (a, n)) = NECons a (outof n)
 
 instance XEnum a => XEnum [a] where
   into []       = 0
