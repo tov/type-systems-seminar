@@ -40,6 +40,10 @@ squareRoot n
                | True   = a
       where b  = quot (a + quot n a) 2
 
+prop_sqrt :: Natural -> Bool
+prop_sqrt n = rt * rt <= n && (rt + 1) * (rt + 1) > n
+  where rt = squareRoot n
+
 instance (XEnum a, XEnum b) => XEnum (a, b) where
   into (a, b) = if x < y
                  then y * y + x
@@ -93,6 +97,7 @@ prop_inout x = outof (into x) == x
 
 main :: IO ()
 main = do
+    _ <- quickCheck prop_sqrt
     _ <- quickCheck (prop_inout :: Integer -> Bool)
     _ <- quickCheck (prop_inout :: Either Integer Natural -> Bool)
     _ <- quickCheck (prop_inout :: (Integer, Integer) -> Bool)
