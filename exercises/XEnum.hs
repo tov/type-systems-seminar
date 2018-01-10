@@ -15,15 +15,15 @@ instance XEnum Natural where
 
 instance XEnum Integer where
   into x
-    | x >= 0 = 2 * (fromInteger x)
-    | x <  0 = 2 * (fromInteger (-x)) - 1
+    | x >= 0 = 2 * fromInteger x
+    | x <  0 = 2 * fromInteger (-x) - 1
   outof x
     | x `mod` 2 == 0 = toInteger (div x 2)
-    | x `mod` 2 == 1 = - (toInteger (div x 2)) - 1
-    
+    | x `mod` 2 == 1 = - toInteger (div x 2) - 1
+
 instance (XEnum a , XEnum b) => XEnum (Either a b) where
-  into (Left x)  = (into x) * 2
-  into (Right x) = (into x) * 2 + 1
+  into (Left x)  = into x * 2
+  into (Right x) = into x * 2 + 1
   outof x
     | even x    = Left  (outof (x `div` 2))
     | otherwise = Right (outof (x `div` 2))
