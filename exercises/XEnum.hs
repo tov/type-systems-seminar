@@ -42,8 +42,8 @@ squareRoot n
 
 instance (XEnum a, XEnum b) => XEnum (a, b) where
   into (a, b) = if x < y
-                 then y*y+x
-                 else x*x+x+y
+                 then y * y + x
+                 else x * x + x + y
     where x = into a
           y = into b
 
@@ -51,7 +51,7 @@ instance (XEnum a, XEnum b) => XEnum (a, b) where
             then (outof r, outof flroot)
             else (outof flroot, outof (r - flroot))
    where flroot = squareRoot z
-         r = z - flroot*flroot
+         r = z - flroot * flroot
 
 data NElist a =
     NELast a
