@@ -53,9 +53,10 @@ instance (XEnum a, XEnum b) => XEnum (a, b) where
    where flroot = squareRoot z
          r = z - flroot * flroot
 
-data NElist a =
-    NELast a
-  | NECons a (NElist a) deriving (Eq, Show)
+data NElist a
+  = NELast a
+  | NECons a (NElist a)
+  deriving (Eq, Show)
 
 toNElist :: a -> [a] -> NElist a
 toNElist a [] = NELast a
