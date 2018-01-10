@@ -1,5 +1,7 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
+module XEnum where
+
 import Test.QuickCheck
 import Numeric.Natural
 
