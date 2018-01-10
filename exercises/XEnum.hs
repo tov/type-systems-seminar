@@ -97,7 +97,7 @@ main = do
     _ <- quickCheck (prop_inout :: Either Integer Natural -> Bool)
     _ <- quickCheck (prop_inout :: (Integer, Integer) -> Bool)
     _ <- quickCheck (prop_inout :: Either Integer (Integer, Integer) -> Bool)
-    _ <- print ((map outof [0..100]) :: [[Natural]])
+    _ <- print (map outof [0..100] :: [[Natural]])
 {- these two run into a performance problem -}
 {- _ <- quickCheck (prop_inout :: NElist Integer -> Bool) -}
 {- _ <- quickCheck (prop_inout :: [Integer] -> Bool) -}
