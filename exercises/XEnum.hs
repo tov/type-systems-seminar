@@ -77,7 +77,7 @@ instance Arbitrary a => Arbitrary (NElist a) where
     return (toNElist hd tl)
 
 instance XEnum a => XEnum (NElist a) where
-  into (NELast a) =    into (Left a             :: Either a (a, Natural))
+  into (NELast a)   = into (Left a             :: Either a (a, Natural))
   into (NECons a b) = into (Right (a, into b) :: Either a (a, Natural))
 
   outof n = f (outof n) where
