@@ -6,38 +6,38 @@
 
   - 01/11: continued
 
-  - 01/16: [Simply-typed lambda calculus][stlc]
+  - 01/16: continued
 
-  - 01/18: continued
+  - 01/18: [Simply-typed lambda calculus][stlc]
 
-  - 01/23: [Subtyping with record types][lamsub]
+  - 01/23: continued
+
+  - 01/25: [Subtyping with record types][lamsub]
      - Pre-reading: TAPL, Chapter 11 “Simple Extensions”
          - It looks long, but skip the exercises and skim some
          - Be sure to read the section on records, since we’ll be using that
 
-  - 01/25: [System F][sysf]
+  - 01/30: [System F][sysf]
       - Pre-reading: [Reynolds 1974, “Towards a Theory of Type
         Structure”][reynolds74] (pages 1–8)
 
-  - 01/30: continued; final presentation discussion
+  - 02/01: continued; final presentation discussion
       - Post-reading: [Wadler 1989, “Theorems for Free”][wadler89]
 
-  - 02/01: [Damas–Hindley–Milner type inference][mlinf]
+  - 02/06: [Damas–Hindley–Milner type inference][mlinf]
       - Pre-reading: [Damas and Milner 1982, “Principal type-schemes for
         functional programs”][dm82]
 
-  - 02/06: Qualified types
+  - 02/08: Qualified types
       - Pre-reading: [Jones 1992, “A Theory of Qualified Types”][jones92]
 
-  - 02/08: Occurrence Typing in Typed Racket
+  - 02/13: Occurrence Typing in Typed Racket
       - Pre-reading: [Tobin-Hochstadt 2010, “Logical Types for Untyped
         Languages”][samth2010]
 
-  - 02/13: [Higher-order types][fomega] and dependent types
+  - 02/15: [Higher-order types][fomega] and dependent types
       - Pre-reading: Lambda Cube: [Barendregt, *Lambda Calculi with
         Types,*][barendregt] §5 “Typing à la Church”
-
-  - 02/15: Dependent types continued
 
   - 02/20: Substructural types
       - Pre-reading: [Tov 2012, *Practical Programming with
