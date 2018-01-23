@@ -266,7 +266,7 @@ And here is addition expressed using the recursor:
 @exercise{Implement factorial using the recursor.}
 
 @exercise{Implement a function that divides a natural number by two (rounding
- down.}
+ down).}
 
 @exercise{Extend the type safety theorem for the recursor.}
 
