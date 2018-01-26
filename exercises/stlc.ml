@@ -2,7 +2,7 @@
 
 #require "sexplib";;
 
-type typ = NatT
+type typ = IntT
          | ArrT of typ list * typ
          | TupT of typ list
 
@@ -11,14 +11,9 @@ type var = string
 type exp =
          | VarE of var
          | LetE of (var * exp) list * exp
-         | ZeroE
-         | SuccE of exp
-         | If0E of {
-             cond: exp;
-             zero: exp;
-             pred: var;
-             succ: exp;
-           }
+         | IntE of int
+         | SubE of exp * exp
+         | If0E of exp * exp * exp
          | TupE of exp list
          | PrjE of int * exp
          | LamE of (var * typ) list * exp
@@ -26,7 +21,7 @@ type exp =
          | FixE of var * typ * exp
 
 type value =
-         | NatV of int
+         | IntV of int
          | TupV of value list
          | CloV of value env * var list * exp
  and 'a env = var -> 'a
@@ -60,17 +55,17 @@ let rec eval env = function
       let bindings' = List.map (fun (x, e) -> (x, eval env e)) bindings in
       let env' = extend_list env bindings' in
         eval env' body
-  | ZeroE ->
-      NatV 0
-  | SuccE e ->
-      (match eval env e with
-       | NatV n -> NatV (n + 1)
-       | _ -> failwith "nat expected")
-  | If0E { cond; zero; pred; succ } ->
+  | IntE z ->
+      IntV z
+  | SubE(e1, e2) ->
+      (match eval env e1, eval env e2 with
+       | IntV z1, IntV z2 -> IntV (z1 - z2)
+       | _ -> failwith "ints expected")
+  | If0E(cond, zero, non_zero) ->
       (match eval env cond with
-       | NatV 0 -> eval env zero
-       | NatV n -> eval (extend env pred (NatV (n - 1))) succ
-       | _ -> failwith "nat expected")
+       | IntV 0 -> eval env zero
+       | IntV _ -> eval env non_zero
+       | _ -> failwith "int expected")
   | TupE es ->
       let vs = List.map (eval env) es in
         TupV vs
@@ -88,3 +83,8 @@ let rec eval env = function
             let env = extend_lists env xs vs in
               eval env body
          | _ -> failwith "closure expected")
+  | FixE(x, ArrT([t1], t2), e) ->
+      let recE = LamE([x, t1], AppE(FixE(x, ArrT([t1], t2), e), [VarE x])) in
+      let recV = eval env recE in
+        eval (extend env x recV) e
+
