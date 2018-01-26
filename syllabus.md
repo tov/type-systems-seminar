@@ -22,6 +22,8 @@
   - 02/01: [System F][sysf]
       - Pre-reading: [Reynolds 1974, “Towards a Theory of Type
         Structure”][reynolds74] (pages 1–8)
+      - Pre-task: Install up-to-date Racket and Racket package from
+        GitHub: https://github.com/tov/type-systems-seminar
 
   - 02/06: continued; final presentation discussion
       - Post-reading: [Wadler 1989, “Theorems for Free”][wadler89]
@@ -32,6 +34,7 @@
 
   - 02/13: Qualified types
       - Pre-reading: [Jones 1992, “A Theory of Qualified Types”][jones92]
+      - Pre-task: Install GHC.
 
   - 02/15: Occurrence Typing in Typed Racket
       - Pre-reading: [Tobin-Hochstadt 2010, “Logical Types for Untyped
