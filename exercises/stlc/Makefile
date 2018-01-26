@@ -1,4 +1,7 @@
 default: main.byte
 
-%.byte: %.ml
-	corebuild $<
+hard: main.byte
+	./$<
+
+%.byte: $(wildcard *.ml)
+	corebuild $@
