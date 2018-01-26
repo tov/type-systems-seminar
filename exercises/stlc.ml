@@ -1,27 +1,29 @@
 (* The simply-typed lambda calculus. *)
 
-type typ = Nat
-         | Arr of typ list * typ
-         | Tup of typ list
+#require "sexplib";;
+
+type typ = NatT
+         | ArrT of typ list * typ
+         | TupT of typ list
 
 type var = string
 
 type exp =
-         | Var of var
-         | Let of (var * exp) list * exp
-         | Zero
-         | Succ of exp
-         | If0 of {
+         | VarE of var
+         | LetE of (var * exp) list * exp
+         | ZeroE
+         | SuccE of exp
+         | If0E of {
              cond: exp;
              zero: exp;
              pred: var;
              succ: exp;
            }
-         | Tup of exp list
-         | Prj of int * exp
-         | Lam of (var * typ) list * exp
-         | App of exp * exp list
-         | Fix of exp
+         | TupE of exp list
+         | PrjE of int * exp
+         | LamE of (var * typ) list * exp
+         | AppE of exp * exp list
+         | FixE of var * typ * exp
 
 type value =
          | NatV of int
@@ -52,33 +54,33 @@ let extend_lists env = List.fold_left2 extend env
  *)
 
 let rec eval env = function
-  | Var var ->
+  | VarE var ->
       env var
-  | Let(bindings, body) ->
+  | LetE(bindings, body) ->
       let bindings' = List.map (fun (x, e) -> (x, eval env e)) bindings in
       let env' = extend_list env bindings' in
         eval env' body
-  | Zero ->
+  | ZeroE ->
       NatV 0
-  | Succ e ->
+  | SuccE e ->
       (match eval env e with
        | NatV n -> NatV (n + 1)
        | _ -> failwith "nat expected")
-  | If0 { cond; zero; pred; succ } ->
+  | If0E { cond; zero; pred; succ } ->
       (match eval env cond with
        | NatV 0 -> eval env zero
        | NatV n -> eval (extend env pred (NatV (n - 1))) succ
        | _ -> failwith "nat expected")
-  | Tup es ->
+  | TupE es ->
       let vs = List.map (eval env) es in
         TupV vs
-  | Prj(i, e) ->
+  | PrjE(i, e) ->
       (match eval env e with
        | TupV vs -> List.nth vs i
        | _ -> failwith "tuple expected")
-  | Lam(bindings, body) ->
+  | LamE(bindings, body) ->
       CloV(env, List.map (fun (x, t) -> x) bindings, body)
-  | App(e0, es) ->
+  | AppE(e0, es) ->
       let v0 = eval env e0 in
       let vs = List.map (eval env) es in
         (match v0 with
@@ -86,8 +88,3 @@ let rec eval env = function
             let env = extend_lists env xs vs in
               eval env body
          | _ -> failwith "closure expected")
-        (*
-  | Fix e ->
-      match eval env e with
-      | CloV
-      *)
