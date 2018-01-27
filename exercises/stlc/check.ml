@@ -41,43 +41,36 @@ let un_arr i = function
       else got_exp t ("arrow of arity " ^ string_of_int i)
   | t -> got_exp t "arrow type"
 
-let rec tc env = function
-  | VarE x ->
-      (match Env.lookup env x with
-       | Some t -> t
-       | None   -> raise (Type_error ("unbound variable: " ^ x)))
-  | LetE(xes, body) ->
-      let xts  = List.map ~f:(fun (x, e) -> (x, tc env e)) xes in
-      let env' = Env.extend_list env xts in
-        tc env' body
+let rec tc = function
+  | VarE x -> x
+  | LetE(rhses, body) ->
+      let ts  = List.map ~f:tc rhses in
+        tc (body ts)
   | IntE _ -> IntT
   | SubE(e1, e2) ->
-      assert_int (tc env e1);
-      assert_int (tc env e2);
+      assert_int (tc e1);
+      assert_int (tc e2);
       IntT
   | If0E(e1, e2, e3) ->
-      assert_int (tc env e1);
-      let t2 = tc env e2 in
-      let t3 = tc env e3 in
+      assert_int (tc e1);
+      let t2 = tc e2 in
+      let t3 = tc e3 in
       assert_same_type t2 t3;
       t2
   | TupE(es) ->
-      TupT(List.map ~f:(tc env) es)
+      TupT(List.map ~f:tc es)
   | PrjE(ix, e) ->
-      prj_tup ix (tc env e)
-  | LamE(xts, body) ->
-      let env' = Env.extend_list env xts in
-      let tr   = tc env' body in
-      ArrT(List.map ~f:snd xts, tr)
+      prj_tup ix (tc e)
+  | LamE(ts, body) ->
+      tc (body ts)
   | AppE(e0, es) ->
-      let (tas, tr) = un_arr (List.length es) (tc env e0) in
-      let ts        = List.map ~f:(tc env) es in
+      let (tas, tr) = un_arr (List.length es) (tc e0) in
+      let ts        = List.map ~f:tc es in
       assert_same_types tas ts;
       tr
-  | FixE(x, t, e) ->
-      let env' = Env.extend env x t in
-      let t'   = tc env' e in
+  | FixE(t, e) ->
+      let t'   = tc (e t) in
       assert_same_type t t';
       t
 
-let type_check = tc Env.empty
+let type_check = tc

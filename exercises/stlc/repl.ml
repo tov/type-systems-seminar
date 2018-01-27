@@ -26,7 +26,7 @@ let rec repl () =
       (try
         let t = Check.type_check e in
         print_string (" : " ^ Printer.type_to_string t ^ "\n");
-        let v = Eval.eval Env.empty e in
+        let v = Eval.eval e in
         print_string ("-> " ^ Eval.string_of_value v ^ "\n");
       with Check.Type_error msg ->
         warn ("type error: " ^ msg ^ "\n"));

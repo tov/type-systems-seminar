@@ -25,40 +25,57 @@ let binding_of_sexp x_of_sexp = function
 
 let bindings_of_sexps x_of_sexp = List.map ~f:(binding_of_sexp x_of_sexp)
 
-let rec expr_of_sexp sexp0 =
-  match sexp0 with
-  | S.Atom s ->
-      (try IntE (Int.of_string s)
-       with Failure _ ->
-         match s with
-         | "let" | "let*" | "-" | "if0"
-         | "tup" | "prj" | "lam" | "fix" ->
-             stx_err "variable name" (S.Atom s)
-         | _ -> VarE s)
-  | S.List ss ->
-      match ss with
-      | [] -> stx_err "expression" sexp0
-      | [S.Atom "let"; S.List bindings; body] ->
-          LetE(bindings_of_sexps expr_of_sexp bindings, expr_of_sexp body)
-      | [S.Atom "let*"; S.List bindings; body] ->
-          let bindings' = bindings_of_sexps expr_of_sexp bindings in
-          List.fold_right ~f:(fun (x, e) e' -> LetE([(x, e)], e'))
-                          ~init:(expr_of_sexp body)
-                          bindings'
-      | [S.Atom "-"; e1; e2] ->
-          SubE(expr_of_sexp e1, expr_of_sexp e2)
-      | [S.Atom "if0"; e1; e2; e3] ->
-          If0E(expr_of_sexp e1, expr_of_sexp e2, expr_of_sexp e3)
-      | (S.Atom "tup" :: es) ->
-          TupE(List.map ~f:expr_of_sexp es)
-      | [S.Atom "prj"; S.Atom ix; e] ->
-          (try PrjE(int_of_string ix, expr_of_sexp e)
-           with Failure _ -> stx_err "integer" (S.Atom ix))
-      | [S.Atom "lam"; S.List bindings; body] ->
-          LamE(bindings_of_sexps type_of_sexp bindings, expr_of_sexp body)
-      | [S.Atom "fix"; S.Atom x; t; e] ->
-          FixE(x, type_of_sexp t, expr_of_sexp e)
-      | e0 :: es ->
-          AppE(expr_of_sexp e0, List.map ~f:expr_of_sexp es)
+let rec unfold_let_star bindings body =
+  match bindings with
+  | binding :: rest ->
+      S.List [S.Atom "let"; S.List [binding]; unfold_let_star rest body]
+  | [] ->
+      body
+
+let expr_of_sexp sexp0 =
+  let rec loop env = function
+    | S.Atom s ->
+        (try IntE (Int.of_string s)
+         with Failure _ ->
+           match s with
+           | "let" | "let*" | "-" | "if0"
+           | "tup" | "prj" | "lam" | "fix" ->
+               stx_err "variable name" (S.Atom s)
+           | _ -> VarE (Env.lookup_exn env s))
+    | S.List ss ->
+        match ss with
+        | [] -> stx_err "expression" (S.List [])
+        | [S.Atom "let"; S.List bindings; body] ->
+            let xes = bindings_of_sexps (loop env) bindings in
+            let xs  = List.map ~f:fst xes in
+            let es  = List.map ~f:snd xes in
+            LetE(es,
+                 fun vs ->
+                   let env' = List.fold2_exn ~f:Env.extend ~init:env xs vs in
+                   loop env' body)
+        | [S.Atom "let*"; S.List bindings; body] ->
+            loop env (unfold_let_star bindings body)
+        | [S.Atom "-"; e1; e2] ->
+            SubE(loop env e1, loop env e2)
+        | [S.Atom "if0"; e1; e2; e3] ->
+            If0E(loop env e1, loop env e2, loop env e3)
+        | (S.Atom "tup" :: es) ->
+            TupE(List.map ~f:(loop env) es)
+        | [S.Atom "prj"; S.Atom ix; e] ->
+            (try PrjE(int_of_string ix, loop env e)
+             with Failure _ -> stx_err "integer" (S.Atom ix))
+        | [S.Atom "lam"; S.List bindings; body] ->
+            let xts = bindings_of_sexps type_of_sexp bindings in
+            let xs  = List.map ~f:fst xts in
+            let ts  = List.map ~f:snd xts in
+            LamE(ts,
+                 fun vs ->
+                   let env' = List.fold2_exn ~f:Env.extend ~init:env xs vs in
+                   loop env' body)
+        | [S.Atom "fix"; S.Atom x; t; e] ->
+            FixE(type_of_sexp t, fun v -> loop (Env.extend env x v) e)
+        | e0 :: es ->
+            AppE(loop env e0, List.map ~f:(loop env) es)
+  in loop Env.empty sexp0
 
 let expr_of_string s = expr_of_sexp (S.of_string s)

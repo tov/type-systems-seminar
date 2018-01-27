@@ -4,4 +4,4 @@ open Syntax
 exception Type_error of string
 
 (* Returns the type of an expression or throw Type_error. *)
-val type_check : exp -> typ
+val type_check : typ exp -> typ

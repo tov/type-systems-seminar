@@ -9,32 +9,33 @@ type typ = IntT
 type var = Var.t
 
 (* Expressions *)
-type exp =
-         | VarE of var
-         | LetE of (var * exp) list * exp
+type 'a exp =
+         | VarE of 'a
+         | LetE of 'a exp list * ('a list -> 'a exp)
          | IntE of int
-         | SubE of exp * exp
-         | If0E of exp * exp * exp
-         | TupE of exp list
-         | PrjE of int * exp
-         | LamE of (var * typ) list * exp
-         | AppE of exp * exp list
-         | FixE of var * typ * exp
+         | SubE of 'a exp * 'a exp
+         | If0E of 'a exp * 'a exp * 'a exp
+         | TupE of 'a exp list
+         | PrjE of int * 'a exp
+         | LamE of typ list * ('a list -> 'a exp)
+         | AppE of 'a exp * 'a exp list
+         | FixE of typ * ('a -> 'a exp)
+
+type any_exp = { exp : 'a . 'a exp }
 
 (* Computes the free variables of an expression. *)
-let rec fv =
+let fv =
   let module Set = Var.Set in
-  let remove_bindings bindings fvset =
-    List.fold ~f:Set.remove ~init:fvset (List.map ~f:fst bindings) in
-  function
+  let rec fv = function
   | VarE x -> Set.singleton x
-  | LetE(bindings, body) -> remove_bindings bindings (fv body)
+  | LetE(ts, body) -> fv (body (List.map ~f:(fun _ -> "") ts))
   | IntE _ -> Set.empty
   | SubE(e1, e2) -> Set.union (fv e1) (fv e2)
   | If0E(e1, e2, e3) -> Set.union_list [fv e1; fv e2; fv e3]
   | TupE es -> Set.union_list (List.map ~f:fv es)
   | PrjE(_, e) -> fv e
-  | LamE(bindings, body) -> remove_bindings bindings (fv body)
+  | LamE(ts, body) -> fv (body (List.map ~f:(fun _ -> "") ts))
   | AppE(e0, es) -> Set.union_list (List.map ~f:fv (e0 :: es))
-  | FixE(x, _, e) -> Set.remove (fv e) x
+  | FixE(_, e) -> fv (e "")
+  in fun e -> Set.remove (fv e) ""
 
