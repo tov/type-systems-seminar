@@ -7,3 +7,6 @@ hard: $(TARGET)
 
 %.byte: $(wildcard *.ml)
 	corebuild $@
+
+clean:
+	$(RM) -R *.byte *.native _build
