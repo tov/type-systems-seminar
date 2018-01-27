@@ -41,7 +41,7 @@ subst d (var n) v₁ | no ¬p = var n
 subst d (bind n e e₁) v₁ with n ≟ d
 subst d (bind n e e₁) v₁ | yes p = bind n (subst d e v₁) e₁
 subst d (bind n e e₁) v₁ | no ¬p = bind n (subst d e v₁) (subst d e₁ v₁)
-  
+
 data Config : Set where
   WRONG : Config
   eC : (e : letzl) -> Config
@@ -140,19 +140,19 @@ data lookup : List (ℕ × type) -> ℕ -> type -> Set where
     lookup ((n , t) ∷ l) n t
   Lcont : ∀ {t t′ l n m} ->
    lookup l n t ->
-   (¬x≡y : ¬ (m ≡ n)) -> 
+   (¬x≡y : ¬ (m ≡ n)) ->
    lookup ((m , t′) ∷ l) n t
 
 data tc : List (ℕ × type) -> letzl -> type -> Set where
   tnat : ∀ {env n} -> tc env (nat n) NatT
   tnil : ∀ {env} -> tc env nil ListT
   tadd : ∀ {env e1 e2} ->
-    tc env e1 NatT -> 
-    tc env e2 NatT -> 
+    tc env e1 NatT ->
+    tc env e2 NatT ->
     tc env (add e1 e2) NatT
   tcons : ∀ {env e1 e2} ->
-    tc env e1 NatT -> 
-    tc env e2 ListT -> 
+    tc env e1 NatT ->
+    tc env e2 ListT ->
     tc env (cons e1 e2) ListT
   tcar : ∀ {env e} ->
     tc env e ListT ->
@@ -270,7 +270,7 @@ sametc se (tbind tc₁ tc₂)
 exchange : ∀ {env x y τx τy e τ} -> ¬ (x ≡ y) ->
   tc ((x , τx) ∷ (y , τy) ∷ env) e τ ->
   tc ((y , τy) ∷ (x , τx) ∷ env) e τ
-exchange ¬x≡y tc = sametc (exsame sasame ¬x≡y) tc 
+exchange ¬x≡y tc = sametc (exsame sasame ¬x≡y) tc
 
 redundant : ∀ {x env τx τignored e τ} ->
   tc ((x , τx) ∷ (x , τignored) ∷ env) e τ ->
