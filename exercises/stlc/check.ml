@@ -80,6 +80,3 @@ let rec tc env = function
       let t'   = tc env' e in
       assert_same_type t t';
       t
-
-(* Type checks a term in the empty environment. *)
-let type_check = tc Env.empty

@@ -8,4 +8,4 @@ open Syntax
 exception Type_error of string
 
 (* Returns the type of an expression or throws Type_error. *)
-val type_check : exp -> typ
+val tc : typ Env.t -> exp -> typ
