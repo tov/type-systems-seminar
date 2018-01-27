@@ -11,9 +11,13 @@ exception Unbound_variable of var
 let empty = []
 
 let rec lookup env x = match env with
-  | [] -> raise (Unbound_variable x)
-  | (y, v) :: _ when x = y -> v
-  | _ :: env' -> lookup env' x
+  | [] -> None
+  | (y, v) :: rest -> if x = y then Some v else lookup rest x
+
+let lookup_exn env x =
+  match lookup env x with
+  | None   -> raise (Unbound_variable x)
+  | Some v -> v
 
 let extend env x v =
   (x, v) :: env

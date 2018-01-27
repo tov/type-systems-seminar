@@ -10,9 +10,12 @@ exception Unbound_variable of var
 (* The empty environment. *)
 val empty : 'a t
 
+(* Looks up a variable in an environment. *)
+val lookup : 'a t -> var -> 'a option
+
 (* Looks up a variable in an environment, throwing UnboundVariable if
   * not found. *)
-val lookup : 'a t -> var -> 'a
+val lookup_exn : 'a t -> var -> 'a
 
 (* Extends an environment with a single binding. *)
 val extend : 'a t -> var -> 'a -> 'a t
