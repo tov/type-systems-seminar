@@ -1,3 +1,7 @@
+(*
+ * Environments
+ *)
+
 (* The type of variables, which are bound by environments. *)
 type var = Var.t
 

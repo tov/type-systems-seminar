@@ -41,6 +41,7 @@ let un_arr i = function
       else got_exp t ("arrow of arity " ^ string_of_int i)
   | t -> got_exp t "arrow type"
 
+(* Type checks a term in the given environment. *)
 let rec tc env = function
   | VarE x ->
       (match Env.lookup env x with
@@ -80,4 +81,5 @@ let rec tc env = function
       assert_same_type t t';
       t
 
+(* Type checks a term in the empty environment. *)
 let type_check = tc Env.empty

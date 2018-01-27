@@ -1,3 +1,7 @@
+(*
+ * Variables
+ *)
+
 (* Variables are represented as strings. *)
 type t = string
 

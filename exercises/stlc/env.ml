@@ -4,6 +4,8 @@ open Core
 
 type var = Var.t
 
+(* We'll represent environments as association lists where earlier
+ * bindings shadow later ones. *)
 type 'a t = (var * 'a) list
 
 exception Unbound_variable of var
