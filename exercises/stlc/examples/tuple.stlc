@@ -1,2 +1,2 @@
 (let ((t (tup 3 4 5 6)))
-  (prj 2 t))
+  (tup (prj 2 t) 6 7))

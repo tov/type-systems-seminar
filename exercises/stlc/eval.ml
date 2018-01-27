@@ -4,17 +4,22 @@ open Syntax
 (* Values are the result of evaluation. *)
 type value =
          | IntV of int
-         | TupV of value list
+         | TupV of value array
          | CloV of env * var list * exp
  and env = value Env.t
 
 (* Value printing: *)
-let rec string_of_value = function
-  | IntV z -> string_of_int z
-  | TupV vs ->
-      let ss = List.map ~f:string_of_value vs in
-        "(" ^ String.concat ~sep:" " ("tup" :: ss) ^ ")"
-  | CloV _ -> "#<function>"
+let string_of_value v =
+  let module B = Bigbuffer in
+  let buf = B.create 16 in
+  let rec loop = function
+    | IntV z -> B.add_string buf (string_of_int z)
+    | TupV vs ->
+        B.add_string buf "(tup";
+      Array.iter vs ~f:(fun v -> B.add_char buf ' '; loop v);
+      B.add_char buf ')'
+    | CloV _ -> B.add_string buf "#<function>"
+  in loop v; B.contents buf
 
 (* Exception thrown in cases that should not be possible in well-typed
  * programs. *)
@@ -41,10 +46,10 @@ let rec eval env = function
        | _ -> raise (Can't_happen "int expected"))
   | TupE es ->
       let vs = List.map ~f:(eval env) es in
-        TupV vs
+        TupV (Array.of_list vs)
   | PrjE(i, e) ->
       (match eval env e with
-       | TupV vs -> List.nth_exn vs i
+       | TupV vs -> vs.(i)
        | _ -> raise (Can't_happen "tuple expected"))
   | LamE(bindings, body) ->
       CloV(env, List.map ~f:(fun (x, _) -> x) bindings, body)
