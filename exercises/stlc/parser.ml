@@ -19,8 +19,18 @@ let rec type_of_sexp = function
 
 let type_of_string s = type_of_sexp (S.of_string s)
 
+let keywords = ["let"; "let*"; "-"; "if0"; "tup"; "prj"; "lam"; "fix"]
+
+let is_keyword = List.mem ~equal:(=) keywords
+
+let assert_not_keyword x =
+  if is_keyword x
+  then stx_err "identifier" (S.Atom x)
+
 let binding_of_sexp x_of_sexp = function
-  | S.List [S.Atom x; e] -> (x, x_of_sexp e)
+  | S.List [S.Atom x; e] ->
+      assert_not_keyword x;
+      (x, x_of_sexp e)
   | s -> stx_err "binding" s
 
 let bindings_of_sexps x_of_sexp = List.map ~f:(binding_of_sexp x_of_sexp)
@@ -30,11 +40,8 @@ let rec expr_of_sexp sexp0 =
   | S.Atom s ->
       (try IntE (Int.of_string s)
        with Failure _ ->
-         match s with
-         | "let" | "let*" | "-" | "if0"
-         | "tup" | "prj" | "lam" | "fix" ->
-             stx_err "variable name" (S.Atom s)
-         | _ -> VarE s)
+         assert_not_keyword s;
+         VarE s)
   | S.List ss ->
       match ss with
       | [] -> stx_err "expression" sexp0
@@ -52,12 +59,16 @@ let rec expr_of_sexp sexp0 =
       | (S.Atom "tup" :: es) ->
           TupE(List.map ~f:expr_of_sexp es)
       | [S.Atom "prj"; S.Atom ix; e] ->
-          (try PrjE(int_of_string ix, expr_of_sexp e)
-           with Failure _ -> stx_err "integer" (S.Atom ix))
+          let ix = try int_of_string ix
+                   with Failure _ -> stx_err "integer" (S.Atom ix) in
+          PrjE(ix, expr_of_sexp e)
       | [S.Atom "lam"; S.List bindings; body] ->
           LamE(bindings_of_sexps type_of_sexp bindings, expr_of_sexp body)
       | [S.Atom "fix"; S.Atom x; t; e] ->
+          assert_not_keyword x;
           FixE(x, type_of_sexp t, expr_of_sexp e)
+      | S.Atom op :: _ when is_keyword op ->
+          stx_err op sexp0
       | e0 :: es ->
           AppE(expr_of_sexp e0, List.map ~f:expr_of_sexp es)
 
