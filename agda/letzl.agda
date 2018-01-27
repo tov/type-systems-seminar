@@ -5,7 +5,7 @@ open import Data.Nat
 open import Relation.Nullary
   using (yes ; no ; ¬_)
 open import Relation.Binary.PropositionalEquality
-  using (_≡_ ; refl ; sym)
+  using (_≡_ ; refl ; sym ; cong)
 open import Data.List
   using (List ; _∷_ ; [])
 open import Data.Product
@@ -90,27 +90,46 @@ plug (Ecar E) e = car (plug E e)
 plug (Ecdr E) e = cdr (plug E e)
 plug (Ebind x E body) e = bind x (plug E e) body
 
+plugeq : ∀ {e E e₂} ->
+  decomp e E e₂ ->
+  e ≡ plug E e₂
+plugeq (Dhole e) = refl
+plugeq (Dconsl edc) =
+ cong (λ x → cons x _) (plugeq edc)
+plugeq (Dconsr vval edc) =
+ cong (λ x → cons _ x) (plugeq edc)
+plugeq (D+l edc) =
+ cong (λ x → add x _) (plugeq edc)
+plugeq (D+r vval edc) =
+ cong (λ x → add _ x) (plugeq edc)
+plugeq (Dcar edc) =
+ cong car (plugeq edc)
+plugeq (Dcdr edc) =
+ cong cdr (plugeq edc)
+plugeq (Dbind edc) =
+ cong (λ x → bind _ x _) (plugeq edc)
+
 data step : letzl -> Config -> Set where
-  s_add : ∀ {n₁ n₂ e₁ e₂ E} ->
+  Sadd : ∀ {n₁ n₂ e₁ e₂ E} ->
      decomp e₁ E (add (nat n₁) (nat n₂)) ->
      decomp e₂ E (nat (n₁ + n₂)) ->
      step e₁ (eC e₂)
-  s_car : ∀ {v₁ v₂ e₁ e₂ E} -> val v₁ -> val v₂ ->
-    decomp e₁ E (car (cons v₁ v₂)) -> 
-    decomp e₂ E v₁ -> 
+  Scar : ∀ {v₁ v₂ e₁ e₂ E} -> val v₁ -> val v₂ ->
+    decomp e₁ E (car (cons v₁ v₂)) ->
+    decomp e₂ E v₁ ->
     step e₁ (eC e₂)
-  s_cdr : ∀ {v₁ v₂ e₁ e₂ E} -> val v₁ -> val v₂ ->
-    decomp e₁ E (car (cons v₁ v₂)) -> 
-    decomp e₂ E v₂ -> 
+  Scdr : ∀ {v₁ v₂ e₁ e₂ E} -> val v₁ -> val v₂ ->
+    decomp e₁ E (cdr (cons v₁ v₂)) ->
+    decomp e₂ E v₂ ->
     step e₁ (eC e₂)
-  s_bind : ∀ {x v e e₁ e₂ E} -> (valv : val v) ->
-    decomp e₁ E (bind x v e) -> 
-    decomp e₂ E (subst x e valv) -> 
+  Sbind : ∀ {x v e e₁ e₂ E} -> (valv : val v) ->
+    decomp e₁ E (bind x v e) ->
+    decomp e₂ E (subst x e valv) ->
     step e₁ (eC e₂)
-  s_carnil : ∀ {e₁ E} ->
+  Scarnil : ∀ {e₁ E} ->
     decomp e₁ E (car nil) ->
     step e₁ WRONG
-  s_cdrnil : ∀ {e₁ E} ->
+  Scdrnil : ∀ {e₁ E} ->
     decomp e₁ E (cdr nil) ->
     step e₁ WRONG
 
@@ -319,8 +338,39 @@ substitution = thm where
      (thm valv rhsderiv vderiv)
      (thm valv
           (exchange ¬p bodyderiv)
-          (values-no-vars valv vderiv))  
+          (values-no-vars valv vderiv))
   ... | yes p rewrite p =
     tbind
       (thm valv rhsderiv vderiv)
-      (redundant bodyderiv) 
+      (redundant bodyderiv)
+
+preservation : ∀ {e₁ e₂ τ} ->
+  (tc [] e₁ τ) ->
+  (step e₁ (eC e₂)) ->
+  (tc [] e₂ τ)
+preservation tce (Sadd{n₁}{n₂} dc1 dc2)
+  with replacement dc1 tce
+... | NatT , tadd tcadd tcadd₁ , f
+  with f (tnat {n = n₁ + n₂})
+... | tcplug rewrite plugeq dc2
+  = tcplug
+preservation tce (Scar valv₁ valv₂ dc1 dc2)
+  with replacement dc1 tce
+... | NatT , tcar (tcons tccar tccdr) , f
+  with f tccar
+... | tcplug rewrite plugeq dc2
+  = tcplug
+preservation tce (Scdr valv₁ valv₂ dc1 dc2)
+  with replacement dc1 tce
+... | carty , tcdr (tcons tccar tccdr) , f
+  with f tccdr
+... | tcplug rewrite plugeq dc2
+  = tcplug
+preservation tce (Sbind valv dc1 dc2)
+  with replacement dc1 tce
+... | t , tbind trhs tbody , f
+  with substitution valv tbody trhs
+... | tsubst
+  with f tsubst
+... | tplug rewrite plugeq dc2
+  = tplug
