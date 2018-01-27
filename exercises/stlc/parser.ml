@@ -1,3 +1,10 @@
+(*
+ * Parsing of types and expressions.
+ *
+ * We parse via the Core s-expression library. That is, first we read
+ * the input to an s-expression, and then we pattern match the
+ * s-expression to build abstract syntax.
+ *)
 open Core
 open Syntax
 
@@ -5,8 +12,10 @@ module S = Sexp
 
 exception Bad_syntax of string * S.t
 
+(* Raises a syntax error. *)
 let stx_err exp got = raise (Bad_syntax(exp, got))
 
+(* Parses a type from an s-expression. *)
 let rec type_of_sexp = function
   | S.Atom "int" -> IntT
   | S.List (S.Atom "->" :: args) as t0 ->
@@ -17,24 +26,33 @@ let rec type_of_sexp = function
       TupT(List.map ~f:type_of_sexp args)
   | s -> failwith ("could not parse type: " ^ S.to_string s)
 
+(* Parses a type from a string, via an s-expression. *)
 let type_of_string s = type_of_sexp (S.of_string s)
 
+(* Keywords, which cannot be identifiers. *)
 let keywords = ["let"; "let*"; "-"; "if0"; "tup"; "prj"; "lam"; "fix"]
 
+(* Is the given string a keyword? *)
 let is_keyword = List.mem ~equal:(=) keywords
 
+(* Raises a syntax error if given a keyword; otherwise does nothing. *)
 let assert_not_keyword x =
   if is_keyword x
   then stx_err "identifier" (S.Atom x)
 
+(* Parses a bindings of a variable to a thing, given a function for
+ * parsing the thing. *)
 let binding_of_sexp x_of_sexp = function
   | S.List [S.Atom x; e] ->
       assert_not_keyword x;
       (x, x_of_sexp e)
   | s -> stx_err "binding" s
 
+(* Parses a list of bindings, given a function for parsing the
+ * right-hand-side of one binding. *)
 let bindings_of_sexps x_of_sexp = List.map ~f:(binding_of_sexp x_of_sexp)
 
+(* Parses an expression from an s-expression. *)
 let rec expr_of_sexp sexp0 =
   match sexp0 with
   | S.Atom s ->
@@ -72,4 +90,5 @@ let rec expr_of_sexp sexp0 =
       | e0 :: es ->
           AppE(expr_of_sexp e0, List.map ~f:expr_of_sexp es)
 
+(* Parses an expression from a string, via s-expression. *)
 let expr_of_string s = expr_of_sexp (S.of_string s)

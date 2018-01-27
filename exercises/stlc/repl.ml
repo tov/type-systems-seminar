@@ -1,9 +1,12 @@
 open Core
 
+(* Prints a message to stderr and flushes it. *)
 let warn s =
   Out_channel.output_string Out_channel.stderr s;
   Out_channel.flush Out_channel.stderr
 
+(* Reads one expression from stdin. Tries again on error, but returns
+ * None on EOF. *)
 let rec read () =
   try
     print_string "> ";
@@ -19,6 +22,7 @@ let rec read () =
       warn "\n";
       read ()
 
+(* A read-eval-print-loop. *)
 let rec repl () =
   match read () with
   | None -> ()
