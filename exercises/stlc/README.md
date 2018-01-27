@@ -32,7 +32,7 @@ Run
 $ ./main.byte
 </pre>
 
-to get a REPL.
+to get a REPL. See examples in the `examples/` subdirectory.
 
 [OPAM]: https://opam.ocaml.org/doc/Install.html
 
