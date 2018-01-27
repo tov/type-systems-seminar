@@ -54,7 +54,7 @@ data Ectxt : Set where
   E+r : (lhs : letzl) -> val lhs -> (rhs : Ectxt) -> Ectxt
   Ecar : (arg : Ectxt) -> Ectxt
   Ecdr : (arg : Ectxt) -> Ectxt
-  Ebind : (rhs : Ectxt) -> (body : letzl) -> Ectxt
+  Ebind : (x : ℕ) -> (rhs : Ectxt) -> (body : letzl) -> Ectxt
 
 data decomp : letzl -> Ectxt -> letzl -> Set where
   Dhole  : ∀ e -> decomp e hole e
@@ -66,10 +66,10 @@ data decomp : letzl -> Ectxt -> letzl -> Set where
     decomp (cons v eo) (Econsr v vval E) ei
   D+l    : ∀ {E e eo ei} ->
     decomp eo E ei ->
-    decomp (add eo e) (Econsl E e) ei
+    decomp (add eo e) (E+l E e) ei
   D+r    : ∀ {E v eo ei} -> (vval : val v) ->
     decomp eo E ei ->
-    decomp (add v eo) (Econsr v vval E) ei
+    decomp (add v eo) (E+r v vval E) ei
   Dcar   : ∀ {E eo ei} ->
     decomp eo E ei ->
     decomp (car eo) (Ecar E) ei
@@ -78,7 +78,17 @@ data decomp : letzl -> Ectxt -> letzl -> Set where
     decomp (cdr eo) (Ecdr E) ei
   Dbind  : ∀ {E eo ei x e} ->
     decomp eo E ei ->
-    decomp (bind x eo e) (Ebind E e) ei
+    decomp (bind x eo e) (Ebind x E e) ei
+
+plug : Ectxt -> letzl -> letzl
+plug hole e = e
+plug (Econsl E cdr₁) e = cons (plug E e) cdr₁
+plug (Econsr car₁ x E) e = cons car₁ (plug E e)
+plug (E+l E rhs) e = add (plug E e) rhs
+plug (E+r lhs x E) e = add lhs (plug E e)
+plug (Ecar E) e = car (plug E e)
+plug (Ecdr E) e = cdr (plug E e)
+plug (Ebind x E body) e = bind x (plug E e) body
 
 data step : letzl -> Config -> Set where
   s_add : ∀ {n₁ n₂ e₁ e₂ E} ->
@@ -158,25 +168,42 @@ data tc : List (ℕ × type) -> letzl -> type -> Set where
     tc ((x , τ₁) ∷ env) e₂ τ₂ ->
     tc env (bind x e₁ e₂) τ₂
 
-replacement : ∀ {e E e₁ τ} ->
+replacement : ∀ {e E e₁ e₂ τ} ->
   decomp e E e₁ ->
   tc [] e τ ->
-  ∃ (\ { τₑ -> tc [] e₁ τₑ })
-replacement (Dhole e) tderiv = _ , tderiv
-replacement (Dconsl dc) (tcons tderiv tderiv₁)
- = replacement dc tderiv
-replacement (Dconsr vval dc) (tcons tderiv tderiv₁)
- = replacement dc tderiv₁
-replacement (D+l dc) (tadd tderiv tderiv₁)
- = replacement dc tderiv
-replacement (D+r vval dc) (tadd tderiv tderiv₁)
- = replacement dc tderiv₁
-replacement (Dcar dc) (tcar tderiv)
- = replacement dc tderiv
-replacement (Dcdr dc) (tcdr tderiv)
- = replacement dc tderiv
-replacement (Dbind dc) (tbind tderiv tderiv₁)
- = replacement dc tderiv
+  ∃ (\ { τₑ ->
+    tc [] e₁ τₑ ×
+    (tc [] e₂ τₑ ->
+     tc [] (plug E e₂) τ) })
+replacement (Dhole e) tce = _ , tce , (λ x → x)
+replacement (Dconsl dc) (tcons tce tce₁)
+  with replacement dc tce
+... | _ , tc , f
+  = _ , tc , (λ x → tcons (f x) tce₁)
+replacement (Dconsr vval dc) (tcons tce tce₁)
+  with replacement dc tce₁
+... | _ , tc , f
+  = _ , tc , (λ x → tcons tce (f x))
+replacement (D+l dc) (tadd tce tce₁)
+  with replacement dc tce
+... | _ , tc , f
+  = _ , tc , (λ x → tadd (f x) tce₁)
+replacement (D+r vval dc) (tadd tce tce₁)
+  with replacement dc tce₁
+... | _ , tc , f
+  = _ , tc , (λ x → tadd tce (f x))
+replacement (Dcar dc) (tcar tce)
+  with replacement dc tce
+... | _ , tc , f
+  = _ , tc , (λ x → tcar (f x))
+replacement (Dcdr dc) (tcdr tce)
+  with replacement dc tce
+... | _ , tc , f
+  = _ , tc , (λ x → tcdr (f x))
+replacement (Dbind dc) (tbind tce tce₁)
+  with replacement dc tce
+... | _ , tc , f
+  = _ , tc , (λ x → tbind (f x) tce₁)
 
 values-no-vars : ∀ {env env' v τ} ->
   val v ->
