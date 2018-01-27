@@ -56,10 +56,10 @@ let rec eval env = function
             let env = Env.extend_lists env xs vs in
               eval env body
          | _ -> raise (Can'tHappen "closure expected"))
-  | FixE(x, ArrT([t1], t2), e) ->
-      let y = Var.fresh x (fv e) in
-      let recE = LamE([y, t1], AppE(FixE(x, ArrT([t1], t2), e), [VarE y])) in
-      let recV = eval env recE in
-        eval (Env.extend env x recV) e
+  | FixE(x, (ArrT(ts, _) as t), e) ->
+      let ys = Var.fresh_n (List.length ts) (fv e) in
+      let v = CloV(env, ys,
+                   AppE(FixE(x, t, e), List.map ~f:(fun x -> VarE x) ys)) in
+        eval (Env.extend env x v) e
   | FixE(_, _, _) ->
       raise (Can'tHappen "fix requires 1-arg function type")
