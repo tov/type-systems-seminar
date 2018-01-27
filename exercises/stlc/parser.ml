@@ -42,7 +42,7 @@ let rec expr_of_sexp sexp0 =
           LetE(bindings_of_sexps expr_of_sexp bindings, expr_of_sexp body)
       | [S.Atom "let*"; S.List bindings; body] ->
           let bindings' = bindings_of_sexps expr_of_sexp bindings in
-          List.fold_right ~f:(fun (x, e) e' -> LetE([(x, e)], e'))
+          List.fold_right ~f:(fun b e' -> LetE([b], e'))
                           ~init:(expr_of_sexp body)
                           bindings'
       | [S.Atom "-"; e1; e2] ->
