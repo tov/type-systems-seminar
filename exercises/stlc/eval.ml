@@ -1,5 +1,5 @@
-open Syntax
 open Core
+open Syntax
 
 (* Values are the result of evaluation. *)
 type value =
@@ -57,7 +57,8 @@ let rec eval env = function
               eval env body
          | _ -> raise (Can'tHappen "closure expected"))
   | FixE(x, ArrT([t1], t2), e) ->
-      let recE = LamE([x, t1], AppE(FixE(x, ArrT([t1], t2), e), [VarE x])) in
+      let y = Var.fresh x (fv e) in
+      let recE = LamE([y, t1], AppE(FixE(x, ArrT([t1], t2), e), [VarE y])) in
       let recV = eval env recE in
         eval (Env.extend env x recV) e
   | FixE(_, _, _) ->

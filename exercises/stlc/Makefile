@@ -1,6 +1,8 @@
-default: main.byte
+TARGET = main.byte
 
-hard: main.byte
+default: $(TARGET)
+
+hard: $(TARGET)
 	./$<
 
 %.byte: $(wildcard *.ml)

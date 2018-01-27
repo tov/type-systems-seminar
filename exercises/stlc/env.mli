@@ -1,5 +1,5 @@
 (* The type of variables, which are bound by environments. *)
-type var = Syntax.var
+type var = Var.t
 
 (* The type of an environment mapping var to 'a. *)
 type 'a t

@@ -1,6 +1,8 @@
+open Core
+
 (* Environments. See env.mli for interface. *)
 
-type var = Syntax.var
+type var = Var.t
 
 type 'a t = (var * 'a) list
 
@@ -17,7 +19,7 @@ let extend env x v =
   (x, v) :: env
 
 let extend_list env =
-  List.fold_left (fun env' (x, v) -> extend env' x v) env
+  List.fold ~f:(fun env' (x, v) -> extend env' x v) ~init:env
 
 let extend_lists env =
-  List.fold_left2 extend env
+  List.fold2_exn ~f:extend ~init:env
