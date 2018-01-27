@@ -13,7 +13,7 @@ let rec string_of_value = function
   | IntV z -> string_of_int z
   | TupV vs ->
       let ss = List.map ~f:string_of_value vs in
-        "(" ^ String.concat ~sep:" " ("tuple" :: ss) ^ ")"
+        "(" ^ String.concat ~sep:" " ("tup" :: ss) ^ ")"
   | CloV _ -> "#<function>"
 
 (* Exception thrown in cases that should not be possible in well-typed

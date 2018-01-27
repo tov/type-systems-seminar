@@ -5,7 +5,7 @@ type var = Var.t
 type 'a t
 
 (* Throw when lookup fails. *)
-exception UnboundVariable of var
+exception Unbound_variable of var
 
 (* The empty environment. *)
 val empty : 'a t

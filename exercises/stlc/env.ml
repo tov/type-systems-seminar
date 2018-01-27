@@ -6,12 +6,12 @@ type var = Var.t
 
 type 'a t = (var * 'a) list
 
-exception UnboundVariable of var
+exception Unbound_variable of var
 
 let empty = []
 
 let rec lookup env x = match env with
-  | [] -> raise (UnboundVariable x)
+  | [] -> raise (Unbound_variable x)
   | (y, v) :: _ when x = y -> v
   | _ :: env' -> lookup env' x
 
