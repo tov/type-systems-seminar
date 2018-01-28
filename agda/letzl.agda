@@ -10,6 +10,8 @@ open import Data.List
   using (List ; _∷_ ; [])
 open import Data.Product
   using (_,_ ; _,′_ ; _×_ ; proj₁ ; proj₂ ; ∃)
+open import Data.Sum
+  using (_⊎_ ; inj₁ ; inj₂)
 open import Data.Empty
   using (⊥ ; ⊥-elim)
 
@@ -374,3 +376,90 @@ preservation tce (Sbind valv dc1 dc2)
   with f tsubst
 ... | tplug rewrite plugeq dc2
   = tplug
+
+concat : Ectxt -> Ectxt -> Ectxt
+concat hole E₂ = E₂
+concat (Econsl E₁ cdr₁) E₂ = Econsl (concat E₁ E₂) cdr₁
+concat (Econsr car₁ x E₁) E₂ = Econsr car₁ x (concat E₁ E₂)
+concat (E+l E₁ rhs) E₂ = E+l (concat E₁ E₂) rhs
+concat (E+r lhs x E₁) E₂ = E+r lhs x (concat E₁ E₂)
+concat (Ecar E₁) E₂ = Ecar (concat E₁ E₂)
+concat (Ecdr E₁) E₂ = Ecdr (concat E₁ E₂)
+concat (Ebind x E₁ body) E₂ = Ebind x (concat E₁ E₂) body
+
+addctxt : ∀ {e₁ E e₂} -> ∀ E₂ ->
+  decomp e₁ E e₂ ->
+  decomp (plug E₂ e₁) (concat E₂ E) e₂
+addctxt hole dc = dc
+addctxt (Econsl E₂ cdr₁) dc = Dconsl (addctxt E₂ dc)
+addctxt (Econsr car₁ x E₂) dc = Dconsr x (addctxt E₂ dc)
+addctxt (E+l E₂ rhs) dc = D+l (addctxt E₂ dc)
+addctxt (E+r lhs x E₂) dc = D+r x (addctxt E₂ dc)
+addctxt (Ecar E₂) dc = Dcar (addctxt E₂ dc)
+addctxt (Ecdr E₂) dc = Dcdr (addctxt E₂ dc)
+addctxt (Ebind x E₂ body) dc = Dbind (addctxt E₂ dc)
+
+stepE : ∀ {e c} -> ∀ E -> step e c -> ∃ \ c′ -> step (plug E e) c′
+stepE E (Sadd x x₁) = _ , Sadd (addctxt E x) (addctxt E x₁)
+stepE E (Scar x x₁ x₂ x₃) = _ , Scar x x₁ (addctxt E x₂) (addctxt E x₃)
+stepE E (Scdr x x₁ x₂ x₃) = _ , Scdr x x₁ (addctxt E x₂) (addctxt E x₃)
+stepE E (Sbind valv x₁ x₂) = _ , Sbind valv (addctxt E x₁) (addctxt E x₂)
+stepE E (Scarnil x) = _ , Scarnil (addctxt E x)
+stepE E (Scdrnil x) = _ , Scdrnil (addctxt E x)
+
+
+progress : ∀ {e τ} ->
+  tc [] e τ ->
+  ∃ (\ e′ -> step e e′) ⊎ val e
+
+progress tnat = inj₂ (natval _)
+
+progress tnil = inj₂ nilval
+
+progress (tcons tc₁ tc₂) with progress tc₁
+progress (tcons tc₁ tc₂) | inj₁ (e′ , stepee′)
+  = inj₁ (stepE (Econsl hole _) stepee′)
+progress (tcons tc₁ tc₂) | inj₂ vale1 with progress tc₂
+progress (tcons tc₁ tc₂) | inj₂ vale1 | (inj₁ (e′ , stepee′))
+  = inj₁ (stepE (Econsr _ vale1 hole) stepee′)
+progress (tcons tc₁ tc₂) | inj₂ vale1 | (inj₂ vale2)
+  = inj₂ (consval _ _ vale1 vale2)
+
+progress (tadd tc₁ tc₂) with progress tc₁
+progress (tadd tc₁ tc₂) | inj₁ (e′ , stepee′)
+  = inj₁ (stepE (E+l hole _) stepee′)
+progress (tadd tc₁ tc₂) | inj₂ vale1 with progress tc₂
+progress (tadd tc₁ tc₂) | inj₂ vale1 | inj₁ (e′ , stepee′)
+  = inj₁ (stepE (E+r _ vale1 hole) stepee′)
+progress (tadd tc₁ tc₂) | inj₂ (natval n₁) | (inj₂ (natval n₂))
+  = inj₁ (_ , Sadd (Dhole _) (Dhole _))
+progress (tadd tc₁ ()) | inj₂ (natval n) | (inj₂ nilval)
+progress (tadd tc₁ ()) | inj₂ (natval n) | (inj₂ (consval hd tl vale2 vale3))
+progress (tadd () tc₂) | inj₂ nilval | (inj₂ vale2)
+progress (tadd () tc₂) | inj₂ (consval hd tl vale1 vale3) | (inj₂ vale2)
+
+progress (tcar tc₁) with progress tc₁
+progress (tcar tc₁) | inj₁ (e′ , stepee′)
+  = inj₁ (stepE (Ecar hole) stepee′)
+progress (tcar ()) | inj₂ (natval n)
+progress (tcar tc₁) | inj₂ nilval
+  = inj₁ (_ , Scarnil (Dhole _))
+progress (tcar tc₁) | inj₂ (consval hd tl vale1 vale2)
+  = inj₁ (_ , (Scar vale1 vale2 (Dhole _) (Dhole _)))
+
+progress (tcdr tc₁) with progress tc₁
+progress (tcdr tc₁) | inj₁ (e′ , stepee′)
+  = inj₁ (stepE (Ecdr hole) stepee′)
+progress (tcdr ()) | inj₂ (natval n)
+progress (tcdr tc₁) | inj₂ nilval
+  = inj₁ (_ , Scdrnil (Dhole _))
+progress (tcdr tc₁) | inj₂ (consval hd tl vale1 vale2)
+  = inj₁ (_ , (Scdr vale1 vale2 (Dhole _) (Dhole _)))
+
+progress (tx ())
+
+progress (tbind tc₁ tc₂) with progress tc₁
+progress (tbind tc₁ tc₂) | inj₁ (e′ , stepee′)
+  = inj₁ (stepE (Ebind _ hole _) stepee′)
+progress (tbind tc₁ tc₂) | inj₂ vale1
+  = inj₁ (_ , Sbind vale1 (Dhole _) (Dhole _))
