@@ -14,10 +14,11 @@ let rec read () =
     Some (Parser.expr_of_sexp (Sexp.input_sexp In_channel.stdin))
   with
   | End_of_file -> None
+  | Sexp.Parse_error(e) ->
+      warn ("Read error: " ^ e.err_msg ^ "\n");
+      read ()
   | Parser.Bad_syntax(exp, got) ->
-      warn "Syntax error: expecting ";
-      warn exp;
-      warn ", got:\n";
+      warn ("Syntax error: expecting " ^ exp ^ ", got:\n");
       Sexp.output_hum_indent 2 Out_channel.stderr got;
       warn "\n";
       read ()
