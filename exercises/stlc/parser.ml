@@ -76,10 +76,10 @@ let rec expr_of_sexp sexp0 =
           If0E(expr_of_sexp e1, expr_of_sexp e2, expr_of_sexp e3)
       | (S.Atom "tup" :: es) ->
           TupE(List.map ~f:expr_of_sexp es)
-      | [S.Atom "prj"; S.Atom ix; e] ->
+      | [S.Atom "prj"; e; S.Atom ix] ->
           let ix = try int_of_string ix
                    with Failure _ -> stx_err "integer" (S.Atom ix) in
-          PrjE(ix, expr_of_sexp e)
+          PrjE(expr_of_sexp e, ix)
       | [S.Atom "lam"; S.List bindings; body] ->
           LamE(bindings_of_sexps type_of_sexp bindings, expr_of_sexp body)
       | [S.Atom "fix"; S.Atom x; t; e] ->

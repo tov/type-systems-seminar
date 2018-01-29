@@ -1,4 +1,4 @@
-#lang s-exp "../sysf.rkt"
+#lang s-exp nu-type-systems/turnstile/sysf
 
 
 (define (negate [x Int] -> Int)

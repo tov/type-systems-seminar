@@ -47,7 +47,7 @@ let rec eval env = function
   | TupE es ->
       let vs = List.map ~f:(eval env) es in
         TupV (Array.of_list vs)
-  | PrjE(i, e) ->
+  | PrjE(e, i) ->
       (match eval env e with
        | TupV vs -> vs.(i)
        | _ -> raise (Can't_happen "tuple expected"))
@@ -67,4 +67,4 @@ let rec eval env = function
                    AppE(FixE(x, t, e), List.map ~f:(fun x -> VarE x) ys)) in
         eval (Env.extend env x v) e
   | FixE(_, _, _) ->
-      raise (Can't_happen "fix requires 1-arg function type")
+      raise (Can't_happen "fix requires function type")

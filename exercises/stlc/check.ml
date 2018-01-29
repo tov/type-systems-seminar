@@ -25,7 +25,7 @@ let assert_same_type t1 t2 =
 let assert_same_types = List.iter2_exn ~f:assert_same_type
 
 (* Projects the `i`th element of a tuple type. *)
-let prj_tup i = function
+let prj_tup t0 i = match t0 with
   | TupT ts as t ->
       (match List.nth ts i with
        | Some t -> t
@@ -64,8 +64,8 @@ let rec tc env = function
       t2
   | TupE(es) ->
       TupT(List.map ~f:(tc env) es)
-  | PrjE(ix, e) ->
-      prj_tup ix (tc env e)
+  | PrjE(e, ix) ->
+      prj_tup (tc env e) ix
   | LamE(xts, body) ->
       let env' = Env.extend_list env xts in
       let tr   = tc env' body in
