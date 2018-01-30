@@ -18,12 +18,12 @@
      - Pre-reading: TAPL, Chapter 11 “Simple Extensions”
          - It looks long, but skip the exercises and skim some
          - Be sure to read the section on records, since we’ll be using that
+      - Pre-task: Install up-to-date Racket and Racket package from
+        GitHub: https://github.com/tov/type-systems-seminar
 
   - 02/01: [System F][sysf]
       - Pre-reading: [Reynolds 1974, “Towards a Theory of Type
         Structure”][reynolds74] (pages 1–8)
-      - Pre-task: Install up-to-date Racket and Racket package from
-        GitHub: https://github.com/tov/type-systems-seminar
 
   - 02/06: continued; final presentation discussion
       - Post-reading: [Wadler 1989, “Theorems for Free”][wadler89]
