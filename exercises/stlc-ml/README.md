@@ -29,10 +29,16 @@ $ make
 Run
 
 <pre>
+$ make test
+</pre>
+
+to run automated tests, or
+
+<pre>
 $ ./main.byte
 </pre>
 
-to get a REPL. See examples in the `examples/` subdirectory.
+to get a REPL. See examples in the `tests/` subdirectory.
 
 [OPAM]: https://opam.ocaml.org/doc/Install.html
 
