@@ -120,8 +120,10 @@
 (define-syntax-rule (with-typesetting expr0 expr ...)
   (with-typesetting/thunk (λ () (list expr0 expr ...))))
 
-(define-syntax-rule (term e)
-  (with-typesetting (render-term (default-language) e)))
+(define-syntax (term stx)
+  (syntax-parse stx
+    [(_ e) #'(with-typesetting (render-term (default-language) e))]
+    [(_ e #:lang L) #'(with-typesetting (render-term L e))]))
 
 (define-syntax-rule (rulename n)
   (list "["  (symbol->string 'n) "]"))

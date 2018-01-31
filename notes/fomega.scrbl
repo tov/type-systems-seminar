@@ -8,7 +8,7 @@
 @(default-language r:fomega)
 @define[fomega]{@langname[λ-ω]}
 
-@title{The higher-order lambda calculus @fomega}
+@title[#:tag "sec:fomega"]{The higher-order lambda calculus @fomega}
 
 @section[#:tag "fomega-syntax"]{Syntax}
 

@@ -9,7 +9,7 @@
 @(default-language r:λ-2)
 @define[λ-2]{@langname[λ-2]}
 
-@title{The polymorphic lambda calculus @λ-2}
+@title[#:tag "sec:sysf"]{The polymorphic lambda calculus @λ-2}
 
 Suppose we want to write the composition function in the simply-typed
 lambda calculus. What does it look like? Well, it depends on the types

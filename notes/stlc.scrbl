@@ -8,7 +8,7 @@
 @(default-language r:stlc)
 @define[stlc]{@langname[λ-st]}
 
-@title{The simply-typed lambda calculus @stlc}
+@title[#:tag "sec:stlc"]{The simply-typed lambda calculus @stlc}
 
 @section[#:tag "stlc-syntax"]{Syntax}
 
