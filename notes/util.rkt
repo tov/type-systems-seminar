@@ -122,8 +122,13 @@
 
 (define-syntax (term stx)
   (syntax-parse stx
-    [(_ e) #'(with-typesetting (render-term (default-language) e))]
+    [(_ e) #'(with-typesetting (render-term (check-default-language 'util.rkt::term) e))]
     [(_ e #:lang L) #'(with-typesetting (render-term L e))]))
+
+(define (check-default-language name)
+  (define l (default-language))
+  (unless l (error name "expected default-language to be set"))
+  l)
 
 (define-syntax-rule (rulename n)
   (list "["  (symbol->string 'n) "]"))
