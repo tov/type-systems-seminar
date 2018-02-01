@@ -5,5 +5,11 @@
 (define can-be-loaded-with 'all)
 (define required-core-version "6.11")
 (define version "0.0.1")
-(define deps '("turnstile"))
+(define deps '("base"
+               "draw-lib"
+               "rackunit-lib"
+               "redex-lib"
+               "redex-pict-lib"
+               "scribble-lib"
+               "turnstile"))
 (define test-omit-paths '("."))
