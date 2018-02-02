@@ -87,7 +87,7 @@ in @|λcube|:
 
 We also adjust the syntax to require an extra set of
 parentheses and a colon to make it a little bit easier to
-read expressions (becuase other distinctions are removed).
+read expressions (because other distinctions are removed).
 
 Another example that's worth considering is the identity function.
 Here it is:
@@ -134,14 +134,14 @@ for the variable.
 
 
 The application rule handles all forms of abstraction:
-@render-judgment-rules[r:types "application"]
-Note that, becuase function types are dependent, the
-function rule looks a bit different than we have seen
-before. As in the past, the premises make sure that the
-function postion is a function (and thus have a @term[Π]
-type) and that the argument has a type that matches the
-input type (the type of the parameter in the @term[Π]),
-but in the conclusion, we perform a substitution, effectively
+@render-judgment-rules[r:types "application"] It looks
+something like a combination of the application and type
+application rule from λ-2. Like the normal function
+application rule, we make sure that the two subexpressions
+have appropriate types: one a function (which is now a
+@term[\Pi] type) and one a matching argument type (the type
+in the parameter of the @term[\Pi]). Like the type
+application rule, however, we perform a substitution,
 computing the type of the result of the function based on
 the argument that was actually supplied.
 
