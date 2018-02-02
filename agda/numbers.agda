@@ -141,3 +141,43 @@ sumofevens .(S (S n)) m (AddingTwo n evenn) evenm
 {- ... append again ... -}
 
 
+{-
+
+ there are two different, both natural ways to define less than on
+ natural numbers. One where the "base case" is that zero is less than
+ everything and the other is where every number is less than
+ itself. Lets set them up and prove they are equivalent to each other
+
+-}
+
+data le1 : Nat -> Nat -> Set where
+  ZeroLeAll : ∀ n -> le1 zero n
+  SuccLe : ∀ n m -> le1 n m -> le1 (S n) (S m)
+
+data le2 : Nat -> Nat -> Set where
+  EqIsLe : ∀ n -> le2 n n
+  SuccR : ∀ n m -> le2 n m -> le2 n (S m)
+
+zerole2m : ∀ m -> le2 zero m
+zerole2m zero = EqIsLe zero
+zerole2m (S m) = SuccR zero m (zerole2m m)
+
+SuccLe2 : ∀ n m -> le2 n m -> le2 (S n) (S m)
+SuccLe2 n .n (EqIsLe .n) = EqIsLe (S n)
+SuccLe2 n .(S m) (SuccR .n m le2nm) = SuccR (S n) (S m) (SuccLe2 n m le2nm)
+
+le1->le2 : ∀ n m -> le1 n m -> le2 n m
+le1->le2 .zero m (ZeroLeAll .m) = zerole2m m
+le1->le2 .(S n) .(S m) (SuccLe n m le1nm) = SuccLe2 n m (le1->le2 n m le1nm)
+
+EqIsLe1 : ∀ n -> le1 n n
+EqIsLe1 zero = ZeroLeAll zero
+EqIsLe1 (S n) = SuccLe n n (EqIsLe1 n)
+
+SuccRLe1 : ∀ n m -> le1 n m -> le1 n (S m)
+SuccRLe1 .zero m (ZeroLeAll .m) = ZeroLeAll (S m)
+SuccRLe1 .(S n) .(S m) (SuccLe n m le1nm) = SuccLe n (S m) (SuccRLe1 n m le1nm)
+
+le2->le1 : ∀ n m -> le2 n m -> le1 n m
+le2->le1 n .n (EqIsLe .n) = EqIsLe1 n
+le2->le1 n .(S m) (SuccR .n m le2nm) = SuccRLe1 n m (le2->le1 n m le2nm)
