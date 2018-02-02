@@ -54,7 +54,7 @@ free in @term[τ_2]) represents functions from @term[τ_1] to
 
 This notation specializes to the earlier type systems we
 considered; as an example, recall the function composition
-operator from the the beginning of @secref["sec:sysf"].
+operator from the beginning of @secref["sec:sysf"].
 Here's the original version of the function:
 
 @term[(Λ a_1
