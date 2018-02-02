@@ -1,4 +1,4 @@
-GOAL = fomega
+GOAL = lcube
 
 one: out/$(GOAL).html
 
