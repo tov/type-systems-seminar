@@ -93,50 +93,16 @@
   #:mode (≡ I O)
   #:contract (≡ e e)
 
-  [(≡ A B) (≡ (ap B C) e)
-   -----------------------
-   (≡ (ap A C) e)]
+  [-----------------------
+   (≡ A A)]
 
-  [(≡ (substitute B x C) e)
-   --------------------------- "β"
-   (≡ (ap (λ (x : A) B) C) e)]
+  [------------------------------------------- "β"
+   (≡ (ap (λ (x : A) B) C) (substitute B x C))])
 
-  #;
-
-  [-------------------------- "reflexive"
-   (≡ A A)])
-
-(define-judgment-form λcube
-  #:mode (step I O)
-  #:contract (step e e)
-
-  [(step e e′)
-   -------------------------
-   (step (ap x e) (ap x e′))]
-
-  [(step e e′)
-   -------------------------------------------------
-   (step (ap (λ (x : A) B) e) (ap (λ (x : A) B) e′))]
-
-  [(step A A′)
-   -----------------------------------
-   (step (λ (x : A) B) (λ (x : A′) B))]
-
-  [(step B_1 B_2)
-   --------------------------------------
-   (step (λ (x : A) B_1) (λ (x : A) B_2))]
-
-  [----------------------------------------------
-   (step (ap (λ (x : A) B) C) (substitute B x C))])
-
-#;
 (module+ test
 
   (test-judgment-holds
-   (≡ (ap (λ (x : □) x) *) *))
-
-  (test-judgment-holds
-   (≡ (ap (ap (λ (x : □) (λ (y : □) x)) *) *) *)))
+   (≡ (ap (λ (x : □) x) *) *)))
 
 
 ;; Examples 5.1.15
