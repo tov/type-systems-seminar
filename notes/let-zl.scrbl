@@ -662,7 +662,15 @@ Suppose @term[(types • e t)] and
 k or fewer steps.
 }
 
-@proof[] By induction on k. By cases on terms:
+@proof[] This proof uses induction, but it uses induction on
+the set ℕ × ℕ, using a lexicographic ordering. That is, we
+consider the first natural number to be the number of nodes
+in the given @term[e] (when viewed as a tree) and the second
+one to be @term[(size e)]. The lexicographic order is well-founded,
+and so we can use induction when we have a term where the
+@term[(size e)] is strictly less than the given one, or when
+@term[(size e)] is the same as the given one, but the number of
+nodes is strictly smaller.
 
 @itemlist[
  @item{@term[z]: Then k = 0, and @term[e] reduces to value @term[z] in 0 steps.}
@@ -670,8 +678,13 @@ k or fewer steps.
  @item{@term[(cons e_1 e_2)]. Then by inversion of @rulename[cons],
         @term[(types • e_1 int)] and @term[(types • e_2 list)].
         Let j be the size of @term[e_1]; then the size of @term[e_2] is
-        k – j.
-        Then by the induction hypothesis, @term[e_1] reduces to a value
+        k – j. We can use induction on both @term[e_1] and @term[e_2],
+        because they both have strictly fewer nodes that @term[(cons e_1 e_2)],
+        and @term[(size e_1)] and @term[(size e_2)] are both less than or
+        equal to @term[(size (cons e_1 e_2))]. (With the exception of the
+        @term[let] case, the justification for induction will be the same
+        as this one in all the other cases.)
+        Then by induction, @term[e_1] reduces to a value
         @term[v_1] or to @term[WRONG] in j or fewer steps.
         If it reduces to @term[WRONG] then
         by the context replacement lemma, @term[(cons e_1 e_2)] also reduces
@@ -725,7 +738,9 @@ k or fewer steps.
         @term[(types • e_1 t_x)] for some type @term[t_x]. And we know that
         @term[(types ([x t_x]) e_2 t)].
         Let j be the size of @term[e_1]; then the size of @term[e_2] is
-        k – j – 1. By the induction hypothesis on term @term[e_1],
+        k – j – 1. We can use induction on @term[e_1] because @term[(size e_1)] is
+        less than @term[(size (let x e_1 e_2))] and there are strictly
+        few nodes. Thus, by induction on @term[e_1],
         we have that @term[e_1] reduces to a value or goes wrong in j or fewer
         steps. If it goes wrong then the whole term goes wrong. If it reduces to
         a value @term[v_1], then by context replacement (and induction on the
@@ -735,7 +750,14 @@ k or fewer steps.
         @term[(--> (let x v_1 e_2) (substitute e_2 x v_1))].
         Note that because the size of a variable is 0 and so is the size of
         a value, the size of @term[(substitute e_2 x v_1)] is the same as
-        the size of @term[e_2], k – j – 1. Further note that by preservation,
+        the size of @term[e_2], k – j – 1, which is strictly less than
+        the size of @term[(let x e_1 e_2)]. In this case,
+        the number of nodes in @term[(substitute e_2 x v_1)] might be many
+        more than the number of nodes in @term[e_2] because @term[v_1] might
+        be a long list. But we set up our induction using the lexicgraphic
+        order so that we only need to consider the relative sizes of
+        @term[(substitute e_2 x v_1)] and @term[(let x e_1 e_2)], not
+        the number of nodes them to justify induction. Now, by preservation,
         @term[(types • (substitute e_1 x v_1) t)]. So we an apply the
         induction hypothesis to @term[(substitute e_1 x v_1)], learning that
         it goes wrong or reaches a value in k – j – 1 or fewer steps.
