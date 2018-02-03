@@ -5,11 +5,13 @@
          theorem lemma exercise proof
          render-reduction-rules
          render-judgment-rules
+         render-judgment-rules/horiz
          render-nonterminals
          render-metas)
 
 (require redex/pict
          scribble/base
+         (only-in pict hbl-append)
          (only-in racket/class make-object)
          (only-in racket/draw font%)
          (only-in racket/match match-lambda)
@@ -62,6 +64,8 @@
                        [(Γ t k)      "" Γ " ⊢ " t " :: " k ""])]
     ['kinds/env
              (rewriter [(Δ Γ)        "" Δ " ⊢ " Γ])]
+    ['env-ok
+             (rewriter [(Γ)          "⊢ " Γ])]
     ['lookup (rewriter [(Γ x)        "" Γ "(" x ")"])]
     ['member (rewriter [(a Δ)        "" a " ∈ " Δ])]
     ['meta-+ (rewriter [(e_1 e_2)    "" e_1 " + " e_2])]
@@ -144,6 +148,15 @@
 (define-syntax-rule (render-judgment-rules rel rule ...)
   (parameterize ([judgment-form-cases '(rule ...)])
     (with-typesetting (centered (render-judgment-form rel)))))
+
+(define-syntax-rule (render-judgment-rules/horiz rel rule ...)
+  (with-typesetting
+      (centered
+       (hbl-append
+        40
+        (parameterize ([judgment-form-cases '(rule)])
+          (render-judgment-form rel))
+        ...))))
 
 (define-syntax-rule (render-nonterminals lang nt ...)
   (parameterize ([render-language-nts '(nt ...)])

@@ -82,7 +82,7 @@ in @|λcube|:
 
 @composition-pict
 
-@(unless (redex:judgment-holds (r:types <> ,composition-term any))
+@(unless (redex:judgment-holds (r:types • ,composition-term any))
    (error 'lcube.scrbl "composition doesn't typecheck"))
 
 We also adjust the syntax to require an extra set of
@@ -94,11 +94,11 @@ Here it is:
 
 @(define-term (id-term id-pict)
    (λ (α : *)
-     (λ (a : α)
-       a)))
+     (λ (x : α)
+       x)))
 
-@(define id-type (redex:term (Π (α : *) (Π (a : α) α))))
-@(define id-types (redex:judgment-holds (r:types <> ,id-term any) any))
+@(define id-type (redex:term (Π (α : *) (Π (x : α) α))))
+@(define id-types (redex:judgment-holds (r:types • ,id-term any) any))
 
 @(unless (and id-types (= 1 (length id-types)))
    (error 'lcube.scrbl "id-types wrong: ~s" id-types))
@@ -122,16 +122,17 @@ but we can use @term[Π] for both the function type and for the
 @term[all #:lang sysf:λ-2] type.
 
 Here are the type rules. First, we just assert that @term[*] is a
-@term[□]:
+@term[□]
 @render-judgment-rules[r:types "axiom"]
 
-Following Barendregt, we treat the variable
-environment a little bit differently than we
-have with the other type systems. These rules
-effectively search down the @term[Γ] looking
-for the variable.
-@render-judgment-rules[r:types "start" "weakening"]
-
+and then we have what appears to be the standard variable rule:
+@render-judgment-rules[r:types "variable"]
+but note the premise that ensures that the environment is well-formed.
+In earlier type systems, that was a self-contained check that
+the types were well-formed. Now, because we have eliminated
+the distinction between types and terms, it simply uses the typing
+judgment:
+@render-judgment-rules/horiz[r:env-ok "nil" "cons"]
 
 The application rule handles all forms of abstraction:
 @render-judgment-rules[r:types "application"] It looks

@@ -1,6 +1,6 @@
 #lang racket/base
 (require redex/reduction-semantics)
-(provide λcube types types/alt)
+(provide λcube types types/alt env-ok)
 
 (define-language λcube
   (a A b B c C F e τ ::=
@@ -11,7 +11,7 @@
      s)
   (x y α β ::= variable-not-otherwise-mentioned)
   (s ::= * □)
-  (Γ ::= <> (extend Γ x A))
+  (Γ ::= • (extend Γ x A))
 
   #:binding-forms
   (λ (x : e_1) e_2 #:refers-to x)
@@ -31,15 +31,11 @@
   #:mode     (types I I O)
 
   [-------------- "axiom"
-   (types <> * □)]
+   (types Γ * □)]
 
-  [(types Γ A s)
-   -------------------------- "start"
-   (types (extend Γ x A) x A)]
-
-  [(types Γ A B) (types Γ C s)
-   --------------------------- "weakening"
-   (types (extend Γ x C) A B)]
+  [(env-ok Γ)
+   ------------------------ "variable"
+   (types Γ x (lookup Γ x))]
 
   [(types Γ F (Π (x : A_1) B)) (types Γ a A_1)
    ------------------------------------------- "application"
@@ -60,6 +56,17 @@
    -------------------------------------------- "λC"
    (types Γ (Π (x : A) B) s_2)])
 
+(define-judgment-form λcube
+  #:mode (env-ok I)
+  #:contract (env-ok Γ)
+
+  [---------- "nil"
+   (env-ok •)]
+
+  [(types Γ A s)
+   ----------------------- "cons"
+   (env-ok (extend Γ x A))])
+
 ;; this rule is an infinite loop in Redex, so
 ;; separate it out into its own judgment form
 ;; (so we can typeset it without running it)
@@ -68,8 +75,15 @@
   #:mode     (types/alt I I O)
 
   [(types/alt Γ A B_1) (≡ B_1 B_2) (types/alt Γ B_2 s)
-   ------------------------------------------------------- "conversion"
+   --------------------------------------------------- "conversion"
    (types/alt Γ A B_2)])
+
+(define-metafunction λcube
+  lookup : Γ x -> e
+  [(lookup (extend Γ x e) x)
+   e]
+  [(lookup (extend Γ y e) x)
+   (lookup Γ x)])
 
 (define-metafunction λcube
   [(→ A B)
@@ -79,12 +93,50 @@
   #:mode (≡ I O)
   #:contract (≡ e e)
 
-  [--------------------------- "β"
-   (≡ (ap (λ (x : A) B) C)
-          (substitute B x C))]
+  [(≡ A B) (≡ (ap B C) e)
+   -----------------------
+   (≡ (ap A C) e)]
 
-  [-------------------------- "same"
+  [(≡ (substitute B x C) e)
+   --------------------------- "β"
+   (≡ (ap (λ (x : A) B) C) e)]
+
+  #;
+
+  [-------------------------- "reflexive"
    (≡ A A)])
+
+(define-judgment-form λcube
+  #:mode (step I O)
+  #:contract (step e e)
+
+  [(step e e′)
+   -------------------------
+   (step (ap x e) (ap x e′))]
+
+  [(step e e′)
+   -------------------------------------------------
+   (step (ap (λ (x : A) B) e) (ap (λ (x : A) B) e′))]
+
+  [(step A A′)
+   -----------------------------------
+   (step (λ (x : A) B) (λ (x : A′) B))]
+
+  [(step B_1 B_2)
+   --------------------------------------
+   (step (λ (x : A) B_1) (λ (x : A) B_2))]
+
+  [----------------------------------------------
+   (step (ap (λ (x : A) B) C) (substitute B x C))])
+
+#;
+(module+ test
+
+  (test-judgment-holds
+   (≡ (ap (λ (x : □) x) *) *))
+
+  (test-judgment-holds
+   (≡ (ap (ap (λ (x : □) (λ (y : □) x)) *) *) *)))
 
 
 ;; Examples 5.1.15
@@ -93,26 +145,26 @@
   ;; 1.
 
   (test-judgment-holds
-   (types (extend <> A *) (Π (x : A) A) *))
+   (types (extend • A *) (Π (x : A) A) *))
 
   (test-judgment-holds
-   (types (extend <> A *) (λ (a : A) a) (Π (x : A) A)))
+   (types (extend • A *) (λ (a : A) a) (Π (x : A) A)))
 
   (test-judgment-holds
-   (types (extend (extend (extend <> A *) B *) b B)
+   (types (extend (extend (extend • A *) B *) b B)
           (λ (a : A) b)
           (Π (a : A) B)))
 
   (test-judgment-holds
-   (types (extend <> α *) (λ (a : α) a) (Π (x : α) α)))
+   (types (extend • α *) (λ (a : α) a) (Π (x : α) α)))
 
   (test-judgment-holds
-   (types (extend (extend (extend (extend <> A *) B *) c A) b B)
+   (types (extend (extend (extend (extend • A *) B *) c A) b B)
           (ap (λ (a : A) b) c)
           B))
 
   (test-judgment-holds
-   (types (extend (extend <> A *) B *)
+   (types (extend (extend • A *) B *)
           (λ (a : A) (λ (b : B) a))
           (Π (a : A) (Π (b : B) A)))))
 
@@ -120,25 +172,25 @@
 
 (module+ test
   (test-judgment-holds
-   (types (extend <> α *) (λ (a : α) a) (Π (a : α) α)))
+   (types (extend • α *) (λ (a : α) a) (Π (a : α) α)))
 
   (test-judgment-holds
-   (types <>
+   (types •
           (λ (α : *) (λ (a : α) a))
           (Π (α : *) (Π (a : α) α))))
 
   (test-judgment-holds
-   (types (extend <> A *)
+   (types (extend • A *)
           (ap (λ (α : *) (λ (a : α) a)) A)
           (Π (a : A) A)))
 
   (test-judgment-holds
-   (types (extend (extend <> A *) b A)
+   (types (extend (extend • A *) b A)
           (ap (ap (λ (α : *) (λ (a : α) a)) A) b)
           A))
 
   (test-judgment-holds
-   (types <>
+   (types •
           (λ (β : *) (λ (a : (Π (α : *) α)) (ap (ap a (→ (Π (α : *) α) β)) a)))
           (Π (β : *) (Π (x : (Π (α : *) α)) β)))))
 
@@ -146,7 +198,7 @@
 (module+ test
   (test-equal
    (judgment-holds
-    (types <>
+    (types •
            (λ (x : *) (λ (x : (Π (x : *) x)) x))
            any)
     any)
