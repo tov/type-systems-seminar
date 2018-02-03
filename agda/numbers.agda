@@ -8,9 +8,8 @@ and hard to see that when you work directly with the calculus, but
 there are various programming languages built on top of it that
 emphasize that kind of thing.
 
-Lets see one: agda. (Technically this isn't build on CoC, it is build
-on another thing that is a hybrid of CoC with something else. We won't
-care or be able to tell, really.)
+Lets see one: agda. (Technically this isn't build on CoC, it is built
+on Martin-Löf type theory, a predecessor of it.)
 
 [*]: constructive mathematics, really
 
