@@ -422,8 +422,10 @@ on the conclusion:
  @item{@term[(types (extend Γ x t_x) (cdr e_1) list)]:
         As in the previous case.}
  @item{@term[(types (extend Γ x t_x) (let y e_1 e_2) t)]:
-        Without loss of generality,
-        we take @term[y] ≠ @term[x]. Then we know that
+        There are two possibilities, whether @term[x] = @term[y] or not:
+  @itemlist[
+   @item{First, consider the case where
+        @term[y] ≠ @term[x]. Then we know that
         @term[(types (extend Γ x t_x) e_1 t_e)] for some @term[t_e], and that
         @term[(types (extend (extend Γ x t_x) y t_e) e_2 t)].
         Then by the induction hypothesis,
@@ -439,8 +441,33 @@ on the conclusion:
         @term[(types (extend Γ y t_e) (substitute e_2 x v) t)].
         Then @term[(types Γ (substitute (let y e_1 y_2) x v) t)] by rule
         @rulename[let].}
+   @item{If @term[x] = @term[y] then, as before, the induction hypothesis
+         gives us that @term[(types Γ (substitute e_1 x v) t_e)].
+         By the assumption we know that
+         @term[(types (extend Γ x t_x) (let x e_1 e_2) t)]. By inversion,
+         we know that @term[(types (extend (extend Γ x t_x) x t_e) e_2 t)].
+         But from the way environments work, we know that
+         @term[(extend (extend Γ x t_x) x t_e)] is the same
+         as @term[(extend Γ x t_e)]. Thus we know
+         @term[(types (extend Γ x t_e) e_2 t)], which gives us
+         the pieces to use the let rule to conclude that
+         @term[(types Γ (let x (substitute e_1 x v) e_2) t)], which
+         is almost what we need to finish this case.
+         Consider what the substituion function does when the variables
+         are equal:
+         @term[(substitute (let y e_1 e_2) x v)]
+         =
+         @term[(substitute (let x e_1 e_2) x v)]
+         =
+         @term[(let x (substitute e_1 x v) e_2)].
+         That means, that the typing derivation we just proved, namely
+         @term[(types Γ (let x (substitute e_1 x v) e_2) t)] is
+         the same as the one that finishes this case, and thus
+         @term[(types Γ (substitute (let y e_1 e_2) x v) t)].
+    }]
+}
  @item{@term[(types (extend Γ x t_x) y (lookup (extend Γ x t_x) y))]:
-  Then there are two possibilities,
+  There are two possibilities,
   whether @term[x] = @term[y] or not:
   @itemlist[
    @item{If @term[x] = @term[y], then @term[(substitute y x v)] is @term[v].
