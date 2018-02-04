@@ -6,7 +6,7 @@ all: out/main/index.html
 
 SRCS = $(wildcard *.scrbl) $(wildcard redex/*.rkt)
 
-out/main/index.html: $(SRCS) util.rkt
+out/main/index.html: main.scrbl $(SRCS) util.rkt
 	raco make -j 4 $<
 	scribble --style notes.css --dest out --htmls ++convert svg $<
 
