@@ -40,6 +40,7 @@
     ['\\     (rewriter [(as bs)      "" as " \\ " bs ""])]
     ['∪      (rewriter [(as bs)      "" as " ∪ " bs ""])]
     ['≡      (rewriter [(t_1 t_2)    "" t_1 " ≡ " t_2 ""])]
+    ['≡/alt  (rewriter [(t_1 t_2)    "" t_1 " ≡ " t_2 ""])]
     ['apply-subst
              (rewriter [(S σ)        "" S "" σ ""])]
     ['compose-subst

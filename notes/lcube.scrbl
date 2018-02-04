@@ -121,7 +121,9 @@ other words, this is a type where the variable bound by the outer
 but we can use @term[Π] for both the function type and for the
 @term[all #:lang sysf:λ-2] type.
 
-Here are the type rules. First, we just assert that @term[*] is a
+@section[#:tag "lcube-types"]{Typing Rules}
+
+First, we just assert that @term[*] is a
 @term[□]
 @render-judgment-rules[r:types "axiom"]
 
@@ -181,4 +183,3 @@ the polymorphic lambda calculus, @langname[λ-2]. This means
 that functions can now play the role of
 @term[all #:lang sysf:λ-2], expressions, accepting types,
 but always returning only a type.
-

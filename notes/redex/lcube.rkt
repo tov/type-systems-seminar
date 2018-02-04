@@ -74,8 +74,8 @@
   #:contract (types/alt Γ A B)
   #:mode     (types/alt I I O)
 
-  [(types/alt Γ A B_1) (≡ B_1 B_2) (types/alt Γ B_2 s)
-   --------------------------------------------------- "conversion"
+  [(types/alt Γ A B_1) (≡/alt B_1 B_2) (types/alt Γ B_2 s)
+   ------------------------------------------------------- "conversion"
    (types/alt Γ A B_2)])
 
 (define-metafunction λcube
@@ -90,19 +90,35 @@
    (Π (x : A) B)])
 
 (define-judgment-form λcube
-  #:mode (≡ I O)
+  #:mode (≡ I I)
   #:contract (≡ e e)
 
-  [-----------------------
+  [------- "refl"
    (≡ A A)]
 
-  [------------------------------------------- "β"
-   (≡ (ap (λ (x : A) B) C) (substitute B x C))])
+  [(≡ (substitute B x C) e)
+    ------------------------- "β"
+   (≡ (ap (λ (x : A) B) C) e)]
+
+  [(≡ A_1 A_2) (≡ B_1 B_2)
+   ----------------------------- "ap"
+   (≡ (ap A_1 B_1) (ap A_2 B_2))])
+
+(define-judgment-form λcube
+  #:mode (≡/alt I O)
+  #:contract (≡/alt e e)
+
+  [----------- "refl"
+   (≡/alt A A)])
+
 
 (module+ test
 
   (test-judgment-holds
-   (≡ (ap (λ (x : □) x) *) *)))
+   (≡ (ap (λ (x : □) x) *) *))
+
+  (test-judgment-holds
+   (≡ (ap (λ (x : □) (ap (λ (y : □) x) *)) *) *)))
 
 
 ;; Examples 5.1.15
