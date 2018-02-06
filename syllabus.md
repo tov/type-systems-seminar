@@ -73,6 +73,16 @@ Your grade will be based on three things:
 
   - The class that you lead (final presentation)
 
+### Actual presentations and teams
+
+  - Sasha & Meg: Swift
+  - Chris H. & Jenny: intersection types
+  - Dan & Ethan: Rust
+  - Jared, Nathan L. & John: C++ templates (and concepts)
+  - Chris K. & Shu-Hung: Is inheritance subtyping?
+  - Nathan S. & Spencer: ReactiveML
+  - Sarah & Josh: JavaScript types
+
 ### Suggested presentation topics:
 
   - Extensible records and variants
@@ -82,7 +92,7 @@ Your grade will be based on three things:
   - Intersection types
   - What the heck is a monad?
   - Present an actual language from a type systems perspective
-      - R should do an example (Typed Racket)
+      - Robby will do an example (Typed Racket)
   - Cardelli’s [Typeful Programming][cardelli] and Quest
   - ML pattern matching
 
