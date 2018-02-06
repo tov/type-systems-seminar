@@ -109,7 +109,7 @@ Here it is:
 
 @id-pict
 
-This term is what you would expect, simply replacing the captial Λ
+This term is what you would expect, simply replacing the capital Λ
 with the lowercase λ and adding a @term[*]. But consider its type:
 
 @(term->pict/pretty-write r:λcube id-type)

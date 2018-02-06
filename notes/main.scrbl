@@ -9,7 +9,7 @@
 @include-section["stlc.scrbl"]
 @include-section["sub.scrbl"]
 @include-section["sysf.scrbl"]
+@include-section["fomega.scrbl"]
 @include-section["ml.scrbl"]
 @include-section["qual.scrbl"]
-@include-section["fomega.scrbl"]
 @include-section["lcube.scrbl"]

@@ -25,14 +25,15 @@
       - Pre-reading: [Reynolds 1974, “Towards a Theory of Type
         Structure”][reynolds74] (pages 1–8)
 
-  - 02/06: continued; final presentation discussion
+  - 02/06: continued, including [Higher-order types][fomega]; final
+    presentation discussion
       - Post-reading: [Wadler 1989, “Theorems for Free”][wadler89]
 
   - 02/08: [Damas–Hindley–Milner type inference][mlinf]
       - Pre-reading: [Damas and Milner 1982, “Principal type-schemes for
         functional programs”][dm82]
 
-  - 02/13: Qualified types
+  - 02/13: [Qualified types][qual]
       - Pre-reading: [Jones 1992, “A Theory of Qualified Types”][jones92]
       - Pre-task: Install GHC.
 
@@ -40,7 +41,7 @@
       - Pre-reading: [Tobin-Hochstadt 2010, “Logical Types for Untyped
         Languages”][samth2010]
 
-  - 02/20: [Higher-order types][fomega] and dependent types
+  - 02/20: [Dependent types][lcube]
       - Pre-reading: Lambda Cube: [Barendregt, *Lambda Calculi with
         Types,*][barendregt] §5 “Typing à la Church”
 
@@ -108,6 +109,12 @@ Your grade will be based on three things:
 
 [fomega]:
     http://users.eecs.northwestern.edu/~jesse/course/type-systems/main/The_higher-order_lambda_calculus__-_.html
+
+[lcube]:
+    http://users.eecs.northwestern.edu/~jesse/course/type-systems/main/The_Lambda_Cube___-cube.html
+
+[qual]:
+    http://users.eecs.northwestern.edu/~jesse/course/type-systems/main/Qualified_types.html
 
 [wadler89]:
     https://people.mpi-sws.org/~dreyer/tor/papers/wadler.pdf
