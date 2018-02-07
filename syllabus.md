@@ -77,7 +77,6 @@ Your grade will be based on three things:
 ### Actual presentations and teams
 
   - Sasha & Meg: Swift
-  - Chris H. & Jennie: intersection types
   - Jared, Nathan L. & John: C++ templates (and concepts)
   - Nathan S. & Spencer: ReactiveML
   - Sarah & Josh: JavaScript types
