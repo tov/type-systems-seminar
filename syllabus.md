@@ -32,6 +32,7 @@
   - 02/08: [Damas–Hindley–Milner type inference][mlinf]
       - Pre-reading: [Damas and Milner 1982, “Principal type-schemes for
         functional programs”][dm82]
+      - Pre-task: [Get this OCaml program working][ocaml]
 
   - 02/13: [Qualified types][qual]
       - Pre-reading: [Jones 1992, “A Theory of Qualified Types”][jones92]
@@ -78,8 +79,8 @@ Your grade will be based on three things:
   - Sasha & Meg: Swift
   - Chris H. & Jenny: intersection types
   - Dan & Ethan: Rust
-  - Jared, Nathan L. & John: C++ templates (and concepts)
   - Chris K. & Shu-Hung: Is inheritance subtyping?
+  - Jared, Nathan L. & John: C++ templates (and concepts)
   - Nathan S. & Spencer: ReactiveML
   - Sarah & Josh: JavaScript types
 
@@ -94,7 +95,7 @@ Your grade will be based on three things:
   - Present an actual language from a type systems perspective
       - Robby will do an example (Typed Racket)
   - Cardelli’s [Typeful Programming][cardelli] and Quest
-  - ML pattern matching
+  - ML module system
 
 [cardelli]:
    http://www.lucacardelli.name/Papers/TypefulProg.pdf
@@ -143,3 +144,6 @@ Your grade will be based on three things:
 
 [samth2010]:
     https://www.ccs.neu.edu/racket/pubs/icfp10-thf.pdf
+
+[ocaml]:
+      https://github.com/tov/type-systems-seminar/blob/master/exercises/stlc-ml/README.md
