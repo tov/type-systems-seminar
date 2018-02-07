@@ -6,7 +6,7 @@
 2. You can make factorial go faster by taking advantage of your
    computer's multiplication instruction. To do so, modify the
    interpeter to add a multiplication form that is interpreted by
-   OCaml's multiplicaton operation.
+   OCaml's multiplication operation.
 
 3. Modify `examples/factorial.stlc` to take advantage of the new
-   multiplication build-in, and time it again.
+   multiplication built-in, and time it again.
