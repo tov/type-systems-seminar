@@ -52,7 +52,7 @@
 
   - 02/22: Dan & Ethan: Rust
 
-  - 02/27: student-led [TBA]
+  - 02/27: Jennie & Chris H.: intersection types
 
   - 03/01: Chris K. & Shu-Hung: Is inheritance subtyping?
 
@@ -77,10 +77,42 @@ Your grade will be based on three things:
 ### Actual presentations and teams
 
   - Sasha & Meg: Swift
-  - Chris H. & Jenny: intersection types
+  - Chris H. & Jennie: intersection types
   - Jared, Nathan L. & John: C++ templates (and concepts)
   - Nathan S. & Spencer: ReactiveML
   - Sarah & Josh: JavaScript types
+
+### Presentation guidelines:
+
+To prepare for your presentation, plan to meet with us twice, once two
+weeks before your presentation and once one week before your
+presentation. 
+
+For the first meeting, please prepare by reading up on your topic to
+see if you need help to understand it. Come to the first meeting with
+that understanding as well as these items:
+
+1) a reading assignment (one technical paper is the most we want to assign)
+
+2) specific worked exercises that you believe can be completed in
+pairs if students generally understood the reading
+
+One good approach to leading your class period is to start by asking
+"did you understand the reading?" and then to answer the questions
+that come up. If people generally seemed to have understood it, then
+you'll give your prepared exercises. (If we spend the entire time
+talking about the content of the reading, prepare to hand out the
+exercises as self-study for those interested in digging into the topic
+more.) Not all topics work well this way, so if you have one that you
+think needs more explicit lecture-style content in the class, then
+think about what that would look like too.
+
+Expect that your first try at an exercise won't work, either because
+it will be too hard, will send people in an uninteresting direction,
+or just generally because designing good exercises isn't trivial.
+
+Based on how it goes when you show us the materials in the first
+meeting, we'll set you specific goals for the second meeting.
 
 ### Suggested presentation topics:
 
