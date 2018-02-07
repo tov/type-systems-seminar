@@ -54,7 +54,7 @@
 
   - 02/27: student-led [TBA]
 
-  - 03/01: student-led [TBA]
+  - 03/01: Chris K. & Shu-Hung: Is inheritance subtyping?
 
   - 03/06: student-led [TBA]
 
@@ -78,7 +78,6 @@ Your grade will be based on three things:
 
   - Sasha & Meg: Swift
   - Chris H. & Jenny: intersection types
-  - Chris K. & Shu-Hung: Is inheritance subtyping?
   - Jared, Nathan L. & John: C++ templates (and concepts)
   - Nathan S. & Spencer: ReactiveML
   - Sarah & Josh: JavaScript types
