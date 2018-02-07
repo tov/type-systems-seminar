@@ -22,11 +22,11 @@ type exp =
          | FixE of var * typ * exp
 
 (* Computes the free variables of an expression. *)
-let rec fv =
+let rec fv e0 =
   let module Set = Var.Set in
   let remove_bindings bindings fvset =
     List.fold ~f:Set.remove ~init:fvset (List.map ~f:fst bindings) in
-  function
+  match e0 with
   | VarE x -> Set.singleton x
   | LetE(bindings, body) -> remove_bindings bindings (fv body)
   | IntE _ -> Set.empty
@@ -35,6 +35,6 @@ let rec fv =
   | TupE es -> Set.union_list (List.map ~f:fv es)
   | PrjE(e, _) -> fv e
   | LamE(bindings, body) -> remove_bindings bindings (fv body)
-  | AppE(e0, es) -> Set.union_list (List.map ~f:fv (e0 :: es))
+  | AppE(e, es) -> Set.union_list (List.map ~f:fv (e :: es))
   | FixE(x, _, e) -> Set.remove (fv e) x
 
