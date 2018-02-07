@@ -13,6 +13,11 @@ let assert_int = function
   | IntT -> ()
   | t    -> got_exp t "int"
 
+(* Asserts that the given type is a function type. *)
+let assert_arr = function
+  | ArrT _ -> ()
+  | t      -> got_exp t "arrow type"
+
 (* Asserts that two types are the same. *)
 let assert_same_type t1 t2 =
   if t1 = t2
@@ -76,6 +81,7 @@ let rec tc env = function
       assert_same_types tas ts;
       tr
   | FixE(x, t, e) ->
+      assert_arr t;
       let env' = Env.extend env x t in
       let t'   = tc env' e in
       assert_same_type t t';
