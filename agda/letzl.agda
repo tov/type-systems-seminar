@@ -5,8 +5,7 @@ open import Data.Nat
          _+_ ; _≤_ ; _≤′_ ; _<′_ ;
          z≤n ; s≤s ; ≤′-refl)
 open import Data.Nat.Properties
-  using (_+-mono_ ; s≤′s ; z≤′n ; ≤′⇒≤ ;
-         n≤1+n ; ≤⇒pred≤ ; ≤pred⇒≤)
+  using (s≤′s ; z≤′n ; ≤′⇒≤ ; ≤⇒≤′ ; n≤1+n ; ≤-step)
 open import Data.Nat.Properties.Simple
   using (+-comm ; +-assoc ; +-suc)
 open import Relation.Nullary
@@ -63,6 +62,10 @@ subst d (bind n e e₁) v₁ | no ¬p = bind n (subst d e v₁) (subst d e₁ v�
 data Config : Set where
   WRONG : Config
   eC : (e : letzl) -> Config
+
+data finishedConfig : Config -> Set where
+  finWRONG : finishedConfig WRONG
+  finVal : ∀ {v} -> val v -> finishedConfig (eC v)
 
 data Ectxt : Set where
   hole : Ectxt
@@ -566,7 +569,7 @@ module _ where
 
 module _ {ℓ} where
   open Induction.WellFounded.All
-       (<<′-well-founded Induction.Nat.<-well-founded Induction.Nat.<-well-founded) ℓ public
+       (<<′-well-founded Induction.Nat.<′-well-founded Induction.Nat.<′-well-founded) ℓ public
     renaming (wfRec-builder to <<′-rec-builder;
               wfRec to <<′-rec)
 
@@ -574,28 +577,26 @@ module _ {ℓ} where
 ≤-trans z≤n b≤c = z≤n
 ≤-trans (s≤s a≤b) (s≤s b≤c) = s≤s (≤-trans a≤b b≤c)
 
-data steps : letzl -> (Σ[ v ∈ letzl ] val v) ⊎ ⊤ -> ℕ -> Set where
-  done : ∀ {v} -> (valv : val v) -> steps v (inj₁ (v , valv)) 0
-  dead : ∀ {e} -> step e WRONG -> steps e (inj₂ tt) 1
+data steps : letzl -> Config -> ℕ -> Set where
+  done : ∀ {e} -> steps e (eC e) 0
+  dead : ∀ {e} -> step e WRONG -> steps e WRONG 1
   more : ∀ {e e′ C k} ->
     (stepee′ : step e (eC e′)) ->
     (stepse′n : steps e′ C k) ->
     steps e C (1 + k)
 
-stepstc : ∀ {e τ k v valv} ->
+stepstc : ∀ {e τ k e′} ->
   tc [] e τ ->
-  steps e (inj₁ (v , valv)) k ->
-  tc [] v τ
-stepstc tc₁ (done valv) = tc₁
-stepstc tc₁ (more stepee′ steps₁) = stepstc (preservation tc₁ stepee′) steps₁
+  steps e (eC e′) k ->
+  tc [] e′ τ
+stepstc tce done = tce
+stepstc tce (more stepee′ steps₁) =  stepstc (preservation tce stepee′) steps₁
 
 natstepsnat : ∀ {e v k} -> (valv : val v) ->
-  steps e (inj₁ (v , valv)) k ->
+  steps e (eC v) k ->
   tc [] e NatT ->
-  ∃ (\ n -> steps e (inj₁ (nat n , natval n)) k)
-natstepsnat (natval n) stepse tce
-  with stepstc tce stepse
-... | tcv = n , stepse
+  ∃ (\ n -> steps e (eC (nat n)) k)
+natstepsnat (natval n) stepse tce = n , stepse
 natstepsnat nilval stepse tce
   with stepstc tce stepse
 ... | ()
@@ -604,28 +605,42 @@ natstepsnat (consval hd tl valv valv₁) stepse tce
 ... | ()
 
 liststeplist : ∀ {e v k} -> (valv : val v) ->
-  steps e (inj₁ (v , valv)) k ->
+  steps e (eC v) k ->
   tc [] e ListT ->
-  steps e (inj₁ (nil , nilval)) k  ⊎
-  ∃ (\ { (hd , tl , hdval , tlval) ->
-     steps e (inj₁ (cons hd tl , consval hd tl hdval tlval)) k })
+  steps e (eC nil) k  ⊎
+  ∃ (\ { (hd , tl) -> steps e (eC (cons hd tl)) k × val hd × val tl})
 liststeplist (natval n) stepse tce
   with stepstc tce stepse
 ... | ()
 liststeplist nilval stepse tce = inj₁ stepse
-liststeplist (consval hd tl valv valv₁) stepse tce
-  = inj₂ (_ , stepse)
+liststeplist (consval hd tl valhd valtl) stepse tce
+  = inj₂ ((hd , tl) , (stepse , valhd , valtl))
+
 
 stepsEerr : ∀ {e k} ->
   ∀ E ->
-  steps e (inj₂ tt) k ->
-  steps (plug E e) (inj₂ tt) k
+  steps e WRONG k ->
+  steps (plug E e) WRONG k
 stepsEerr E (dead stepeWRONG) = dead (stepEerr E stepeWRONG)
 stepsEerr E (more stepee′ stepse) = more (stepEnoerr E stepee′) (stepsEerr E stepse)
 
+stepsEeC : ∀ {e e′ k} ->
+ ∀ E ->
+ steps e (eC e′) k ->
+ steps (plug E e) (eC (plug E e′)) k
+stepsEeC E done = done
+stepsEeC E (more stepee′ stepse) = more (stepEnoerr E stepee′) (stepsEeC E stepse)
+
+steps++ : ∀ {e₁ e₂ k₁ k₂ C} ->
+ steps e₁ (eC e₂) k₁ ->
+ steps e₂ C k₂ ->
+ steps e₁ C (k₁ + k₂)
+steps++ done stepse₂ = stepse₂
+steps++ (more stepee′ stepse₁) stepse₂ = more stepee′ (steps++ stepse₁ stepse₂)
+
 terminates : ∀ {e τ} ->
   tc [] e τ ->
-  ∃ ( \ { (k′ , C) -> steps e C k′ × k′ ≤ ∥ e ∥ })
+  ∃ ( \ { (k′ , C) -> finishedConfig C × steps e C k′ × k′ ≤ ∥ e ∥ })
 terminates = thm where
 
  size : letzl -> ℕ
@@ -652,11 +667,14 @@ terminates = thm where
  sum-boundsr : ∀ {a b c} -> a + b ≡ c -> b ≡ c ⊎ b <′ c
  sum-boundsr{a}{b} a+b≡c rewrite (+-comm a b) = sum-boundsl a+b≡c
 
+ weaken≤ : ∀ {a b} -> suc a ≤ b -> a ≤ b
+ weaken≤ (s≤s suc[a]≤b) = ≤-step suc[a]≤b
+
  sum-boundsl′ :  ∀ {a b c} -> a + b ≡ c ->  a ≤ c
  sum-boundsl′ {a}{b}{c} a+b≡c
    with sum-boundsl {a}{b}{c} a+b≡c
  ... | inj₁ a≡c rewrite a≡c = ≤′⇒≤ ≤′-refl
- ... | inj₂ a<′c =  ≤⇒pred≤ (suc a) c (≤′⇒≤ a<′c)
+ ... | inj₂ a<′c = ≤′⇒≤ (≤⇒≤′ (weaken≤ (≤′⇒≤ a<′c)))
 
  sum-strict-boundsl : ∀ {a b c} -> suc (a + b) ≡ c -> a <′ c
  sum-strict-boundsl {zero} {b} {zero} ()
@@ -692,153 +710,106 @@ terminates = thm where
     tc [] e τ ->
     ∥ e ∥ ≡ the-work ->
     size e ≡ the-size ->
-    ∃ ( \ { (k′ , C) -> steps e C k′ × k′ ≤ the-work })
+    ∃ ( \ { (k′ , C) -> finishedConfig C × steps e C k′ × k′ ≤ the-work })
 
  tstep : ∀ sd ->
         (∀ (sd′ : ℕ × ℕ) -> sd′ <<′ sd -> tstep-result sd′) ->
         tstep-result sd
 
- tstep (s , d) R tnat ∥e∥≡s sizee≡d = (0 , _) , done (natval _) , z≤n
+ tstep (s , d) R tnat ∥e∥≡s sizee≡d = (0 , _) , finVal (natval _) , done , z≤n
 
- tstep (s , d) R tnil ∥e∥≡s sizee≡d = (0 , _) , done nilval , z≤n
+ tstep (s , d) R tnil ∥e∥≡s sizee≡d = (0 , _) , finVal nilval , done , z≤n
 
- tstep (s , d) R {cons e₁ e₂}{_} (tcons tc₁ tc₂) ∥e∥≡s sizee≡d
-   with R _ (<<′-right (sum-strict-boundsl sizee≡d) (sum-boundsl ∥e∥≡s))
-          tc₁ refl refl
+ tstep (s , d) R {cons e₁ e₂} (tcons tc₁ tc₂) ∥e∥≡s sizee≡d
+  with R _ (<<′-right (sum-strict-boundsl sizee≡d) (sum-boundsl ∥e∥≡s))
+           tc₁ refl refl
       | R _ (<<′-right (sum-strict-boundsr{size e₁} sizee≡d)
             (sum-boundsr{∥ e₁ ∥} ∥e∥≡s))
           tc₂ refl refl
- ... | (k₁ , inj₂ tt) , stepse₁k₁ , k₁≤k₁′
-     | (k₂ , C₂) , stepse₂k₂ , k₂≤k₂′
-     = (k₁ , (inj₂ tt)) ,
+ ... | (k₁ , WRONG) , finWRONG , stepse₁k₁ , k₁≤k₁′
+     | (k₂ , C₂) , _ , stepse₂k₂ , k₂≤k₂′
+     = (k₁ , WRONG) , finWRONG ,
        stepsEerr (Econsl hole e₂) stepse₁k₁ ,
        ≤-trans k₁≤k₁′ (sum-boundsl′ ∥e∥≡s)
- ... | (k₁ , inj₁ (v₁ , valv₁)) , stepse₁k₁ , k₁≤k₁′
-     | (k₂ , inj₂ tt) , stepse₂k₂ , k₂≤k₂′
-     = (k₁ + k₂ , inj₂ tt) , scons stepse₁k₁ ,
-       ≤-trans (≤+≤ k₁≤k₁′ k₂≤k₂′) (≡->≤ ∥e∥≡s) where
-       scons : ∀ {e₁ k₁} ->
-         steps e₁ (inj₁ (v₁ , valv₁)) k₁ ->
-         steps (cons e₁ e₂) (inj₂ tt) (k₁ + k₂)
-       scons (done _)
-         = stepsEerr (Econsr v₁ valv₁ hole) stepse₂k₂
-       scons (more stepee′ stepse₁)
-         = more (stepEnoerr (Econsl hole e₂) stepee′) (scons stepse₁)
- ... | (k₁ , inj₁ (v₁ , valv₁)) , stepse₁k₁ , k₁≤k₁′
-     | (k₂ , inj₁ (v₂ , valv₂)) , stepse₂k₂ , k₂≤k₂′
-     = (k₁ + k₂ , (inj₁ (cons v₁ v₂ , (consval v₁ v₂ valv₁ valv₂)))) ,
-        scons stepse₁k₁ stepse₂k₂ ,
-        ≤-trans (≤+≤ k₁≤k₁′ k₂≤k₂′) (≡->≤ ∥e∥≡s) where
-       scons : ∀ {e₁ k₁ e₂ k₂} ->
-         steps e₁ (inj₁ (v₁ , valv₁)) k₁ ->
-         steps e₂ (inj₁ (v₂ , valv₂)) k₂ ->
-         steps (cons e₁ e₂) (inj₁ (cons v₁ v₂ , consval v₁ v₂ valv₁ valv₂)) (k₁ + k₂)
-       scons (done _) (done _) = done (consval v₁ v₂ valv₁ valv₂)
-       scons (done _) (more stepee′ stepse₂)
-         = more (stepEnoerr (Econsr v₁ valv₁ hole) stepee′) (scons (done _) stepse₂)
-       scons (more stepee′ stepse₁) (done _)
-         = more (stepEnoerr (Econsl hole v₂) stepee′) (scons stepse₁ (done _))
-       scons (more stepee′ stepse₁) (more stepee′₁ stepse₂)
-         = more (stepEnoerr (Econsl hole _) stepee′)
-                (scons stepse₁ (more stepee′₁ stepse₂))
+ ... | (k₁ , eC v) , finVal valv , stepse₁k₁ , k₁≤k₁′
+     | (k₂ , WRONG) , finWRONG , stepse₂k₂ , k₂≤k₂′
+     = (k₁ + k₂ , WRONG) , finWRONG ,
+       steps++ (stepsEeC (Econsl hole e₂) stepse₁k₁)
+               (stepsEerr (Econsr v valv hole) stepse₂k₂) ,
+       ≤-trans (≤+≤ k₁≤k₁′ k₂≤k₂′) (≡->≤ ∥e∥≡s)
+ ... | (k₁ , eC v₁) , finVal valv₁ , stepse₁k₁ , k₁≤k₁′
+     | (k₂ , eC v₂) , finVal valv₂ , stepse₂k₂ , k₂≤k₂′
+     = (k₁ + k₂ , (eC (cons v₁ v₂))) ,
+       finVal (consval v₁ v₂ valv₁ valv₂) ,
+       steps++ (stepsEeC (Econsl hole e₂) stepse₁k₁)
+               (stepsEeC (Econsr v₁ valv₁ hole) stepse₂k₂) ,
+       ≤-trans (≤+≤ k₁≤k₁′ k₂≤k₂′) (≡->≤ ∥e∥≡s)
 
  tstep (s , d) R {add e₁ e₂} (tadd tc₁ tc₂) ∥e∥≡s sizee≡d
-   with R _ (<<′-right (sum-strict-boundsl sizee≡d) (inj₂ (sum-strict-boundsl ∥e∥≡s)))
+   with R _ (<<′-right (sum-strict-boundsl sizee≡d)
+                       (inj₂ (sum-strict-boundsl ∥e∥≡s)))
           tc₁ refl refl
       | R _ (<<′-right (sum-strict-boundsr{size e₁} sizee≡d)
             (inj₂ (sum-strict-boundsr{∥ e₁ ∥} ∥e∥≡s)))
           tc₂ refl refl
- ... |  (k₁ , inj₂ tt) , stepse₁k₁ , k₁≤k₁′ | (k₂ , C₂) , stepse₂k₂ , k₂≤k₂′
-   = (k₁ , (inj₂ tt)) ,
-     stepsEerr (E+l hole e₂) stepse₁k₁ ,
-     ≤-trans k₁≤k₁′ (≤⇒pred≤ (suc ∥ e₁ ∥) s (≤′⇒≤ (sum-strict-boundsl{∥ e₁ ∥} ∥e∥≡s)))
- ... | (k₁ , inj₁ (v , valv)) , stepse₁k₁ , k₁≤k₁′
-     | (k₂ , inj₂ tt) , stepse₂k₂ , k₂≤k₂′
-   = (k₁ + k₂ , inj₂ tt) ,
-     s+err stepse₁k₁ ,
-     ≤-trans (≤+≤ k₁≤k₁′ k₂≤k₂′) (≤⇒pred≤ _ s (≡->≤ ∥e∥≡s)) where
-      s+err : ∀ {k₁ e₁} ->
-         steps e₁ (inj₁ (v , valv)) k₁ ->
-         steps (add e₁ e₂) (inj₂ tt) (k₁ + k₂)
-      s+err (done .valv)
-        = stepsEerr (E+r _ valv hole) stepse₂k₂
-      s+err (more stepee′ stepse₁)
-        = more (stepEnoerr (E+l hole _) stepee′) (s+err stepse₁)
- ... | (k₁ , inj₁ (v₁ , valv₁)) , stepse₁k₁ , k₁≤k₁′
-     | (k₂ , inj₁ (v₂ , valv₂)) , stepse₂k₂ , k₂≤k₂′ rewrite (sym ∥e∥≡s)
-   = ((suc (k₁ + k₂)) , (inj₁ (_ , _))) ,
-     s+ (proj₂ (natstepsnat valv₁ stepse₁k₁ tc₁))
-        (proj₂ (natstepsnat valv₂ stepse₂k₂ tc₂)) ,
-     s≤s (≤+≤ k₁≤k₁′ k₂≤k₂′) where
+ ... | (k₁ , WRONG) , finWRONG , stepse₁k₁ , k₁≤k₁′
+     | (k₂ , C₂) , _ , stepse₂k₂ , k₂≤k₂′
+     = (k₁ , WRONG) , finWRONG ,
+       stepsEerr (E+l hole e₂) stepse₁k₁ ,
+       ≤-trans k₁≤k₁′ (weaken≤ (≤′⇒≤ (sum-strict-boundsl{∥ e₁ ∥} ∥e∥≡s)))
+ ... | (k₁ , eC v) , finVal valv , stepse₁k₁ , k₁≤k₁′
+     | (k₂ , WRONG) , finWRONG , stepse₂k₂ , k₂≤k₂′
+     = (k₁ + k₂ , WRONG) , finWRONG ,
+       steps++ (stepsEeC (E+l hole e₂) stepse₁k₁)
+               (stepsEerr (E+r v valv hole) stepse₂k₂) ,
+        ≤-trans (≤+≤ k₁≤k₁′ k₂≤k₂′) (weaken≤ (≡->≤ ∥e∥≡s))
+ ... | (k₁ , eC v₁) , finVal valv₁ , stepse₁k₁ , k₁≤k₁′
+     | (k₂ , eC v₂) , finVal valv₂ , stepse₂k₂ , k₂≤k₂′
+     with natstepsnat valv₁ stepse₁k₁ tc₁ | natstepsnat valv₂ stepse₂k₂ tc₂
+ ... | n₁ , stepse₁n₁ | n₂ , stepse₂n₂
+     = (k₁ + k₂ + 1 , eC (nat (n₁ + n₂))) , finVal (natval (n₁ + n₂)) ,
+        steps++ (steps++ (stepsEeC (E+l hole e₂) stepse₁n₁)
+                         (stepsEeC (E+r (nat n₁) (natval n₁) hole) stepse₂n₂))
+                (more (Sadd (Dhole (add (nat n₁) (nat n₂))) (Dhole (nat (n₁ + n₂))))
+                      done) ,
+       ≤-trans (≡->≤ (+-comm (k₁ + k₂) 1))
+               (≤-trans (s≤s (≤+≤ k₁≤k₁′ k₂≤k₂′)) (≡->≤ ∥e∥≡s))
 
-     s+ : ∀ {e₁ e₂ n₁ n₂ k₁ k₂} ->
-           steps e₁ (inj₁ (nat n₁ , natval n₁)) k₁ ->
-           steps e₂ (inj₁ (nat n₂ , natval n₂)) k₂ ->
-           steps (add e₁ e₂) (inj₁ (nat (n₁ + n₂) , natval (n₁ + n₂))) (suc (k₁ + k₂))
-     s+ (done .(natval _)) (done .(natval _)) =
-        more (Sadd (Dhole (add (nat _) (nat _))) (Dhole (nat _)))
-             (done (natval _))
-     s+ (done .(natval _)) (more stepee′ se₂)
-       = more (stepEnoerr (E+r _ (natval _) hole) stepee′) (s+ (done _) se₂)
-     s+ (more stepee′ se₁) se₂
-       = more (stepEnoerr (E+l hole _) stepee′) (s+ se₁ se₂)
-
- tstep (s , d) R {car e} (tcar tc₁) ∥e∥≡s sizee≡d
-   with R _ (<<′-right (le-fact sizee≡d) (inj₂ (le-fact ∥e∥≡s))) tc₁ refl refl
- ... | (k , inj₂ tt) , stepsek , k≤k′
-   = (k , inj₂ tt) ,
+ tstep (s , d) R {car e} (tcar tce) ∥e∥≡s sizee≡d
+    with R _ (<<′-right (le-fact sizee≡d) (inj₂ (le-fact ∥e∥≡s))) tce refl refl
+ ... | (k , WRONG) , finWRONG , stepsek , k≤k′
+   = (k , WRONG) , finWRONG ,
      stepsEerr (Ecar hole) stepsek ,
      ≤-trans k≤k′ (≤-trans (n≤1+n ∥ e ∥) (≡->≤ ∥e∥≡s))
- ... | (k , inj₁ (v , valv)) , stepsek , k≤k′ with liststeplist valv stepsek tc₁
- ... | inj₁ stespenil
-   = (suc k , (inj₂ tt)) ,
-     scarnil stespenil ,
-     ≤-trans (s≤s k≤k′) (≡->≤ ∥e∥≡s) where
-     scarnil : ∀ {e k} ->
-       steps e (inj₁ (nil , nilval)) k ->
-       steps (car e) (inj₂ tt) (suc k)
-     scarnil (done .nilval) = dead (Scarnil (Dhole (car nil)))
-     scarnil (more stepee′ steps₁) = more (stepEnoerr (Ecar hole) stepee′) (scarnil steps₁)
- ... | inj₂ ((hd , tl , hdval , tlval) , stepsecons)
-   = (suc k , inj₁ (hd , hdval)) ,
-     scarcons stepsecons ,
-     ≤-trans (s≤s k≤k′) (≡->≤ ∥e∥≡s) where
-     scarcons : ∀ {e k} ->
-       steps e (inj₁ (cons hd tl , consval hd tl hdval tlval)) k ->
-       steps (car e) (inj₁ (hd , hdval)) (suc k)
-     scarcons (done .(consval _ _ _ _))
-       = more (Scar hdval tlval (Dhole _) (Dhole _))
-              (done hdval)
-     scarcons (more stepee′ steps₁)
-       = more (stepEnoerr (Ecar hole) stepee′) (scarcons steps₁)
+ ... | (k , eC v) , finVal valv , stepsek , k≤k′
+   with liststeplist valv stepsek tce
+ ... | inj₁ stepsenil
+   = (k + 1 , WRONG) , finWRONG ,
+      steps++ (stepsEeC (Ecar hole) stepsenil) (dead (Scarnil (Dhole _))) ,
+      ≤-trans (≡->≤ (+-comm k 1)) (≤-trans (s≤s k≤k′) (≡->≤ ∥e∥≡s))
+ ... | inj₂ ((hd , tl) , stepsecons , valhd , valtl)
+   = ((k + 1) , eC hd) , finVal valhd ,
+     steps++ (stepsEeC (Ecar hole) stepsecons)
+             (more (Scar valhd valtl (Dhole _) (Dhole _)) done) ,
+     ≤-trans (≡->≤ (+-comm k 1)) (≤-trans (s≤s k≤k′) (≡->≤ ∥e∥≡s))
 
- tstep (s , d) R {cdr e} (tcdr tc₁) ∥e∥≡s sizee≡d
-   with R _ (<<′-right (le-fact sizee≡d) (inj₂ (le-fact ∥e∥≡s))) tc₁ refl refl
- ... | (k , inj₂ tt) , stepsek , k≤k′
-     = (_ , inj₂ tt) ,
-       stepsEerr (Ecdr hole) stepsek ,
-       ≤-trans k≤k′ (≤-trans (n≤1+n ∥ e ∥) (≡->≤ ∥e∥≡s))
- ... | (k , inj₁ (v , valv)) , stepsek , k≤k′ with liststeplist valv stepsek tc₁
- ... | inj₁ stespenil
-   = (suc k , (inj₂ tt)) ,
-     scdrnil stespenil ,
-     ≤-trans (s≤s k≤k′) (≡->≤ ∥e∥≡s) where
-     scdrnil : ∀ {e k} ->
-       steps e (inj₁ (nil , nilval)) k ->
-       steps (cdr e) (inj₂ tt) (suc k)
-     scdrnil (done .nilval) = dead (Scdrnil (Dhole (cdr nil)))
-     scdrnil (more stepee′ steps₁) = more (stepEnoerr (Ecdr hole) stepee′) (scdrnil steps₁)
- ... | inj₂ ((hd , tl , hdval , tlval) , stepsecons)
-   = (suc k , inj₁ (tl , tlval)) ,
-     scdrcons stepsecons ,
-     ≤-trans (s≤s k≤k′) (≡->≤ ∥e∥≡s) where
-     scdrcons : ∀ {e k} ->
-       steps e (inj₁ (cons hd tl , consval hd tl hdval tlval)) k ->
-       steps (cdr e) (inj₁ (tl , tlval)) (suc k)
-     scdrcons (done .(consval _ _ _ _))
-       = more (Scdr hdval tlval (Dhole _) (Dhole _)) (done tlval)
-     scdrcons (more stepee′ steps₁)
-       = more (stepEnoerr (Ecdr hole) stepee′) (scdrcons steps₁)
+ tstep (s , d) R {cdr e} (tcdr tce) ∥e∥≡s sizee≡d
+    with R _ (<<′-right (le-fact sizee≡d) (inj₂ (le-fact ∥e∥≡s))) tce refl refl
+ ... | (k , WRONG) , finWRONG , stepsek , k≤k′
+   = (k , WRONG) , finWRONG ,
+     stepsEerr (Ecdr hole) stepsek ,
+     ≤-trans k≤k′ (≤-trans (n≤1+n ∥ e ∥) (≡->≤ ∥e∥≡s))
+ ... | (k , eC v) , finVal valv , stepsek , k≤k′
+   with liststeplist valv stepsek tce
+ ... | inj₁ stepsenil
+   = (k + 1 , WRONG) , finWRONG ,
+      steps++ (stepsEeC (Ecdr hole) stepsenil) (dead (Scdrnil (Dhole _))) ,
+      ≤-trans (≡->≤ (+-comm k 1)) (≤-trans (s≤s k≤k′) (≡->≤ ∥e∥≡s))
+ ... | inj₂ ((hd , tl) , stepsecons , valhd , valtl)
+   = ((k + 1) , eC tl) , finVal valtl ,
+     steps++ (stepsEeC (Ecdr hole) stepsecons)
+             (more (Scdr valhd valtl (Dhole _) (Dhole _)) done) ,
+     ≤-trans (≡->≤ (+-comm k 1)) (≤-trans (s≤s k≤k′) (≡->≤ ∥e∥≡s))
 
  tstep (s , d) R (tx ()) ∥e∥≡s sizee≡d
 
@@ -846,46 +817,38 @@ terminates = thm where
    with R _ (<<′-right (sum-strict-boundsl sizee≡d)
                        (inj₂ (sum-strict-boundsl ∥e∥≡s)))
           tc₁ refl refl
- ... | (k₁ , inj₂ tt) , stepse₁k₁ , k₁≤k₁′
-     = (k₁ , inj₂ tt) ,
-       stepsEerr (Ebind x hole e₂) stepse₁k₁ ,
-       ≤-trans k₁≤k₁′ (≤⇒pred≤ (suc ∥ e₁ ∥) s (≤′⇒≤ (sum-strict-boundsl{∥ e₁ ∥} ∥e∥≡s)))
- ... | (k₁ , inj₁ (v , valv)) , stepse₁k₁ , k₁≤k₁′
+ ... | (k₁ , WRONG) , finWRONG , stepse₁WRONG , k₁≤k₁′
+   = (k₁ , WRONG) , finWRONG ,
+     stepsEerr (Ebind x hole e₂) stepse₁WRONG ,
+     ≤-trans k₁≤k₁′ (weaken≤ (≤′⇒≤ (sum-strict-boundsl{∥ e₁ ∥} ∥e∥≡s)))
+ ... | (k₁ , eC v) , finVal valv , stepse₁k₁ , k₁≤∥e₁∥
    with R (∥ subst x e₂ valv ∥ , size (subst x e₂ valv))
           (<<′-left (sum-strict-boundsr{∥ e₁ ∥}
                        (trans (cong (λ { x₁ → suc (∥ e₁ ∥ + x₁) })
                                     (subst-preserves-size x e₂ valv))
                               ∥e∥≡s)))
           (substitution valv tc₂ (stepstc tc₁ stepse₁k₁)) refl refl
- ... | (k₂ , inj₁ (v₂ , valv₂)) , stepssubst , k₂≤∥substxe₂∥
-     = (suc (k₁ + k₂) , (inj₁ (v₂ , valv₂))) ,
-       stepsbind stepse₁k₁ ,
-       ≤-trans (s≤s (≤+≤ k₁≤k₁′ k₂≤∥substxe₂∥))
-               (≡->≤ (trans (cong (λ x₁ → suc (∥ e₁ ∥ + x₁))
-                            (subst-preserves-size x e₂ valv))
-                     ∥e∥≡s)) where
-       stepsbind : ∀ {e₁ k₁} ->
-         steps e₁ (inj₁ (v , valv)) k₁ ->
-         steps (bind x e₁ e₂) (inj₁ (v₂ , valv₂)) (suc (k₁ + k₂))
-       stepsbind (done _) = more (Sbind valv (Dhole _) (Dhole _))
-                                 stepssubst
-       stepsbind (more stepee′ stepse₁)
-          = more (stepEnoerr (Ebind x hole e₂) stepee′) (stepsbind stepse₁)
- ... | (k₂ , inj₂ tt) , stepssubst , k₂≤∥substxe₂∥
-     = (suc (k₁ + k₂) , (inj₂ tt)) ,
-       stepsbind stepse₁k₁ ,
-       ≤-trans (s≤s (≤+≤ k₁≤k₁′ k₂≤∥substxe₂∥))
-                    (≡->≤ (trans (cong (λ x₁ → suc (∥ e₁ ∥ + x₁))
-                                       (subst-preserves-size x e₂ valv))
-                                  ∥e∥≡s)) where
-       stepsbind : ∀ {e₁ k₁} ->
-         steps e₁ (inj₁ (v , valv)) k₁ ->
-         steps (bind x e₁ e₂) (inj₂ tt) (suc (k₁ + k₂))
-       stepsbind (done _) = more (Sbind valv (Dhole _) (Dhole _)) stepssubst
-       stepsbind (more stepee′ steps₁)
-        = more (stepEnoerr (Ebind x hole _) stepee′) (stepsbind steps₁)
+ ... | (k₂ , WRONG) , finWRONG , stepssubst , k₂≤∥substxe₂∥
+  = (k₁ + suc k₂ , WRONG) , finWRONG ,
+    steps++ (stepsEeC (Ebind x hole e₂) stepse₁k₁)
+            (more (Sbind valv (Dhole _) (Dhole _)) stepssubst) ,
+    ≤-trans (≡->≤ (+-suc k₁ k₂))
+            (≤-trans (s≤s (≤+≤ k₁≤∥e₁∥
+                               (≤-trans k₂≤∥substxe₂∥
+                                        (≡->≤ (subst-preserves-size x e₂ valv)))))
+                     (≡->≤ ∥e∥≡s))
+ ... | (k₂ , eC v′) , finVal valv′ , stepssubst , k₂≤∥substxe₂∥
+  = (k₁ + suc k₂ , (eC v′)) , finVal valv′ ,
+    steps++ (stepsEeC (Ebind x hole e₂) stepse₁k₁)
+            (more (Sbind valv (Dhole _) (Dhole _))
+                  stepssubst) ,
+    ≤-trans (≡->≤ (+-suc k₁ k₂))
+            (≤-trans (s≤s (≤+≤ k₁≤∥e₁∥
+                               (≤-trans k₂≤∥substxe₂∥
+                                        (≡->≤ (subst-preserves-size x e₂ valv)))))
+                     (≡->≤ ∥e∥≡s))
 
  thm :  ∀ {e τ} ->
    tc [] e τ ->
-   ∃ ( \ { (k′ , C) -> steps e C k′ × k′ ≤ ∥ e ∥ })
+   ∃ ( \ { (k′ , C) -> finishedConfig C × steps e C k′ × k′ ≤ ∥ e ∥ })
  thm tc = (<<′-rec _ tstep) _ tc refl refl
