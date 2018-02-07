@@ -50,7 +50,7 @@
       - Pre-reading: [Tov 2012, *Practical Programming with
         Substructural Types*][tov12], Chapter 2
 
-  - 02/22: student-led [TBA]
+  - 02/22: Dan & Ethan: Rust
 
   - 02/27: student-led [TBA]
 
@@ -78,7 +78,6 @@ Your grade will be based on three things:
 
   - Sasha & Meg: Swift
   - Chris H. & Jenny: intersection types
-  - Dan & Ethan: Rust
   - Chris K. & Shu-Hung: Is inheritance subtyping?
   - Jared, Nathan L. & John: C++ templates (and concepts)
   - Nathan S. & Spencer: ReactiveML
