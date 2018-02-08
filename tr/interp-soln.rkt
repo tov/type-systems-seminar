@@ -4,8 +4,8 @@
  racket/base
  [(<= racket/base:<=l) (All (α) (-> (U (Pairof Val Val) Boolean) Val α))]
  [(<= racket/base:<=r) (All (α) (-> Val (U (Pairof Val Val) Boolean) α))]
- [(+ racket/base:+l) (All (α) (-> Val (U (Pairof Val Val) Boolean) α))]
- [(+ racket/base:+r) (All (α) (-> (U (Pairof Val Val) Boolean) Val α))]
+ [(+ racket/base:+l) (All (α) (-> (U (Pairof Val Val) Boolean) Val α))] ;; l and r are backwards
+ [(+ racket/base:+r) (All (α) (-> Val (U (Pairof Val Val) Boolean) α))]
  [(car racket/base:car) (All (α) (-> (U Real Boolean) α))]
  [(cdr racket/base:cdr) (All (α) (-> (U Real Boolean) α))]
  [exn:fail:contract:variable-id (-> exn:fail:contract:variable Symbol)])
@@ -32,20 +32,20 @@
      (cond
        [(and (real? lhs-v) (real? rhs-v))
         (+ lhs-v rhs-v)]
+       [(real? lhs-v)
+        (racket/base:+r lhs-v rhs-v)]
        [else
-        (if (real? lhs-v)
-            (racket/base:+l lhs-v rhs-v)
-            (racket/base:+r lhs-v rhs-v))])]
+        (racket/base:+l lhs-v rhs-v)])]
     [(less lhs rhs)
      (define lhs-v (letzl-eval lhs))
      (define rhs-v (letzl-eval rhs))
      (cond
        [(and (real? lhs-v) (real? rhs-v))
         (<= lhs-v rhs-v)]
+       [(real? lhs-v)
+        (racket/base:<=r lhs-v rhs-v)]
        [else
-        (if (real? lhs-v)
-            (racket/base:<=r lhs-v rhs-v)
-            (racket/base:<=l lhs-v rhs-v))])]
+        (racket/base:<=l lhs-v rhs-v)])]
     [(bind var rhs body)
      (letzl-eval (subst var (letzl-eval rhs) body))]
     [(ifte tst thn els)
@@ -135,28 +135,29 @@
     [(hd e) `(car ,(to-racket e))]
     [(tl e) `(cdr ,(to-racket e))]))
 
+(: random-item (All (a) (-> (Pairof a (Listof a)) a)))
+(define (random-item choices)
+  (list-ref choices (random (length choices))))
+
 (define-syntax-rule
   (random-case e ...)
   ((random-item (list (λ () e) ...))))
-
-(: random-item (All (a) (-> (Listof a) a)))
-(define (random-item choices)
-  (list-ref choices (random (length choices))))
 
 (: random-bool (-> Boolean))
 (define (random-bool) (random-item (list #f #t)))
 
 (: random-var (-> (Setof String) String))
 (define (random-var vars)
-  (if (or (set-empty? vars)
+  (define var-list (set->list vars))
+  (if (or (not (pair? vars))
           (zero? (random 10)))
       (random-string)
-      (random-item (set->list vars))))
+      (random-item var-list)))
 
 (: random-string (-> String))
 (define (random-string) (apply string (random-list-of-chars)))
 
-(: random-list-of-chars (-> (Listof Char)))
+(: random-list-of-chars (-> (Pairof Char (Listof Char))))
 (define (random-list-of-chars)
   (if (zero? (random 3))
       (list (random-char))
