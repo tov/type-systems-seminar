@@ -2,6 +2,9 @@
 
 #|
 
+Below is an implementation of an interpreter for an
+untyped variant of let-zl (ut-letzl-eval).
+
 Problem: change the definitions of Expr and Val to be:
 
 (define-type Expr (U Real Boolean sum less bind ifte String
@@ -13,13 +16,13 @@ and add:
 (struct hd ([pr : Expr]) #:transparent)
 (struct tl ([pr : Expr]) #:transparent)
 
-The idea is that a pair of expressions represents an expression
-that pairs together its arguments and that the `hd` and `tl`
-structs represent `car` and `cdr`.
+The idea is that a pair of expressions represents an
+expression that pairs together its arguments and that the
+`hd` and `tl` structs represent `car` and `cdr`.
 
-This will trigger a bunch of type errors. Fix them and
-add these subexpressions to the second `random-case`
-in the body of `random-expr`
+This will trigger a bunch of type errors. Fix them and add
+these subexpressions to the second `random-case` in the body
+of `random-expr`
 
       (cons (random-expr (- depth 1) vars)
             (random-expr (- depth 1) vars))
@@ -28,8 +31,53 @@ in the body of `random-expr`
 
       (tl (random-expr (- depth 1) vars))
 
-(which will trigger it to generate expressions with those forms in it).
-That will probably cause some random test case failures. Fix them.
+(which will trigger it to generate expressions with those
+forms in it).  That will probably cause some random test
+case failures. Fix them.
+
+Note that this is some funny business happening in
+letzl-eval in the case for addition and less-than. Here's
+how to get your head around it. First, note that there is
+some random testing at the end of the file. The function
+`check-evals` compares the output of the untyped letzl
+interpreter with Racket's output and complains if they are
+different. It does this by calling `racket-safe-eval` and
+`ut-letzl-safe-eval`. These evaluators run racket's
+evaluator and ut-letzl-eval, but catch all exceptions. If an
+exception is raised, they return the error message in the
+exception. So this means that if you evaluate
+
+  (sum #f 3)
+
+in the letzl interpreter, it is expected to produce an error
+message with the exact same text as this expression:
+
+  (+ #f 3)
+
+And, as you can see, it is not a simple error message. And
+in typed/racket, the + operation does accepts only
+numbers. So the `require/typed` just below here pulls in the
+raw, racket/base version of + (and less than), giving it two
+different types:
+
+  (All (α) (-> Boolean Val α))
+
+and
+
+  (All (α) (-> Val Boolean α))
+
+As we know from our study of polymorphism, this is a very
+strange type.  How can this function produce an α if it has
+not been given one? Well, simple: it can't. This means that
+is must either not terminate or raise an exception (or throw
+to another continuation, but lets not worry about that).  In
+this particular case, it turns out that it will raise an
+exception. Because the + operation raises an error when it
+gets a boolean as the second argument.
+
+Now, we exploit the magic of typed racket's type system to
+use racket/base:+r and racket/base:+l in order to get the
+right error message in order to satisfy the random tester.
 
 |#
 
