@@ -37,7 +37,7 @@ That will probably cause some random test case failures. Fix them.
  racket/base
  [(<= racket/base:<=l) (All (α) (-> Boolean Val α))]
  [(<= racket/base:<=r) (All (α) (-> Val Boolean α))]
- [(+ racket/base:+l) (All (α) (-> Boolean Val α))] ;; l and r are backwards
+ [(+ racket/base:+l) (All (α) (-> Boolean Val α))]
  [(+ racket/base:+r) (All (α) (-> Val Boolean α))]
  [exn:fail:contract:variable-id (-> exn:fail:contract:variable Symbol)])
 
@@ -48,15 +48,15 @@ That will probably cause some random test case failures. Fix them.
 (struct bind ([var : String] [thn : Expr] [els : Expr]) #:transparent)
 (struct ifte ([tst : Expr] [thn : Expr] [els : Expr]) #:transparent)
 
-(: letzl-eval (-> Expr Val))
-(define (letzl-eval e)
+(: ut-letzl-eval (-> Expr Val))
+(define (ut-letzl-eval e)
   (match e
     [(? real?) e]
     [(? boolean?) e]
     [(? string?) (error 'eval "free variable: ~a" e)]
     [(sum lhs rhs)
-     (define lhs-v (letzl-eval lhs))
-     (define rhs-v (letzl-eval rhs))
+     (define lhs-v (ut-letzl-eval lhs))
+     (define rhs-v (ut-letzl-eval rhs))
      (cond
        [(and (real? lhs-v) (real? rhs-v))
         (+ lhs-v rhs-v)]
@@ -65,8 +65,8 @@ That will probably cause some random test case failures. Fix them.
        [else
         (racket/base:+l lhs-v rhs-v)])]
     [(less lhs rhs)
-     (define lhs-v (letzl-eval lhs))
-     (define rhs-v (letzl-eval rhs))
+     (define lhs-v (ut-letzl-eval lhs))
+     (define rhs-v (ut-letzl-eval rhs))
      (cond
        [(and (real? lhs-v) (real? rhs-v))
         (<= lhs-v rhs-v)]
@@ -75,14 +75,14 @@ That will probably cause some random test case failures. Fix them.
        [else
         (racket/base:<=l lhs-v rhs-v)])]
     [(bind var rhs body)
-     (letzl-eval (subst var (letzl-eval rhs) body))]
+     (ut-letzl-eval (subst var (ut-letzl-eval rhs) body))]
     [(ifte tst thn els)
-     (define tst-v (letzl-eval tst))
+     (define tst-v (ut-letzl-eval tst))
      (cond
        [(boolean? tst-v)
         (if tst-v
-            (letzl-eval thn)
-            (letzl-eval els))]
+            (ut-letzl-eval thn)
+            (ut-letzl-eval els))]
        [else (error 'eval "if got a non-boolean in the test position")])]))
 
 (: subst (-> String Val Expr Expr))
@@ -102,10 +102,10 @@ That will probably cause some random test case failures. Fix them.
            (subst x v thn)
            (subst x v els))]))
 
-(: letzl-safe-eval (-> Expr (U Val String)))
-(define (letzl-safe-eval expr)
+(: ut-letzl-safe-eval (-> Expr (U Val String)))
+(define (ut-letzl-safe-eval expr)
   (with-handlers ([exn:fail? exn-message])
-    (letzl-eval expr)))
+    (ut-letzl-eval expr)))
 
 (define ns (make-base-namespace))
 
@@ -145,7 +145,7 @@ That will probably cause some random test case failures. Fix them.
             ,(to-racket els)))]))
 
 
-(: random-item (All (a) (-> (Pairof a (Listof a)) a)))
+(: random-item (All (α) (-> (Pairof α (Listof α)) α)))
 (define (random-item choices)
   (list-ref choices (random (length choices))))
 
@@ -159,7 +159,7 @@ That will probably cause some random test case failures. Fix them.
 (: random-var (-> (Setof String) String))
 (define (random-var vars)
   (define var-list (set->list vars))
-  (if (or (not (pair? vars))
+  (if (or (empty? var-list)
           (zero? (random 10)))
       (random-string)
       (random-item var-list)))
@@ -207,7 +207,7 @@ That will probably cause some random test case failures. Fix them.
 (: check-evals (-> Expr Void))
 (define (check-evals expr)
   (define vr (racket-safe-eval expr))
-  (define vl (letzl-safe-eval expr))
+  (define vl (ut-letzl-safe-eval expr))
   (unless (equal? vr vl)
     (error 'different!
            "\n  ~a\n  produced different results (racket first, letzl second)\n   ~a\n   ~a"

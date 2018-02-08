@@ -4,7 +4,7 @@
  racket/base
  [(<= racket/base:<=l) (All (α) (-> (U (Pairof Val Val) Boolean) Val α))]
  [(<= racket/base:<=r) (All (α) (-> Val (U (Pairof Val Val) Boolean) α))]
- [(+ racket/base:+l) (All (α) (-> (U (Pairof Val Val) Boolean) Val α))] ;; l and r are backwards
+ [(+ racket/base:+l) (All (α) (-> (U (Pairof Val Val) Boolean) Val α))]
  [(+ racket/base:+r) (All (α) (-> Val (U (Pairof Val Val) Boolean) α))]
  [(car racket/base:car) (All (α) (-> (U Real Boolean) α))]
  [(cdr racket/base:cdr) (All (α) (-> (U Real Boolean) α))]
@@ -20,15 +20,15 @@
 (struct hd ([pr : Expr]) #:transparent)
 (struct tl ([pr : Expr]) #:transparent)
 
-(: letzl-eval (-> Expr Val))
-(define (letzl-eval e)
+(: ut-letzl-eval (-> Expr Val))
+(define (ut-letzl-eval e)
   (match e
     [(? real?) e]
     [(? boolean?) e]
     [(? string?) (error 'eval "free variable: ~a" e)]
     [(sum lhs rhs)
-     (define lhs-v (letzl-eval lhs))
-     (define rhs-v (letzl-eval rhs))
+     (define lhs-v (ut-letzl-eval lhs))
+     (define rhs-v (ut-letzl-eval rhs))
      (cond
        [(and (real? lhs-v) (real? rhs-v))
         (+ lhs-v rhs-v)]
@@ -37,8 +37,8 @@
        [else
         (racket/base:+l lhs-v rhs-v)])]
     [(less lhs rhs)
-     (define lhs-v (letzl-eval lhs))
-     (define rhs-v (letzl-eval rhs))
+     (define lhs-v (ut-letzl-eval lhs))
+     (define rhs-v (ut-letzl-eval rhs))
      (cond
        [(and (real? lhs-v) (real? rhs-v))
         (<= lhs-v rhs-v)]
@@ -47,23 +47,23 @@
        [else
         (racket/base:<=l lhs-v rhs-v)])]
     [(bind var rhs body)
-     (letzl-eval (subst var (letzl-eval rhs) body))]
+     (ut-letzl-eval (subst var (ut-letzl-eval rhs) body))]
     [(ifte tst thn els)
-     (define tst-v (letzl-eval tst))
+     (define tst-v (ut-letzl-eval tst))
      (cond
        [(boolean? tst-v)
         (if tst-v
-            (letzl-eval thn)
-            (letzl-eval els))]
+            (ut-letzl-eval thn)
+            (ut-letzl-eval els))]
        [else (error 'eval "if got a non-boolean in the test position")])]
-    [(cons hd tl) (cons (letzl-eval hd) (letzl-eval tl))]
+    [(cons hd tl) (cons (ut-letzl-eval hd) (ut-letzl-eval tl))]
     [(hd pr)
-     (define v (letzl-eval pr))
+     (define v (ut-letzl-eval pr))
      (if (pair? v)
          (car v)
          (racket/base:car v))]
     [(tl pr)
-     (define v (letzl-eval pr))
+     (define v (ut-letzl-eval pr))
      (if (pair? v)
          (cdr v)
          (racket/base:cdr v))]))
@@ -90,10 +90,10 @@
     [(hd e) (hd (subst x v e))]
     [(tl e) (tl (subst x v e))]))
 
-(: letzl-safe-eval (-> Expr (U Val String)))
-(define (letzl-safe-eval expr)
+(: ut-letzl-safe-eval (-> Expr (U Val String)))
+(define (ut-letzl-safe-eval expr)
   (with-handlers ([exn:fail? exn-message])
-    (letzl-eval expr)))
+    (ut-letzl-eval expr)))
 
 (define ns (make-base-namespace))
 
@@ -135,7 +135,7 @@
     [(hd e) `(car ,(to-racket e))]
     [(tl e) `(cdr ,(to-racket e))]))
 
-(: random-item (All (a) (-> (Pairof a (Listof a)) a)))
+(: random-item (All (α) (-> (Pairof α (Listof α)) α)))
 (define (random-item choices)
   (list-ref choices (random (length choices))))
 
@@ -149,7 +149,7 @@
 (: random-var (-> (Setof String) String))
 (define (random-var vars)
   (define var-list (set->list vars))
-  (if (or (not (pair? vars))
+  (if (or (empty? var-list)
           (zero? (random 10)))
       (random-string)
       (random-item var-list)))
@@ -201,7 +201,7 @@
 (: check-evals (-> Expr Void))
 (define (check-evals expr)
   (define vr (racket-safe-eval expr))
-  (define vl (letzl-safe-eval expr))
+  (define vl (ut-letzl-safe-eval expr))
   (unless (equal? vr vl)
     (error 'different!
            "\n  ~a\n  produced different results (racket first, letzl second)\n   ~a\n   ~a"
