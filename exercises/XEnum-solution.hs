@@ -1,5 +1,10 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
+{-
+ - SPOILER ALERT!
+ - This is the solution. Don’t look here! Try it on your own.
+ -}
+
 module XEnum where
 
 import Test.QuickCheck
