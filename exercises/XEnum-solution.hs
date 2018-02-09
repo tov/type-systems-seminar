@@ -5,10 +5,14 @@
  - This is the solution. Don’t look here! Try it on your own.
  -}
 
-module XEnum where
+module Main where
 
 import Test.QuickCheck
 import Numeric.Natural
+
+instance Arbitrary Natural where
+  arbitrary = arbitrarySizedNatural
+  shrink    = shrinkIntegral
 
 class XEnum a where
   into  :: a -> Natural
@@ -82,7 +86,7 @@ instance Arbitrary a => Arbitrary (NElist a) where
     return (toNElist hd tl)
 
 instance XEnum a => XEnum (NElist a) where
-  into (NELast a)   = into (Left a             :: Either a (a, Natural))
+  into (NELast a)   = into (Left a            :: Either a (a, Natural))
   into (NECons a b) = into (Right (a, into b) :: Either a (a, Natural))
 
   outof n = f (outof n) where
