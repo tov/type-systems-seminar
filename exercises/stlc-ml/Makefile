@@ -11,7 +11,7 @@ STLCS = $(wildcard tests/*.stlc)
 OUTS  = $(subst .stlc,.out,$(STLCS))
 TESTS = $(subst .stlc,.test,$(STLCS))
 
-%.test: %.out %.stlc $(TARGET)
+%.test: %.stlc $(TARGET)
 	./$(TARGET) < $*.stlc | diff $*.out -
 
 test: $(TESTS)
