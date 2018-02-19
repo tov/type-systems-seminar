@@ -187,4 +187,3 @@ that functions can now play the role of
 but always returning only a type. Various other restrictions
 in this spirit correspond to various other type systems in
 the literature.
-

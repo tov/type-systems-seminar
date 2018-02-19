@@ -5,10 +5,10 @@
 (define-language λcube
   (a A b B c C F e τ ::=
      x
-     (λ (x : e) e)
+     (λ (x : τ) e)
      (ap e e)
      s
-     (x : e → e))
+     (x : τ → τ))
   (x y α β ::= variable-not-otherwise-mentioned)
   (s ::= * □)
   (Γ ::= • (extend Γ x A))
