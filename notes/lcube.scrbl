@@ -21,15 +21,15 @@
 
 The @λcube provides a systematic organization of types
 systems that captures a range of expressiveness, from the
-simply-typed lambda calculus (in @secref["sec:stlc"]) though
+simply-typed lambda calculus (in @secref["sec:stlc"]) through
 the polymorphic lambda calculus (in @secref["sec:sysf"]), the
 higher-order lambda calculus (in @secref["sec:fomega"]), and
-up to λC, the calculus of construction (which is the focus
-of this section).
+up to λC, the calculus of constructions, which is the focus
+of this section.
 
 @section[#:tag "lcube-syntax"]{Syntax}
 
-The basic idea of the structure is to eliminate the distinction
+The basic idea of the structure of the λ cube is to eliminate the distinction
 between types and terms and then use typing judgments
 to control which classes of expression are allowed in type
 positions. To get started, we first just get rid of the
@@ -45,12 +45,14 @@ up. That is, it represents the type of kinds or, expressions
 that have the type @term[□] are expressions that themselves
 compute kinds.
 
-The final expression form, @term[Π], represents function
+The final expression form, @term[→], represents function
 types, but it is dependent. In its simplest form, the type
-@term[(Π (x : τ_1) τ_2)] (where @term[x] does not appear
-free in @term[τ_2]) represents functions from @term[τ_1] to
-@term[τ_2].
-
+@term[(x : τ_1 → τ_2)], where @term[x] does not appear
+free in @term[τ_2], represents functions from @term[τ_1] to
+@term[τ_2]. In general, however, the variable @term[x] can appear
+free in @term[τ_2], meaning that the type of the result of the
+function can depend on the argument actually supplied to the
+function.
 
 This notation specializes to the earlier type systems we
 considered; as an example, recall the function composition
@@ -75,8 +77,8 @@ in @|λcube|:
    (λ (a1 : *)
      (λ (a2 : *)
        (λ (a3 : *)
-         (λ (x1 : (Π (i2 : a2) a3))
-           (λ (x2 : (Π (i1 : a1) a2))
+         (λ (x1 : (i2 : a2 → a3))
+           (λ (x2 : (i1 : a1 → a2))
              (λ (y : a1)
                (ap x1 (ap x2 y)))))))))
 
@@ -97,7 +99,7 @@ Here it is:
      (λ (x : α)
        x)))
 
-@(define id-type (redex:term (Π (α : *) (Π (x : α) α))))
+@(define id-type (redex:term (α : * → (x : α → α))))
 @(define id-types (redex:judgment-holds (r:types • ,id-term any) any))
 
 @(unless (and id-types (= 1 (length id-types)))
@@ -115,10 +117,10 @@ with the lowercase λ and adding a @term[*]. But consider its type:
 @(term->pict/pretty-write r:λcube id-type)
 
 This is a type that cannot be expressed with just the arrow. Or, in
-other words, this is a type where the variable bound by the outer
-@term[Π] is used in its body. It is the same as the type
+other words, this is a dependent type because the variable bound by the outer
+function type is used in its body. It is the same as the type
 @term[(all α (-> α α)) #:lang sysf:λ-2]
-but we can use @term[Π] for both the function type and for the
+but we can use @term[→] for both the function type and for the
 @term[all #:lang sysf:λ-2] type.
 
 @section[#:tag "lcube-types"]{Typing Rules}
@@ -132,8 +134,8 @@ and then we have what appears to be the standard variable rule:
 but note the premise that ensures that the environment is well-formed.
 In earlier type systems, that was a self-contained check that
 the types were well-formed. Now, because we have eliminated
-the distinction between types and terms, it simply uses the typing
-judgment:
+the distinction between types and terms, it uses the typing
+judgment itself:
 @render-judgment-rules/horiz[r:env-ok "nil" "cons"]
 
 The application rule handles all forms of abstraction:
@@ -141,15 +143,15 @@ The application rule handles all forms of abstraction:
 something like a combination of the application and type
 application rule from λ-2. Like the normal function
 application rule, we make sure that the two subexpressions
-have appropriate types: one a function (which is now a
-@term[\Pi] type) and one a matching argument type (the type
-in the parameter of the @term[\Pi]). Like the type
+have appropriate types: one a function
+and one a matching argument type (the type
+in the parameter of the function type). Like the type
 application rule, however, we perform a substitution,
 computing the type of the result of the function based on
 the argument that was actually supplied.
 
-Sometimes, the type @term[A_1] that we get on the
-function is different than the type @term[A_1] on the
+Sometimes, the type @term[A] that we get on the
+function is different than the type @term[A] on the
 argument. This rule allows us to do some computation
 in order to make two such types match up to each other,
 where the @term[≡] relation allows us to perform
@@ -163,10 +165,10 @@ argument has the type on the @term[λ]. The second
 premise ensures that the type that we get for the
 result itself makes sense.
 
-The final rule covers @term[Π] expressions.
+The final rule covers function type expressions.
 @render-judgment-rules[r:types "λC"] This version allows
 either @term[*] or @term[□] for both the argument and the
-result type and this generality allows us to capture the
+result type. This generality allows us to capture the
 full Calculus of Constructions, which forms the basis for
 the theorem proving system Coq.
 
@@ -182,4 +184,7 @@ but restrict @term[s_2] so it can be only @term[*], we get
 the polymorphic lambda calculus, @langname[λ-2]. This means
 that functions can now play the role of
 @term[all #:lang sysf:λ-2], expressions, accepting types,
-but always returning only a type.
+but always returning only a type. Various other restrictions
+in this spirit correspond to various other type systems in
+the literature.
+
