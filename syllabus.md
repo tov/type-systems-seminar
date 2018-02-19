@@ -51,6 +51,7 @@
         Substructural Types*][tov12], Chapter 2
 
   - 02/22: Dan & Ethan: Rust
+      - Pre-reading: [Tov 2012, *Practical Programming with Substructural Types*][tov12], Chapter 2, up to page 10, with particular emphasis on the typing rules on page 10.
 
   - 02/27: Jennie & Chris H.: intersection types
 
