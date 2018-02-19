@@ -56,13 +56,13 @@
 
   - 03/01: Chris K. & Shu-Hung: Is inheritance subtyping?
 
-  - 03/06: student-led [TBA]
+  - 03/06: Sasha & Meg: Swift
 
-  - 03/08: student-led [TBA]
+  - 03/08: Nathan S. & Spencer: ReactiveML
 
-  - 03/13: student-led [TBA]
+  - 03/13: Sarah & Josh: JavaScript types
 
-  - 03/15: student-led [TBA]
+  - 03/15: Jared, Nathan L. & John: C++ templates (and concepts)
 
 ## Grading
 
@@ -74,15 +74,9 @@ Your grade will be based on three things:
 
   - The class that you lead (final presentation)
 
-### Actual presentations and teams
+## Presentations
 
-  - Sasha & Meg: Swift
-  - Chris H. & Jennie: intersection types
-  - Jared, Nathan L. & John: C++ templates (and concepts)
-  - Nathan S. & Spencer: ReactiveML
-  - Sarah & Josh: JavaScript types
-
-### Presentation guidelines:
+### Presentation guidelines
 
 To prepare for your presentation, plan to meet with us twice, once two
 weeks before your presentation and once one week before your
@@ -114,7 +108,7 @@ or just generally because designing good exercises isn't trivial.
 Based on how it goes when you show us the materials in the first
 meeting, we'll set you specific goals for the second meeting.
 
-### Suggested presentation topics:
+### Suggested presentation topics
 
   - Extensible records and variants
   - Mixing Hindley-Milner and System F
