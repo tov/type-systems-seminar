@@ -127,7 +127,7 @@ twoiseven = AddingTwo zero ZeroIsEven
 Since this tree is, um, a tree, we can write functions that consume
 it. Since this tree is a proof, those functions are also proofs! A
 function as a proof is an implication (maybe you could have guessed
-that from the arrow?
+that from the arrow?).
 
 -}
 
@@ -142,10 +142,11 @@ sumofevens .(S (S n)) m (AddingTwo n evenn) evenm
 
 {-
 
- there are two different, both natural ways to define less than on
- natural numbers. One where the "base case" is that zero is less than
- everything and the other is where every number is less than
- itself. Lets set them up and prove they are equivalent to each other
+ there are two different, natural ways to define a less than operator
+ on natural numbers. One where the "base case" is that zero is less
+ than everything and the other has the base cases where every number
+ is less than itself. Lets set them up and prove they are equivalent
+ to each other.
 
 -}
 

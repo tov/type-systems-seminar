@@ -1,0 +1,108 @@
+This file contains a typing derivation for the term
+
+    (lambda (x : T) (if (number? x) #t (string? x)))
+
+in the empty environment.
+
+Each section is meant to be seen separately and there are connections between
+the section that show where subderivations are plugged into the overall structure.
+The names [TEST], [THEN], [ELSE], and [RMFF] are the places where subderivations
+get plugged in. In the case of using the T-Subsume rule, premises that
+do not cause a change in the consequent are not written out.
+
+=== definition of the delta function used in the derivation ==================
+
+
+                          Ny | ~Ny
+delta(number?) = y : T -------------> B
+
+                          Sy | ~Sy
+delta(string?) = y : T -------------> B
+
+
+=== main derivation ============================================================
+
+[TEST] Tx |- (number? x) : B ; Nx | ~Nx ; ∅
+[THEN] Tx , Nx |- #t : #t ; Nx | ff ; ∅
+[ELSE] Tx , ~Nx |- (string? x) : B ; Sx | ~Nx /\ ~Sx ; ∅ 
+
+----------------------------------------------------------------------------- [T-If]
+Tx |- (if (number? x) #t (string? x)) : Nx \/ Sx | ff \/ ~Nx /\ ~Sx ; ∅                 [RMFF]
+
+------------------------------------------------------------------------------------------------- [T-Subsume]
+Tx |- (if (number? x) #t (string? x)) : Nx \/ Sx | ~Nx /\ ~Sx ; ∅
+
+----------------------------------------------------------------------------- [T-Abs]
+<> |- (lambda (x : T) (if (number? x) #t (string? x)))
+
+   :
+           Nx \/ Sx | ~Nx /\ ~Sx
+   x : T ------------------------> B ; tt | ff ; ∅
+                    ∅
+
+
+
+=== [TEST] subderivation ============================================================
+(In this section, the sub derivations [1] and [2] are written separately)
+
+                             Ny | ~Ny
+[1]: Tx |- number? : y : T ------------> B  ; tt | ff ; ∅   [T-Const]
+
+
+[2]: Tx |- x : T ; ~#f_x | #f_x ; x    [T-Var]
+
+
+           [1]      [2]
+------------------------------------  [T-App]
+Tx |- (number? x) : B ; Nx | ~Nx ; ∅
+
+
+
+
+=== [THEN] subderivation ============================================================
+
+
+------------------------------- [T-True]          -------------------- [L-Atom]
+Tx , Nx |- #t : #t ; tt | ff ; ∅                   Tx , Nx , tt |- Nx
+
+----------------------------------------------------------------------- [T-subsume]
+                  Tx , Nx |- #t : #t ; Nx | ff ; ∅
+
+
+=== [ELSE] subderivation ============================================================
+
+(In this section, the sub derivations [1], [2], and [3] are written separately)
+
+                                    Sy | ~Sy
+[1]: Tx ; ~Nx |- string? : y : T ------------> B  ; tt | ff ; ∅   [T-Const]
+
+
+[2]: Tx ; ~Nx |- x : T ; ~#f_x | #f_x ; x    [T-Var]
+
+
+
+    ----------------------- [L-Atom]         ----------------------- [L-Atom]
+     Tx ; ~Nx ; ~Sx |-  ~Nx                   Tx ; ~Nx ; ~Sx |-  ~Nx 
+
+    ----------------------------------------------------------------- [L-AndI]
+[3]:                  Tx ; ~Nx ; ~Sx |-  ~Nx /\ ~Sx 
+
+
+
+
+          [1]       [2]
+-----------------------------------------  [T-App]
+Tx ; ~Nx |- (string? x) : B ; Sx | ~Sx ; ∅             [3]
+
+---------------------------------------------------------------  [T-Subsume]
+Tx ; ~Nx |- (string? x) : B ; Sx | ~Nx /\ ~Sx ; ∅ 
+
+
+=== [RMFF] subderivation ============================================================
+
+
+-----------------------[L-False]    ---------------------------------- [L-Atom]
+Tx ; ff |- (~Nx /\ ~Sx)              Tx ; (~Nx /\ ~Sx) |- (~Nx /\ ~Sx)
+
+------------------------------------------------------------------------[L-OrE]
+   Tx ; ff \/ (~Nx /\ ~Sx) |- (~Nx /\ ~Sx)

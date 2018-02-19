@@ -191,13 +191,20 @@ upward.
 
 @exercise{
  Use Haskell's type classes to implement bijections
- between the natural numbers lists.}
+ between the natural numbers and lists.}
 
-To get started,
- install @tt{ghc} (and be sure that QuickCheck is installed,
- perhaps by issuing the command @tt{cabal install quickcheck}).
- 
- Here are some declarations to get started:
+To get started, install @tt{ghc} (and be sure that
+QuickCheck is installed, perhaps by issuing the command
+@tt{cabal install quickcheck}).
+Put your code in @tt{XEnum.hs} and
+use @tt{ghc -o XEnum XEnum.hs && ./XEnum} to run your code.
+@margin-note{Because Haskell is
+whitespace-sensitive, copying code from webpages is fraught;
+accordingly the declarations in the code below are all in
+@hyperlink["https://raw.githubusercontent.com/tov/type-systems-seminar/master/exercises/XEnum.hs"]{XEnum.hs}}
+
+ Here are some declarations to get started, along
+with an explanation of them.
  @verbatim{
 
 @"{"-# LANGUAGE ScopedTypeVariables #-@"}"

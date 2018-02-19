@@ -5,17 +5,17 @@
 (define-language λcube
   (a A b B c C F e τ ::=
      x
-     (λ (x : e) e)
+     (λ (x : τ) e)
      (ap e e)
-     (Π (x : e) e)
-     s)
+     s
+     (x : τ → τ))
   (x y α β ::= variable-not-otherwise-mentioned)
   (s ::= * □)
   (Γ ::= • (extend Γ x A))
 
   #:binding-forms
   (λ (x : e_1) e_2 #:refers-to x)
-  (Π (x : e_1) e_2 #:refers-to x))
+  (x : e_1 → e_2 #:refers-to x))
 
 (module+ test (default-language λcube))
 
@@ -37,24 +37,24 @@
    ------------------------ "variable"
    (types Γ x (lookup Γ x))]
 
-  [(types Γ F (Π (x : A_1) B)) (types Γ a A_1)
-   ------------------------------------------- "application"
+  [(types Γ F (x : A → B)) (types Γ a A)
+   ------------------------------------- "application"
    (types Γ (ap F a) (substitute B x a))]
 
   ;; the application rule is the only place where we
   ;; have two subderivations that produce terms that
   ;; have to be the same, so we bake conversion in
-  [(types Γ F (Π (x : A_1) B)) (types Γ a A_2) (≡ A_1 A_2)
-   ------------------------------------------------------- "application + conversion"
+  [(types Γ F (x : A_1 → B)) (types Γ a A_2) (≡ A_1 A_2)
+   ----------------------------------------------------- "application + conversion"
    (types Γ (ap F a) (substitute B x a))]
 
-  [(types (extend Γ x A) b B) (types Γ (Π (x : A) B) s)
+  [(types (extend Γ x A) b B) (types Γ (x : A → B) s)
    ---------------------------------------------------- "abstraction"
-   (types Γ (λ (x : A) b) (Π (x : A) B))]
+   (types Γ (λ (x : A) b) (x : A → B))]
 
   [(types Γ A s_1) (types (extend Γ x A) B s_2)
    -------------------------------------------- "λC"
-   (types Γ (Π (x : A) B) s_2)])
+   (types Γ (x : A → B) s_2)])
 
 (define-judgment-form λcube
   #:mode (env-ok I)
@@ -84,10 +84,6 @@
    e]
   [(lookup (extend Γ y e) x)
    (lookup Γ x)])
-
-(define-metafunction λcube
-  [(→ A B)
-   (Π (x : A) B)])
 
 (define-judgment-form λcube
   #:mode (≡ I I)
@@ -127,18 +123,18 @@
   ;; 1.
 
   (test-judgment-holds
-   (types (extend • A *) (Π (x : A) A) *))
+   (types (extend • A *) (x : A → A) *))
 
   (test-judgment-holds
-   (types (extend • A *) (λ (a : A) a) (Π (x : A) A)))
+   (types (extend • A *) (λ (a : A) a) (x : A → A)))
 
   (test-judgment-holds
    (types (extend (extend (extend • A *) B *) b B)
           (λ (a : A) b)
-          (Π (a : A) B)))
+          (a : A → B)))
 
   (test-judgment-holds
-   (types (extend • α *) (λ (a : α) a) (Π (x : α) α)))
+   (types (extend • α *) (λ (a : α) a) (x : α → α)))
 
   (test-judgment-holds
    (types (extend (extend (extend (extend • A *) B *) c A) b B)
@@ -148,23 +144,23 @@
   (test-judgment-holds
    (types (extend (extend • A *) B *)
           (λ (a : A) (λ (b : B) a))
-          (Π (a : A) (Π (b : B) A)))))
+          (a : A → (b : B → A)))))
 
 ;; 2.
 
 (module+ test
   (test-judgment-holds
-   (types (extend • α *) (λ (a : α) a) (Π (a : α) α)))
+   (types (extend • α *) (λ (a : α) a) (a : α → α)))
 
   (test-judgment-holds
    (types •
           (λ (α : *) (λ (a : α) a))
-          (Π (α : *) (Π (a : α) α))))
+          (α : * → (a : α → α))))
 
   (test-judgment-holds
    (types (extend • A *)
           (ap (λ (α : *) (λ (a : α) a)) A)
-          (Π (a : A) A)))
+          (a : A → A)))
 
   (test-judgment-holds
    (types (extend (extend • A *) b A)
@@ -173,15 +169,15 @@
 
   (test-judgment-holds
    (types •
-          (λ (β : *) (λ (a : (Π (α : *) α)) (ap (ap a (→ (Π (α : *) α) β)) a)))
-          (Π (β : *) (Π (x : (Π (α : *) α)) β)))))
+          (λ (β : *) (λ (a : (α : * → α)) (ap (ap a (i : (α : * → α) → β)) a)))
+          (β : * → (x : (α : * → α) → β)))))
 
 
 (module+ test
   (test-equal
    (judgment-holds
     (types •
-           (λ (x : *) (λ (x : (Π (x : *) x)) x))
+           (λ (x : *) (λ (x : (x : * → x)) x))
            any)
     any)
-   (list (term (Π (x : *) (Π (x : (Π (x : *) x)) (Π (x : *) x)))))))
+   (list (term (x : * → (x : (x : * → x) → (x : * → x)))))))
