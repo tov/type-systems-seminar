@@ -17,6 +17,9 @@ on Martin-Löf type theory, a predecessor of it.)
 
 open import Relation.Binary.PropositionalEquality
   using (_≡_ ; refl ; sym ; cong ; trans)
+open import Relation.Nullary
+  using (¬_)
+
 
 {- 
 
@@ -82,6 +85,42 @@ addcomm (S a) (S b) =
 
 {-
 
+We can also prove that Ethan's definition of `add` is the same
+as the one above. First we define it:
+
+-}
+
+Eadd : Nat -> Nat -> Nat
+Eadd zero m = m
+Eadd (S n) m = Eadd n (S m)
+
+{-
+
+Then we prove the equivalence:
+
+  add n m ≡ Eadd n m
+
+which relies on a helper lemma:
+
+  S (Eadd n m) ≡ Eadd n (S m)
+
+The one tricky step here is that you need to do induction on `n` only
+in the helper lemma and treat the second argument as a universally
+quanified argument. Or, in other words, you get to supply a
+different argument in the recursive call (namely (S m), not m).
+
+-}
+
+SEaddnmisEaddnSm : (n : Nat) -> (m : Nat) -> Eadd n (S m) ≡ S (Eadd n m)
+SEaddnmisEaddnSm zero m = refl
+SEaddnmisEaddnSm (S n) m = SEaddnmisEaddnSm n (S m)
+
+addisEadd : (n : Nat) -> (m : Nat) -> add n m ≡ Eadd n m
+addisEadd zero m = refl
+addisEadd (S n) m = trans (cong S (addisEadd n m)) (sym (SEaddnmisEaddnSm n m))
+
+{-
+
 Using agda we can also define data structure that don't just represent
 ordinary data like numbers, but we can define data structures that
 represent proofs -- proofs are just trees, after all, right?
@@ -121,6 +160,44 @@ Here's what we write to get agda to check that for us.
 twoiseven : Even (S (S zero))
 twoiseven = AddingTwo zero ZeroIsEven 
 
+{-
+
+We can also prove that three is not even. Proving that something is
+not true is defined to be the same thing as proving that if you know
+that it is true, then you proved that a canonical empty type has an
+element. In the standard library, there is this definition:
+
+  data ⊥ : Set where
+
+that is, a data type that has no way to construct a value of it.
+So, when you write:
+
+  ¬ P
+
+that is a shorthand for:
+
+  P -> ⊥
+
+Or, in other words, you can build a proof for bottom if you are given
+a P. (And we know it is impossible to build a proof of ⊥, since it has
+no constructors, and thus it must have been impossible to build P in
+the first place.)
+
+Here is what the syntax for that proof looks like. Roughly the way to
+read this is "we exhausted all of the possible cases and none of them
+applied to prove that 3 was even". Or, in more detail: if three were
+to be even, well, we would have had to have used the AddingTwo
+constructor. In order to use the AddingTwo constructor we have to come
+up with a proof that one is even. But the two candidate ways to do
+that (either via AddingTwo or ZeroIsEven) are both "obviously"
+impossible, since one has too few "S"s and the other one has too
+many. (This last sentence is written "()" in agda and used in the
+pattern match below.)
+
+-}
+
+threeisnoteven : ¬ (Even (S (S (S zero))))
+threeisnoteven (AddingTwo .(S zero) ())
 
 {-
 
