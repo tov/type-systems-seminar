@@ -109,11 +109,25 @@ in the helper lemma and treat the second argument as a universally
 quanified argument. Or, in other words, you get to supply a
 different argument in the recursive call (namely (S m), not m).
 
+This is just the same thing we saw earlier, where the ∀ is really just
+a function type. So the type of SEaddnmisEaddnSm is the same as this:
+
+  ∀ n m -> Eadd n (S m) ≡ S (Eadd n m)
+
+which means that when we do induction on `n` and we are in the "S n"
+case, our inductive hypothesis is this:
+
+  ∀ m → Eadd n (S m) ≡ S (Eadd n m)
+
+and we can supply any `m` we want (but we cannot fiddle with the `n`,
+or else it wouldn't be following the template (ala HtDP))
+
 -}
 
 SEaddnmisEaddnSm : (n : Nat) -> (m : Nat) -> Eadd n (S m) ≡ S (Eadd n m)
 SEaddnmisEaddnSm zero m = refl
 SEaddnmisEaddnSm (S n) m = SEaddnmisEaddnSm n (S m)
+
 
 addisEadd : (n : Nat) -> (m : Nat) -> add n m ≡ Eadd n m
 addisEadd zero m = refl
