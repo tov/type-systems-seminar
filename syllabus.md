@@ -55,7 +55,8 @@
 
   - 02/27: Jennie & Chris H.: intersection types
 
-  - 03/01: Chris K. & Shu-Hung: Is inheritance subtyping?
+  - 03/01: Chris K. & Shu-Hung: subtyping revisited.
+      - Pre-reading: [Liskov and Wing, A Behavioral Notion of Subtyping][liskov94], Section 5 and 6.
 
   - 03/06: Sasha & Meg: Swift
 
@@ -169,6 +170,9 @@ meeting, we'll set you specific goals for the second meeting.
 
 [samth2010]:
     https://www.ccs.neu.edu/racket/pubs/icfp10-thf.pdf
+    
+[liskov94]:
+    https://www.cs.cmu.edu/~wing/publications/LiskovWing94.pdf
 
 [ocaml]:
       https://github.com/tov/type-systems-seminar/blob/master/exercises/stlc-ml/README.md
