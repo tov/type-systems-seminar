@@ -22,7 +22,7 @@ let rec type_of_sexp = function
       (match List.rev (List.map ~f:type_of_sexp args) with
        | last :: init -> ArrT(List.rev init, last)
        | [] -> stx_err "return type" t0)
-  | S.List (S.Atom "tup" :: args) ->
+  | S.List (S.Atom "*" :: args) ->
       TupT(List.map ~f:type_of_sexp args)
   | s -> failwith ("could not parse type: " ^ S.to_string s)
 
