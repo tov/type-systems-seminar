@@ -15,7 +15,7 @@ out/%.html: %.scrbl redex/%.rkt util.rkt
 	scribble --style notes.css --dest out --html ++convert svg $<
 
 upload: out/main/index.html
-	rsync -avz --chmod a+rX out/main \
+	rsync -avz --delete --chmod a+rX out/main \
 	  login.eecs.northwestern.edu:public_html/course/type-systems
 
 .PHONY: all one upload

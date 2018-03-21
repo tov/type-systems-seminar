@@ -133,19 +133,19 @@ meeting, we'll set you specific goals for the second meeting.
     http://users.eecs.northwestern.edu/~jesse/course/type-systems/main/The_let-zl_language.html
 
 [stlc]:
-    http://users.eecs.northwestern.edu/~jesse/course/type-systems/main/The_simply-typed_lambda_calculus__-st.html
+    http://users.eecs.northwestern.edu/~jesse/course/type-systems/main/sec_stlc.html
 
 [lamsub]:
     http://users.eecs.northwestern.edu/~jesse/course/type-systems/main/_-sub__subtyping_with_records.html
 
 [sysf]:
-    http://users.eecs.northwestern.edu/~jesse/course/type-systems/main/The_polymorphic_lambda_calculus__-2.html
+    http://users.eecs.northwestern.edu/~jesse/course/type-systems/main/sec_sysf.html
 
 [mlinf]:
     http://users.eecs.northwestern.edu/~jesse/course/type-systems/main/ML_type_inference.html
 
 [fomega]:
-    http://users.eecs.northwestern.edu/~jesse/course/type-systems/main/The_higher-order_lambda_calculus__-_.html
+    http://users.eecs.northwestern.edu/~jesse/course/type-systems/main/sec_fomega.html
 
 [lcube]:
     http://users.eecs.northwestern.edu/~jesse/course/type-systems/main/The_Lambda_Cube___-cube.html
