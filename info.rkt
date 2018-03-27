@@ -7,9 +7,12 @@
 (define version "0.0.1")
 (define deps '("base"
                "draw-lib"
+               "pict-lib"
                "rackunit-lib"
                "redex-lib"
                "redex-pict-lib"
                "scribble-lib"
-               "turnstile"))
+               "turnstile"
+               "typed-racket-lib"))
+(define build-deps '("redex-gui-lib"))
 (define test-omit-paths '("."))
