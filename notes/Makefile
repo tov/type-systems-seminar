@@ -16,6 +16,6 @@ out/%.html: %.scrbl redex/%.rkt util.rkt
 
 upload: out/main/index.html
 	rsync -avz --delete --chmod a+rX out/main \
-	  login.eecs.northwestern.edu:public_html/course/type-systems
+	  web1.cs.northwestern.edu:public_html/course/type-systems-wi18/
 
 .PHONY: all one upload
