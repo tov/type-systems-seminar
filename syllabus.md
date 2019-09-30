@@ -130,28 +130,28 @@ meeting, we'll set you specific goals for the second meeting.
     http://web.cs.wpi.edu/~cs4536/c12/milner-damas_principal_types.pdf
 
 [letzl]:
-    http://users.eecs.northwestern.edu/~jesse/course/type-systems/main/The_let-zl_language.html
+    http://users.cs.northwestern.edu/~jesse/course/type-systems-wi18/main/The_let-zl_language.html
 
 [stlc]:
-    http://users.eecs.northwestern.edu/~jesse/course/type-systems/main/sec_stlc.html
+    http://users.cs.northwestern.edu/~jesse/course/type-systems-wi18/main/sec_stlc.html
 
 [lamsub]:
-    http://users.eecs.northwestern.edu/~jesse/course/type-systems/main/_-sub__subtyping_with_records.html
+    http://users.cs.northwestern.edu/~jesse/course/type-systems-wi18/main/_-sub__subtyping_with_records.html
 
 [sysf]:
-    http://users.eecs.northwestern.edu/~jesse/course/type-systems/main/sec_sysf.html
+    http://users.cs.northwestern.edu/~jesse/course/type-systems-wi18/main/sec_sysf.html
 
 [mlinf]:
-    http://users.eecs.northwestern.edu/~jesse/course/type-systems/main/ML_type_inference.html
+    http://users.cs.northwestern.edu/~jesse/course/type-systems-wi18/main/ML_type_inference.html
 
 [fomega]:
-    http://users.eecs.northwestern.edu/~jesse/course/type-systems/main/sec_fomega.html
+    http://users.cs.northwestern.edu/~jesse/course/type-systems-wi18/main/sec_fomega.html
 
 [lcube]:
-    http://users.eecs.northwestern.edu/~jesse/course/type-systems/main/The_Lambda_Cube___-cube.html
+    http://users.cs.northwestern.edu/~jesse/course/type-systems-wi18/main/The_Lambda_Cube___-cube.html
 
 [qual]:
-    http://users.eecs.northwestern.edu/~jesse/course/type-systems/main/Qualified_types.html
+    http://users.cs.northwestern.edu/~jesse/course/type-systems-wi18/main/Qualified_types.html
 
 [wadler89]:
     https://people.mpi-sws.org/~dreyer/tor/papers/wadler.pdf
@@ -163,10 +163,10 @@ meeting, we'll set you specific goals for the second meeting.
     http://web.cecs.pdx.edu/~mpj/pubs/rev-qual-types.pdf
 
 [tov12]:
-    http://users.eecs.northwestern.edu/~jesse/pubs/dissertation/tov-dissertation-screen.pdf
+    http://users.cs.northwestern.edu/~jesse/pubs/dissertation/tov-dissertation-screen.pdf
 
 [barendregt]:
-    https://github.com/tov/type-theory-seminar/blob/master/reading/Barendregt%20-%20Lambda%20Calculi%20with%20Types.pdf
+    https://github.com/tov/type-systems-seminar/blob/master/reading/Barendregt%20-%20Lambda%20Calculi%20with%20Types.pdf
 
 [samth2010]:
     https://www.ccs.neu.edu/racket/pubs/icfp10-thf.pdf
