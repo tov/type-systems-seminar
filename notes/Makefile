@@ -1,29 +1,36 @@
-GOAL = lcube
+# Chapter to build for `make one`
+GOAL    = lcube
 
-all: out/main/index.html
+# Build products
+HTMLDIR = out/type-notes
+HTML    = $(HTMLDIR)/index.html
+PDF     = out/type-notes.pdf
 
+# Source files
+SRCS    = $(wildcard *.scrbl) $(wildcard redex/*.rkt)
+
+# How to run `scribble`
+SCRBL   = scribble --dest out
+
+html: $(HTML)
 one: out/$(GOAL).html
-
-pdf: out/main.pdf
-
-SRCS = $(wildcard *.scrbl) $(wildcard redex/*.rkt)
-
-MAIN_ZO = compiled/main_scrbl.zo
+pdf: $(PDF)
 
 out/%/index.html: compiled/%_scrbl.zo
-	scribble --style notes.css --htmls ++convert svg --dest out $*.scrbl
+	$(SCRBL) --htmls --style notes.css ++convert svg $*.scrbl
 
 out/%.html: compiled/%_scrbl.zo
-	scribble --style notes.css --html ++convert svg --dest out $*.scrbl
+	$(SCRBL) --html --style notes.css ++convert svg $*.scrbl
 
-out/%.pdf: compiled/%_scrbl.zo
-	scribble --xelatex --dest-name $@ $*.scrbl
+out/%.pdf: compiled/%_scrbl.zo prefix.tex
+	$(SCRBL) --xelatex --prefix prefix.tex $*.scrbl
 
 compiled/%_scrbl.zo: %.scrbl $(SRCS) util.rkt
 	raco make -j 4 $<
 
-upload: out/main/index.html
-	rsync -avz --delete --chmod a+rX out/main \
+upload: $(HTML) $(PDF)
+	rsync -avz --delete --chmod a+rX \
+	  $(HTMLDIR) $(PDF) \
 	  web1.cs.northwestern.edu:public_html/course/type-systems-wi18/
 
-.PHONY: all one upload
+.PHONY: html one pdf upload

@@ -1,6 +1,9 @@
 #lang scribble/base
 
-@title[#:style 'toc]{EECS 3/496 Type Systems – Notes}
+@title[
+  #:style 'toc
+  #:date "Winter 2018"
+]{EECS 3/496 Type Systems – Notes}
 @author{Jesse A. Tov}
 
 @(table-of-contents)
