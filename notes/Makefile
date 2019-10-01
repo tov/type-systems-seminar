@@ -1,18 +1,26 @@
 GOAL = lcube
 
+all: out/main/index.html
+
 one: out/$(GOAL).html
 
-all: out/main/index.html
+pdf: out/main.pdf
 
 SRCS = $(wildcard *.scrbl) $(wildcard redex/*.rkt)
 
-out/main/index.html: main.scrbl $(SRCS) util.rkt
-	raco make -j 4 $<
-	scribble --style notes.css --dest out --htmls ++convert svg $<
+MAIN_ZO = compiled/main_scrbl.zo
 
-out/%.html: %.scrbl redex/%.rkt util.rkt
+out/%/index.html: compiled/%_scrbl.zo
+	scribble --style notes.css --htmls ++convert svg --dest out $*.scrbl
+
+out/%.html: compiled/%_scrbl.zo
+	scribble --style notes.css --html ++convert svg --dest out $*.scrbl
+
+out/%.pdf: compiled/%_scrbl.zo
+	scribble --xelatex --dest-name $@ $*.scrbl
+
+compiled/%_scrbl.zo: %.scrbl $(SRCS) util.rkt
 	raco make -j 4 $<
-	scribble --style notes.css --dest out --html ++convert svg $<
 
 upload: out/main/index.html
 	rsync -avz --delete --chmod a+rX out/main \
