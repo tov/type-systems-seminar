@@ -51,13 +51,23 @@
    ---- arr
    (<: (-> t_11 t_12) (-> t_21 t_22))]
 
-  [---- rec-nil
-   (<: (Record [l t] ...) (Record))]
+  [---- rec-empty
+   (<: (Record) (Record))]
+
+  [(<: (Record [m_i t_i] ...) (Record [m_j t_j] ...))
+   ---- rec-width
+   (<: (Record [l t] [m_i t_i] ...) (Record [m_j t_j] ...))]
 
   [(<: t_l t_r)
-   (<: (Record [m_j t_j] ... [m_k t_k] ...) (Record [m_i t_i] ...))
+   (<: (Record [m_i t_i] ...) (Record [m_j t_j] ... [m_k t_k] ...))
+   ---- rec-depth
+   (<: (Record [l t_l] [m_i t_i] ...) (Record [m_j t_j] ... [l t_r] [m_k t_k] ...))]
+
+  #;
+  [(<: t_l t_r)
+   (<: (Record [m_j t_j] ... [m_k t_k] ...) (Record [m_i t_i] ... [m_h t_h] ...))
    ---- rec-cons
-   (<: (Record [m_j t_j] ... [l t_l] [m_k t_k] ...) (Record [l t_r] [m_i t_i] ...))])
+   (<: (Record [m_j t_j] ... [l t_l] [m_k t_k] ...) (Record [m_i t_i] ... [l t_r] [m_h t_h] ...))])
 
 (define-extended-judgment-form λsub stlc:types
   #:mode (types I I O)
@@ -89,18 +99,22 @@
    ---- arr
    (<:~> (-> t_11 t_12) (-> t_21 t_22) (λ h (-> t_11 t_12) (λ n t_21 (ap e_2 (ap h (ap e_1 n))))))]
 
-  [---- rec-nil
-   (<:~> (Record [l t] ...) (Record) (λ r (Record [l t] ...) (record)))]
+  [---- rec-empty
+   (<:~> (Record) (Record) (λ r (Record) r))]
+
+  [(<:~> (Record [m_i t_i] ...) (Record [m_j t_j] ...) e)
+   ---- rec-width
+   (<:~> (Record [l t] [m_i t_i] ...) (Record [m_j t_j] ...) (λ r (Record [l t] [m_i t_i] ...) (ap e (record [m_i (project r m_i)] ...))))]
 
   [(<:~> t_l t_r e_1)
-   (<:~> (Record [m_j t_j] ... [m_k t_k] ...) (Record [m_i t_i] ...) e_2)
-   ---- rec-cons
-   (<:~> (Record [m_j t_j] ... [l t_l] [m_k t_k] ...) (Record [l t_r] [m_i t_i] ...) (λ r (Record [m_j t_j] ... [l t_l] [m_k t_k] ...)
-                                                                                       (ap (λ s (Record [m_i t_i] ...)
-                                                                                             (record [l (e_1 (project r l))]
-                                                                                                     [m_i (project s m_i)] ...))
-                                                                                           (e_2 (record [m_j (project r m_j)] ...
-                                                                                                        [m_k (project r m_k)] ...)))))])
+   (<:~> (Record [m_i t_i] ...) (Record [m_j t_j] ... [m_k t_k] ...) e_2)
+   ---- rec-depth
+   (<:~> (Record [l t_l] [m_i t_i] ...) (Record [m_j t_j] ... [l t_r] [m_k t_k] ...) (λ r (Record [l t_r] [m_i t_i] ...)
+                                                                                        (ap (λ s (Record [m_j t_j] ... [m_k t_k] ...)
+                                                                                               (record [m_j (project s m_j)] ...
+                                                                                                       [l   (ap e_1 (project r l))]
+                                                                                                       [m_k (project s m_k)] ...))
+                                                                                            (ap e_2 (record [m_i (project r m_i)] ...)))))])
 
 (define-judgment-form λsub
   #:mode (types~> I I O O)

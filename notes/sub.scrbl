@@ -71,12 +71,15 @@ arguments:
 
 Finally, records provide subtyping by allowing the forgetting of fields
 (this is called width subtyping) and by subtyping within individual fields
-(depth subtyping). We can express this with two rules:
+(depth subtyping). We can express this with three rules:
 @;
-@render-judgment-rules[r:<: rec-nil rec-cons]
+@render-judgment-rules[r:<: rec-empty rec-width rec-depth]
 @;
-Rule @rulename[rec-nil] says that all records are subtypes of the empty
-record. Rule @rulename[rec-cons] says that when records have a common member
+Rule @rulename[rec-empty] says that the empty record is a subtype of
+itself; we need this as a base case.
+Rule @rulename[rec-width] says that supertype records may have fields
+that are missing from their subtypes.
+Rule @rulename[rec-depth] says that when records have a common member
 then the types of the fields must be subtypes.
 
 @exercise{Prove that @term[<:] is a preorder, that is, reflexive and
@@ -305,16 +308,19 @@ to the result of the coerced function:
 @;
 @render-judgment-rules[r:<:~> arr]
 
-The empty record is a supertype of every record because we can take any record
-and produce the empty record:
+The empty record is a supertype of itself, by the identity coercion:
 @;
-@render-judgment-rules[r:<:~> rec-nil]
+@render-judgment-rules[r:<:~> rec-empty]
 
-The non-empty record case is hairy. We convert record types by converting
+In subtyping records, we can skip fields and not include them in the supertype:
+@;
+@render-judgment-rules[r:<:~> rec-width]
+
+The depth-subyping record case is hairy. We convert record types by converting
 one element and then recursively converting the rest of the record, and then
 reassembling the desired result:
 @;
-@render-judgment-rules[r:<:~> rec-cons]
+@render-judgment-rules[r:<:~> rec-depth]
 
 The typing rules now translate from a language with subtyping to a language
 that doesn't use subtyping. All of the rules except @rulename[app] just

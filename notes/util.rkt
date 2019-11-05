@@ -14,8 +14,10 @@
          (only-in pict hbl-append)
          (only-in racket/class make-object)
          (only-in racket/draw font%)
+         (only-in racket/format ~a)
          (only-in racket/match match-lambda)
          (only-in redex/reduction-semantics default-language)
+         syntax/parse/define
          (for-syntax racket/base syntax/parse))
 
 (define SERIF-FONT "Palatino")
@@ -125,10 +127,14 @@
 (define-syntax-rule (with-typesetting expr0 expr ...)
   (with-typesetting/thunk (λ () (list expr0 expr ...))))
 
-(define-syntax (term stx)
-  (syntax-parse stx
-    [(_ e) #'(with-typesetting (render-term (check-default-language 'util.rkt::term) e))]
-    [(_ e #:lang L) #'(with-typesetting (render-term L e))]))
+(define-syntax-parser term
+  [(_ e)
+   #'(with-typesetting
+       (render-term
+         (check-default-language 'util.rkt::term) e))]
+  [(_ e #:lang L)
+   #'(with-typesetting
+       (render-term L e))])
 
 (define (check-default-language name)
   (define l (default-language))
@@ -168,39 +174,54 @@
     (centered
       (render-metafunctions fn ... #:contract? #true))))
 
-#;
-(define (theorem-like/thunk kind name body)
-  (if name
-      (list* (bold (symbol->string kind)) " (" name ")." (body))
-      (list* (bold (symbol->string kind) ".") (body))))
-
-#;
-(define-syntax (theorem-like stx)
-  (syntax-parse stx
-    [(_ kind:id :opt-name body:expr ...)
-     #'(theorem-like/thunk 'kind name (λ () "" body ...))]))
-
 (begin-for-syntax
   (define-splicing-syntax-class opt-name
     [pattern (~seq #:name name:expr)]
     [pattern (~seq)
              #:with name #'#false]))
 
-(define-syntax (define-theorem-like stx)
-  (syntax-parse stx
-    [(_ fun:id kind:id)
-     #'(define-syntax (fun stx1)
-         (syntax-parse stx1
-           [(_ kind-name:opt-name body:expr (... ...))
-            #'(let ([name kind-name.name])
-                (if name
-                    (list (bold (symbol->string 'kind))
-                          " (" name "). "
-                          (emph body (... ...)))
-                    (list (bold (symbol->string 'kind) ". ")
-                          (emph body (... ...)))))]))]))
+; : symbol [or/c #false text] text ... -> text
+(define (theorem-like/proc kind-symbol ?name ?counter . body)
+  (list
+    (bold
+      (~a kind-symbol)
+      (if ?counter
+        (~a " " ?counter)
+        ""))
+    (if ?name
+      (list " (" ?name "). ")
+      (bold  ". "))
+    (apply emph body)))
+
+; : ident ident boolean -> definition-syntax
+(define-for-syntax (expand-theorem-like fun kind numbered?)
+  (with-syntax
+    ([fun   fun]
+     [kind  kind]
+     [counter-prologue
+       (if numbered?
+         #'(begin
+             (define counter 0)
+             (define (use-counter/proc)
+               (set! counter (add1 counter))
+               counter))
+         #'(define (use-counter/proc) #f))])
+  #'(begin
+      counter-prologue
+      (define-syntax-parser fun
+        [(_ kind-name:opt-name body:expr (... ...))
+         #'(theorem-like/proc 'kind kind-name.name
+                              (use-counter/proc)
+                              body (... ...))]))))
+
+(define-syntax-parser define-theorem-like
+  [(_ fun:id kind:id #:numbered)
+   (expand-theorem-like #'fun #'kind #t)]
+  [(_ fun:id kind:id)
+   (expand-theorem-like #'fun #'kind #f)])
 
 (define-theorem-like theorem Theorem)
 (define-theorem-like lemma Lemma)
-(define-theorem-like exercise Exercise)
+(define-theorem-like exercise Exercise #:numbered)
 (define-theorem-like proof Proof)
+
