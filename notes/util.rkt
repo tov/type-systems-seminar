@@ -7,16 +7,18 @@
          render-judgment-rules
          render-judgment-rules/horiz
          render-nonterminals
-         render-metas)
+         render-metas
+         render-derivation
+         log_2)
 
 (require redex/pict
          scribble/base
-         (only-in pict hbl-append)
+         (only-in pict hbl-append text)
          (only-in racket/class make-object)
          (only-in racket/draw font%)
          (only-in racket/format ~a)
          (only-in racket/match match-lambda)
-         (only-in redex/reduction-semantics default-language)
+         (only-in redex/reduction-semantics default-language build-derivations)
          syntax/parse/define
          (for-syntax racket/base syntax/parse))
 
@@ -53,6 +55,8 @@
              (rewriter [(Δ P e_0 e)  "" Δ " ⊩ " P " ⇒ " e_0 " ⇝ " e ""])]
     ['apply-substitution
              (rewriter [(e γ)        "" e "" γ ""])]
+    ['bounded-bst (rewriter [(bt lb ub) "" bt " is_bst ∈ [" lb " , " ub "]"])]
+    ['wrong-bst (rewriter [(bt lb ub) "" bt " wrong_bst ∈ [" lb " , " ub "]"])]
     ['extend (rewriter [(Γ x t)      "" Γ ", " x ":" t ""]
                        [(Δ a)        "" Δ ", " a ""])]
     ['extend-subst
@@ -69,6 +73,10 @@
              (rewriter [(Δ Γ)        "" Δ " ⊢ " Γ])]
     ['env-ok
              (rewriter [(Γ)          "⊢ " Γ])]
+    ['in-bt (rewriter [(i bt) "" i " ∈ " bt ""])]
+    ['in-bst (rewriter [(i bt) "" i " ∈ the bst " bt ""])]
+    ['jf-≤   (rewriter [(e_1 e_2)    "" e_1 " ≤ " e_2 ""])]
+    ['jf-<   (rewriter [(e_1 e_2)    "" e_1 " < " e_2 ""])]
     ['lookup (rewriter [(Γ x)        "" Γ "(" x ")"])]
     ['member (rewriter [(a Δ)        "" a " ∈ " Δ])]
     ['meta-+ (rewriter [(e_1 e_2)    "" e_1 " + " e_2])]
@@ -169,6 +177,16 @@
   (parameterize ([render-language-nts '(nt ...)])
     (with-typesetting (centered (render-language lang)))))
 
+(define-syntax-rule
+  (render-derivation lang conc)
+  (centered
+   (with-typesetting
+       (derivation->pict
+        lang
+        (car
+         (build-derivations
+          conc))))))
+
 (define-syntax-rule (render-metas fn ...)
   (with-typesetting
     (centered
@@ -225,3 +243,8 @@
 (define-theorem-like exercise Exercise #:numbered)
 (define-theorem-like proof Proof)
 
+(define (log_2 . args)
+  (cons (hbl-append
+         (text "log" SERIF-FONT)
+         (text "2" (cons 'subscript SERIF-FONT)))
+        args))

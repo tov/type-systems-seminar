@@ -1,13 +1,15 @@
 #lang scribble/manual
+@(require (only-in scribble-math/dollar with-html5))
 
 @title[
-  #:style 'toc
+  #:style (with-html5 manual-doc-style) ; 'toc
   #:date "Winter 2018"
 ]{EECS 3/496 Type Systems – Notes}
 @author{Jesse A. Tov}
 
 @(table-of-contents)
 
+@include-section["prelim.scrbl"]
 @include-section["let-zl.scrbl"]
 @include-section["stlc.scrbl"]
 @include-section["sub.scrbl"]
