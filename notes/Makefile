@@ -17,10 +17,10 @@ one: out/$(GOAL).html
 pdf: $(PDF)
 
 out/%/index.html: compiled/%_scrbl.zo
-	$(SCRBL) --htmls --style notes.css ++convert svg $*.scrbl
+	$(SCRBL) --htmls ++convert svg $*.scrbl
 
 out/%.html: compiled/%_scrbl.zo
-	$(SCRBL) --html --style notes.css ++convert svg $*.scrbl
+	$(SCRBL) --html ++convert svg $*.scrbl
 
 out/%.pdf: compiled/%_scrbl.zo prefix.tex
 	$(SCRBL) --xelatex --prefix prefix.tex $*.scrbl

@@ -1,4 +1,4 @@
-#lang scribble/base
+#lang scribble/manual
 
 @title[
   #:style 'toc
