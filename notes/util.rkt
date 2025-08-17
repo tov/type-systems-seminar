@@ -55,8 +55,7 @@
              (rewriter [(Δ P e_0 e)  "" Δ " ⊩ " P " ⇒ " e_0 " ⇝ " e ""])]
     ['apply-substitution
              (rewriter [(e γ)        "" e "" γ ""])]
-    ['bounded-bst (rewriter [(bt lb ub) "" bt " is_bst ∈ [" lb " , " ub "]"])]
-    ['wrong-bst (rewriter [(bt lb ub) "" bt " wrong_bst ∈ [" lb " , " ub "]"])]
+    ['complete (rewriter [(bt n)      "" bt " comp " n ""])]
     ['extend (rewriter [(Γ x t)      "" Γ ", " x ":" t ""]
                        [(Δ a)        "" Δ ", " a ""])]
     ['extend-subst
@@ -73,10 +72,6 @@
              (rewriter [(Δ Γ)        "" Δ " ⊢ " Γ])]
     ['env-ok
              (rewriter [(Γ)          "⊢ " Γ])]
-    ['in-bt (rewriter [(i bt) "" i " ∈ " bt ""])]
-    ['in-bst (rewriter [(i bt) "" i " ∈ the bst " bt ""])]
-    ['jf-≤   (rewriter [(e_1 e_2)    "" e_1 " ≤ " e_2 ""])]
-    ['jf-<   (rewriter [(e_1 e_2)    "" e_1 " < " e_2 ""])]
     ['lookup (rewriter [(Γ x)        "" Γ "(" x ")"])]
     ['member (rewriter [(a Δ)        "" a " ∈ " Δ])]
     ['meta-+ (rewriter [(e_1 e_2)    "" e_1 " + " e_2])]
@@ -84,10 +79,13 @@
     ['meta-- (rewriter [(e_1 e_2)    "" e_1 " – " e_2])]
     ['meta-= (rewriter [(e_1 e_2)    "" e_1 " == " e_2 " ? 0 : 1"])]
     ['meta-< (rewriter [(e_1 e_2)    "" e_1 " < " e_2 " ? 0 : 1"])]
+    ['meta-sub1 (rewriter [(e_1)     "" e_1 " – 1"])]
+    ['meta-sub2 (rewriter [(e_1)     "" e_1 " – 2"])]
     ['non-zero?
              (rewriter [(z)          "" z " ≠ 0"])]
     ['not-a-type-variable
              (rewriter [(t)          "" t " is not a type variable"])]
+    ['perfect (rewriter [(bt n)      "" bt " perf " n ""])]
     ['parens (rewriter [(any)        "(" any ")"])]
     ['qimplies
              (rewriter [(P_1 P_2)    "" P_1 " ⊩ " P_2 ""])]
