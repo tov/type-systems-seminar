@@ -10,7 +10,8 @@
 @(table-of-contents)
 
 @include-section["prelim.scrbl"]
-@include-section["let-zl.scrbl"]
+@;{
+ @include-section["let-zl.scrbl"]
 @include-section["stlc.scrbl"]
 @include-section["sub.scrbl"]
 @include-section["sysf.scrbl"]
@@ -18,3 +19,4 @@
 @include-section["ml.scrbl"]
 @include-section["qual.scrbl"]
 @include-section["lcube.scrbl"]
+}

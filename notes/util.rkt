@@ -1,23 +1,23 @@
 #lang racket/base
 
 (provide with-typesetting
-         term langname rulename
+         term tree langname rulename
          theorem lemma exercise proof
          render-reduction-rules
          render-judgment-rules
          render-judgment-rules/horiz
          render-nonterminals
          render-metas
-         render-derivation
-         log_2)
+         render-derivation)
 
 (require redex/pict
          scribble/base
-         (only-in pict hbl-append text)
+         pict
+         pict/tree-layout
          (only-in racket/class make-object)
          (only-in racket/draw font%)
          (only-in racket/format ~a)
-         (only-in racket/match match-lambda)
+         (only-in racket/match match-lambda match)
          (only-in redex/reduction-semantics default-language build-derivations)
          syntax/parse/define
          (for-syntax racket/base syntax/parse))
@@ -132,8 +132,48 @@
          [paren-style                    SERIF-FONT])
         (thunk)))))))
 
+(define (with-typesetting/tree/thunk thunk)
+  (define (is-node? an-lw)
+    (and (lw? an-lw)
+         (equal? (lw-e an-lw) 'node)))
+  (define (is-leaf? an-lw)
+    (and (lw? an-lw)
+         (equal? (lw-e an-lw) 'leaf)))
+  (define (the-e->term lws)
+    (match lws
+      [(list _op (? is-node?) num left right _cl)
+       `(node ,(lw-e num) ,(lw->term left) ,(lw->term right))]
+      ['leaf
+       `leaf]
+      [_ (error 'the-e->term "unknown thing ~s" lws)]))
+  (define (lw->term an-lw) (the-e->term (lw-e an-lw)))
+  (with-compound-rewriters (['node (λ (lws) (list (bt->pict (the-e->term lws))))])
+    (with-atomic-rewriter 'leaf leaf-pict
+      (with-typesetting/thunk thunk))))
+
+(define (bt->pict n)
+  (naive-layered ; binary-tidier
+   (let loop ([n n])
+     (match n
+       [`leaf (tree-layout #:pict (leaf-pict) #f #f)]
+       [`(node ,n ,l ,r) (tree-layout #:pict (add-circle (text (~a n)))
+                                      (loop l)
+                                      (loop r))]))))
+
+(define (leaf-pict) (filled-ellipse 5 5))
+
+(define (add-circle p)
+  (define s (+ 2 (max (pict-width p) (pict-height p))))
+  (cc-superimpose
+   (colorize (filled-ellipse s s) "white")
+   p
+   (ellipse s s)))
+
 (define-syntax-rule (with-typesetting expr0 expr ...)
   (with-typesetting/thunk (λ () (list expr0 expr ...))))
+
+(define-syntax-rule (with-typesetting/tree expr0 expr ...)
+  (with-typesetting/tree/thunk (λ () expr0 expr ...)))
 
 (define-syntax-parser term
   [(_ e)
@@ -142,6 +182,15 @@
          (check-default-language 'util.rkt::term) e))]
   [(_ e #:lang L)
    #'(with-typesetting
+       (render-term L e))])
+
+(define-syntax-parser tree
+  [(_ e)
+   #'(with-typesetting/tree
+       (render-term
+         (check-default-language 'util.rkt::term) e))]
+  [(_ e #:lang L)
+   #'(with-typesetting/tree
        (render-term L e))])
 
 (define (check-default-language name)
@@ -180,7 +229,7 @@
 (define-syntax-rule
   (render-derivation lang conc)
   (centered
-   (with-typesetting
+   (with-typesetting/tree
        (derivation->pict
         lang
         (car
@@ -242,9 +291,3 @@
 (define-theorem-like lemma Lemma)
 (define-theorem-like exercise Exercise #:numbered)
 (define-theorem-like proof Proof)
-
-(define (log_2 . args)
-  (cons (hbl-append
-         (text "log" SERIF-FONT)
-         (text "2" (cons 'subscript SERIF-FONT)))
-        args))

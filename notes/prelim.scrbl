@@ -53,13 +53,109 @@ any natural number @term[z] and any two other binary trees,
 member of the set @term[bt].
 
 For example, we know that
-@term[(node 1 (node 3 leaf leaf) leaf)] is a member of the set
+@term[(node 2 (node 1 leaf leaf) leaf)] is a member of the set
 @term[bt] by using the first rule three times and the second
-rule two times.
+rule two times. Conversely, we know that @term[(node 1 leaf)]
+and @term[(node 1 (node 2) (node 3))] are not members of
+the set, as the rules provide no way to build up elements
+looking like those.
 
-Note that we pun on the use of @term[bt] both as the set and
-as an element of the set, using the name of the element to
-indicate which set it comes from.
+As a notational device, we will pun on the use of @term[bt]
+both as the set and as an element of the set, using the name
+of the element to indicate which set it comes from.
+
+Throughout these notes, we will write out example terms
+following the notation in the grammar, but for the specific
+case of trees, it is often easier to see what is going on when we
+visualize them like this, so we will do so, from time to time.
+@centered{@tree[(node 2 (node 1 leaf leaf) leaf)]}
+
+@section{Proving Properties by Induction}
+
+To do proofs with these relations, we use structural
+induction, a proof technique that generalizes the usual form
+of induction on natural numbers. When we do a proof by
+induction on natural numbers, we're proving a property
+that's indexed by natural numbers. We start by proving that
+the property is true when the natural number is zero, and
+then we assume that the property is true for some given
+natural number and prove that it holds for the next one.
+These two lemmas enable us to build up a proof for any
+particular natural number that we encounter later on, as any
+particular natural number can be found by starting at zero
+and counting up, one number at a time.
+
+The root of this idea is the idea of a well-founded order,
+specifically, an ordering on a set that covers all of the
+elements in the set but where all of the descending chains
+in the order are finite. For the natural numbers, the
+ordering is simply the usual less-than ordering. That is,
+given any particular natural number, there are only a finite
+number of other naturals that are less than it, so chaining
+together these lemmas will always eventually bottom out.
+
+The way we define sets always gives us such a well-founded
+order, meaning that any of the definitions of sets we use in
+these notes are also amenable to proofs by induction.
+Putting it another way, we can imagine that the set of
+natural numbers is defined this way:
+@render-nonterminals[r:prelim ℕ]
+and that the usual natural-number based induction is
+actually based on the natural numbers being defined in that
+manner; we generalize this perspective to all of the
+sets that we define.
+
+Taking this idea to our binary tree set definition, there
+are two ways to create binary trees, either they are leaves
+or they are nodes (which contain two smaller trees). So, if
+we want to prove some property of binary trees we can
+organize the proof into two parts: first we prove the
+property for leaves and then we assume the property holds
+for two arbitrary trees and show that it holds for the tree
+you get by combining the two together with an integer using
+@term[node]. These then become the two lemmas that can be
+chained together to obtain the proof for any particular
+binary tree; that is, if we can prove those two lemmas, we
+know the property holds for all of the binary trees.
+
+Let's look at an example proof. Say we wished to prove that,
+in a binary tree of height @${h}, there are at most @${2^h}
+leaves. To do so, we have prove this fact for the two cases.
+
+@itemlist[
+ @item{ Case one: the tree is a leaf. In this case, the
+  statement we are trying to prove is that a binary tree of
+  height zero has at most @${2^0}, which is 1, nodes. Well, a
+  leaf has zero nodes, so this case holds.}
+
+ @item{Case two: the tree is built with @term[node]. Each
+  node contains two binary trees; let's name them @term[bt_1]
+  and @term[bt_1]. Let's also name their heights @${h_1} and
+  @${h_2}, respectively and name the number of leaves they
+  have @${l_1} and @${l_2}. Our goal is to show that the
+  number of leaves in the tree @term[(node i bt_1 bt_2)],
+  which is @${l_1+l_2} (since all of the leaves of both
+  @term[bt_1] and @term[bt_2] are in the tree) is at most
+  @${2^{max(h_1,h_2)+1}}, as the tree
+  @term[(node i bt_1 bt_2)] has the height @${max(h_1,h_2)+1}
+  (from the definition of the height of a tree).
+
+  As we doing this proof by induction, we also get to assume
+  that the lemma we are proving holds for the trees
+  @term[bt_1] and @term[bt_2]. So, we know that @${l_1} is at
+  most @${2^{h_1}} and @${l_2} is at most @${2^{h_2}}.
+
+  To complete the proof, we need to use some facts about
+  numbers. By adding the two inductive assumptions, we know
+  that @$${l_1+l_2 ≤ 2^{h_1} + 2^{h_2}} Since the maximum of
+  two numbers is larger than either of them and exponentiation
+  is increasing, we know @$${2^{h_1} ≤ 2^{max(h_1,h_2)}} and
+  similarly for @${l_2}, so we have @$${l_1 + l_2 ≤
+   2^{max(h_1,h_2)} + 2^{max(h_1,h_2)}} We can rearrange the
+  right-hand side using properties of exponentiation and
+  arrive at @$${l_1+l_2 ≤ 2^{max(h_1,h_2) + 1}} which was the
+  goal.}]
+
 
 @section{Defining Relations on those Sets}
 
@@ -116,7 +212,7 @@ where the justification for each step is written above the
 it, in a shape that matches how the rules are used. For example,
 this binary tree
 @centered{
- @term[(node 1
+ @tree[(node 1
              leaf
              (node 2 leaf leaf))]
 }
@@ -133,7 +229,7 @@ by this derivation
 Also note, it is impossible to build a derivation (for any integers)
 that this is a binary search tree.
 @centered{
- @term[(node 1
+ @tree[(node 1
              (node 2 leaf leaf)
              leaf)]
 }
@@ -157,91 +253,6 @@ earlier is in the bad relation
                   (node 2 leaf leaf)
                   leaf)
             0 0)]
-
-@section{Proving Properties: Induction on Set Definitions}
-
-To do proofs with these relations, we use structural
-induction, a proof technique that generalizes the usual form
-of induction on natural numbers. When we do induction on
-natural numbers, we're proving a property that's indexed by
-natural numbers. We start by proving that the property is
-true when the natural number is zero, and then we assume
-that the property is true for some given natural number and
-prove that it holds for the next one. These two lemmas
-enable us to build up a proof for any particular natural
-number that we encounter later on, as any particular natural
-number can be found by starting at zero and counting up, one
-number at a time.
-
-The root of this idea is the idea of a well-founded order,
-specifically, an ordering on a set that covers all of the
-elements in the set but where all of the descending chains
-in the order are finite. For the natural numbers, the
-ordering is simply the usual less-than ordering. That is,
-given any particular natural number, there are only a finite
-number of other naturals that are less than it, so chaining
-together these lemmas will always eventually bottom out.
-
-The ways that we defined sets gives us a well-founded order,
-meaning that our definitions are also amenable to proofs by
-induction for properties of elements of the sets or elements
-of sets that satisfy the relations. Putting it another way,
-we can imagine that the set of natural numbers is defined
-this way:
-@render-nonterminals[r:prelim ℕ]
-and that the usual natural-number based induction is actually
-based on the natural numbers being defined in that manner;
-we will generalize this perspective to all of the sets
-that we define.
-
-Taking this idea to our binary tree set definition, there
-are two ways to create binary trees, either they are leaves
-or they are nodes (which contain two smaller trees). So, if
-we want to prove some property of binary trees we can
-organize the proof into two parts: first we prove the
-property for leaves and then we assume the property holds
-for two arbitrary trees and show that it holds for the tree
-you get by combining the two together using @term[node].
-These then become the two lemmas that can be chained
-together to obtain the proof for any particular binary tree or,
-in other words, if we can prove those two lemmas, we know the
-property holds for all of the binary trees.
-
-Let's look at an example proof. Say we wished to prove that,
-in a binary tree of height @${h}, there are at most @${2^h}
-leaves.
-
-@itemlist[
- @item{ We consider the leaf case first. In this case, the
-  statement we are trying to prove is that a binary tree of
-  height zero has at most @${2^0}, which is 1, nodes. Well, a
-  leaf has zero nodes, so this case holds.}
-
- @item{Next we consider the node case. Each node contains
-  two binary trees; let's name them @term[bt_1] and
-  @term[bt_1]. Let's also name their heights @${h_1} and
-  @${h_2}, respectively and name the number of leaves they
-  have @${l_1} and @${l_2}. Our goal is to show that the
-  number of leaves in the tree @term[(node i bt_1 bt_2)],
-  which is @${l_1+l_2} (since all of the leaves of both
-  @term[bt_1] and @term[bt_2] are in the tree) is at most
-  @${2^{max(h_1,h_2)+1}}, as the tree
-  @term[(node i bt_1 bt_2)] has the height @${max(h_1,h_2)+1}
-  (from the definition of the height of a tree). We are also
-  given, by induction, that @${l_1} is at most @${2^{h_1}} and
-  @${l_2} is at most @${2^{h_2}}.
-
-  By adding the two inductive assumptions, we know that
-  @$${l_1+l_2 ≤ 2^{h_1} + 2^{h_2}}
-  Since the maximum of two numbers is larger than either
-  of them and exponentiation is increasing, we know
-  @$${2^{h_1} + 2^{h_2} ≤ 2^{max(h_1,h_2)} + 2^{max(h_1,h_2)}}
-  and thus by transitivity of @${≤}, we know that 
-  @$${l_1+l_2 ≤ 2^{max(h_1,h_2)} + 2^{max(h_1,h_2)}}
-  we can rearrange the right-hand side using properties
-  of exponentiation and arrive at
-  @$${l_1+l_2 ≤ 2^{max(h_1,h_2) + 1}}
-  which was the goal.}]
 
 @section{Proving Properties: Induction on Relation Definitions}
 
