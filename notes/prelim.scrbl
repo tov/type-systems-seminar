@@ -161,36 +161,39 @@ leaves. To do so, we have prove this fact for the two cases.
 
 QED.
 
-@section{Defining Relations on those Sets}
+@section{Defining Relations to Identify Desired Subsets}
 
-We will also be defining predicates and relations on the
-sets. Primarily, we will use these predicates and relations
-to capture the static and dynamic semantics of the
-programming language but we will continue to illustrate the
-ideas here on binary trees. As a first example, we can
-define a relation that captures which trees are perfect
-binary trees. A perfect binary tree is one where every path
-from the root to a leaf has the same length. We write
+In order to capture particular, preferred subsets of terms,
+we will use relations on the sets of terms. The idea is that
+these subsets will have some nice property that we are
+interested in studying. As a first example, we can define a
+relation that captures which trees are perfect binary trees.
+A perfect binary tree is one where every path from the root
+to a leaf has the same length. We write
 @term[(perfect bt z)] to indicate that @term[bt] is a
 perfect binary tree and all the paths to leaves have length
 @term[z].
 
 We define the relation inductively, just as the sets are
-defined inductively, using rules. We will write the rules
-are written as sequents, with premises (assumptions) above a
-bar and a conclusion below the bar, and a name for the rule
-beside the bar. Just like the definitions of the sets, the
-relations are the smallest ones that satisfy the rules.
+defined inductively, using rules. We write the rules are
+written as sequents, meaning we write premises (assumptions)
+above a bar and a conclusion below the bar, and a name for
+the rule beside the bar. We take this to mean that whenever
+some term satisfies the premises, then the conclusion is
+true. Just like the definitions of the sets, the relations
+are the smallest ones that satisfy the rules.
 
-Here are the rules for perfect trees:
+Let's clarify this with an example. Here are the rules for
+perfect trees:
 
 @render-judgment-rules[perfect leaf node]
 
-The first rule says that it is always the case (i.e., requiring no
-assumptions), that leaf nodes are perfect trees with a path-length
-of zero. The second rule says that, if @term[bt_1] is a perfect tree of
-length @term[(sub1 n)] and so is @term[bt_2], then the tree
-@term[(node z bt_1 bt_2)] is a perfect tree of length @term[n].
+The first rule says that it is always the case (i.e.,
+requiring no assumptions), that leaf nodes are perfect trees
+with a path-length of zero. The second rule says that, if
+@term[bt_1] is a perfect tree of length @term[n] and so is
+@term[bt_2], then the tree @term[(node z bt_1 bt_2)] is a
+perfect tree of length @term[(meta-add1 n)].
 
 It can be helpful to collect the rationale for any particular
 tree's membership in the relation into a @emph{derivation},
@@ -214,20 +217,44 @@ at the bottom and stacking up the uses of the rules upwards.
 
 Perfect trees have only certain fixed sizes; there is, for
 example, no perfect tree that has four nodes in it. We can
-relax the rules for perfect trees a little bit to allow such
-trees by saying that every path from the root to a leaf has
-either a length @term[n] or @term[(sub1 n)] and,
+generalize the idea of a perfect trees a little bit to allow
+such trees by saying that every path from the root to a leaf
+has either a length @term[n] or @term[(meta-sub1 n)] and,
 furthermore, all of the paths of length @term[n] are to the
-left and the paths of length @term[(sub1 n)] are to the
+left and the paths of length @term[(meta-sub1 n)] are to the
 right, when drawn out. Such trees are called complete trees.
-We'll write @term[(complete bt n)] to indicate that @term[bt]
-is a complete tree that has paths that are either of length
-@term[n] or of length @term[(sub1 n)].
+
+For example, the tree on the left is a complete tree of size
+four and the tree on the right is a tree of size four that
+is not complete because the bottom row of nodes is not
+filled in from the left.
+
+@centered{
+ @tree[(node 2
+             (node 1 (node 0 leaf leaf) leaf)
+             (node 3 leaf leaf))]
+ @hspace[4]
+ @tree[(node 2
+             (node 0 leaf (node 1 leaf leaf))
+             (node 3 leaf leaf))]
+}
+
+We'll write @term[(complete bt n)] to indicate that
+@term[bt] is a complete tree that has paths that are either
+of length @term[n] or of length @term[(meta-sub1 n)]. We can
+define the relation in a manner similar to the definition
+for perfect trees, using rules with assumptions and
+conclusions:
 
 @render-judgment-rules[complete leaf left right]
 
-And here's an example derivation, showing a complete tree
-with four nodes.
+Note that these rules introduce a subtle point: with
+complete trees, there are two different rules that can both
+construct trees that end with a @term[node].
+
+Here's an example derivation, showing how the rules capture
+the complete tree with four nodes shown above; it uses both
+variants of the @term[node] rule.
 
 @render-derivation[
  prelim
@@ -332,23 +359,34 @@ perfect trees, where there must be at least @${2^h} leaves.
 
 To prove this, we need to do induction again, and on the
 structure of the tree, but because we know that the tree is
-complete, we will have more information at each stage. This
-additional information comes from the definition of the
-@term[(perfect bt z)] relation and we can access it using a
-lemma called inversion.
+complete, we will have more information at each stage but we
+will also have more requirements to be able to use
+induction. The additional information and the additional
+requirement both comes from the definition of the
+@term[(perfect bt z)] relation.
+
+To be able to use the relation, we first prove a result that
+connects the shape of the binary tree (i.e., which rule was
+used to construct the tree) to the definition of the
+relation. This lemma is called inversion, and each relation
+comes with an inversion lemma.
 
 @lemma[#:name "Inversion"]
 If @term[(perfect bt n)] then,
  @itemlist[
  @item{If @term[bt] is @term[leaf] then @term[z] must be 0.}
- @item{If @term[bt] is @term[(node z bt_1 bt_2)] then @term[(perfect bt_1 (sub1 n))] and
-          @term[(perfect bt_2 (sub1 n))]}]
+ @item{If @term[bt] is @term[(node z bt_1 bt_2)] then @term[(perfect bt_1 (meta-sub1 n))] and
+          @term[(perfect bt_2 (meta-sub1 n))]}]
+@proof[] By inspection of the rules.
 
-The proof itself proceeds as before, by induction on the
-structure of the tree.
+
+Equipped with the inversion lemma, we can prove the result
+about perfect binary trees.
 
 @theorem{For any binary tree @term[bt] with @${l} leaves and
  height @${h}, if @term[(perfect bt n)], then @${2^h ≤ l}.}
+
+@proof[] By induction on the structure of the tree.
 
 @itemlist[
  @item{ Case one: the tree is a leaf. In this case,
@@ -362,22 +400,24 @@ structure of the tree.
   height of @term[bt_2] is @${h_2} and it has @${l_2} leaves.
   
   Now, as in the previous proof, we can do induction using
-  @term[bt_1] and @term[bt_2]. But the theorem we are proving
-  requires us to show that @term[bt_1] and @term[bt_2] are
-  perfect in order to get the result of the induction and we
-  do not know that, a priori. Here is where the assumption of
-  @term[(perfect bt n)] comes in. Since we know that
+  @term[bt_1] and @term[bt_2]. But, just as the theorem we are
+  proving requires us to know that @term[bt_1] and @term[bt_2]
+  are perfect, so too the inductive hypothesis requires us to
+  show that the trees are perfect before we can use it. Here
+  is where the assumption of @term[(perfect bt n)] and the
+  inversion lemma come in. Since we know that
   @term[(perfect (node z bt_1 bt_2) n)] is true, by inversion
-  we know that @term[(perfect bt_1 (sub1 n))] and
-  @term[(perfect bt_2 (sub1 n))]. This lets us apply induction,
-  telling us that @${2^{h_1} ≤ l_1} and @${2^{h_2} ≤ l_2}.
+  we know that @term[(perfect bt_1 (meta-sub1 n))] and
+  @term[(perfect bt_2 (meta-sub1 n))]. This lets us apply
+  induction, telling us that @${2^{h_1} ≤ l_1} and @${2^{h_2}
+   ≤ l_2}.
 
   Our original tree @term[bt] has all of the leaves of
   @term[bt_1] and @term[bt_2] and no more, so we know that
   @${l = l_1 + l_2}. Using the inequations we obtained by
   induction (and transitivity of ≤ and some facts about the
-  relationship between + and ≤), that tells us that @$${l ≤
-   2^{h_1} + 2^{h_2}}. Also, because the path length to any
+  relationship between + and ≤), we know that @$${l ≤
+   2^{h_1} + 2^{h_2}} Also, because the path length to any
   leaf is always the same, we know that @${h_1 = h_2} and thus
   @$${l ≤ 2^{h_1} + 2^{h_1} = 2^{h_1 + 1}}
   Finally, @${h_1+1} is the height of the original tree @term[bt],
@@ -386,15 +426,21 @@ structure of the tree.
 
 QED.
 
-@exercise{Prove that if two trees @term[bt_1] and
- @term[bt_2] are both perfect with the same @term[n], i.e.,
- @term[(perfect bt_1 n)] and @term[(perfect bt_2 n)], then
- the heights of the two trees are the same.
+@exercise{Our proof above used the fact that if two trees
+ @term[bt_1] and @term[bt_2] are both perfect with the same
+ @term[n], i.e., @term[(perfect bt_1 n)] and
+ @term[(perfect bt_2 n)], then the heights of the two trees
+ are the same. Prove this fact using induction.
 }
 
-@section{Contexts}
+We can prove a similar result for complete trees; because
+the definition of complete trees is more complex, the proof
+requires a little more sophistication, as we shall see.
+
+@section{Contexts and Relations that Capture Computation}
 
 right rotate as a relation; reflexive-transitive closure as linearization using contexts
+
 
 @section{Contexts and Proofs}
 

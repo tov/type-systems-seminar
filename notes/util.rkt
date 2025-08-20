@@ -18,9 +18,10 @@
          (only-in racket/draw font%)
          (only-in racket/format ~a)
          (only-in racket/match match-lambda match)
-         (only-in redex/reduction-semantics default-language build-derivations)
+         (only-in redex/reduction-semantics default-language build-derivations derivation)
          syntax/parse/define
          (for-syntax racket/base syntax/parse))
+(module+ test (require rackunit))
 
 (define SERIF-FONT "Palatino")
 (define MONO-FONT (make-object font% 14 "Menlo" 'modern))
@@ -56,6 +57,7 @@
     ['apply-substitution
              (rewriter [(e γ)        "" e "" γ ""])]
     ['complete (rewriter [(bt n)      "" bt " comp " n ""])]
+    ['complete-add1 (rewriter [(bt n) "" bt " comp " n " + 1"])]
     ['extend (rewriter [(Γ x t)      "" Γ ", " x ":" t ""]
                        [(Δ a)        "" Δ ", " a ""])]
     ['extend-subst
@@ -79,8 +81,9 @@
     ['meta-- (rewriter [(e_1 e_2)    "" e_1 " – " e_2])]
     ['meta-= (rewriter [(e_1 e_2)    "" e_1 " == " e_2 " ? 0 : 1"])]
     ['meta-< (rewriter [(e_1 e_2)    "" e_1 " < " e_2 " ? 0 : 1"])]
+    ['meta-add1 (rewriter [(e_1)     "" e_1 " + 1"])]
     ['meta-sub1 (rewriter [(e_1)     "" e_1 " – 1"])]
-    ['meta-sub2 (rewriter [(e_1)     "" e_1 " – 2"])]
+    ['meta-add2 (rewriter [(e_1)     "" e_1 " + 2"])]
     ['non-zero?
              (rewriter [(z)          "" z " ≠ 0"])]
     ['not-a-type-variable
@@ -150,7 +153,8 @@
       (with-typesetting/thunk thunk))))
 
 (define (bt->pict n)
-  (naive-layered ; binary-tidier
+  (naive-layered
+   ;binary-tidier
    (let loop ([n n])
      (match n
        [`leaf (tree-layout #:pict (leaf-pict) #f #f)]
@@ -185,11 +189,11 @@
 (define-syntax-parser tree
   [(_ e)
    #'(with-typesetting/tree
-       (render-term
-         (check-default-language 'util.rkt::term) e))]
+         (render-term
+          (check-default-language 'util.rkt::term) e))]
   [(_ e #:lang L)
    #'(with-typesetting/tree
-       (render-term L e))])
+         (render-term L e))])
 
 (define (check-default-language name)
   (define l (default-language))
@@ -228,11 +232,54 @@
   (render-derivation lang conc)
   (centered
    (with-typesetting/tree
-       (derivation->pict
+       (render-derivation/proc
         lang
-        (car
-         (build-derivations
-          conc))))))
+        (build-derivations
+         conc)))))
+
+(define (render-derivation/proc lang derivations)
+  (derivation->pict
+   lang
+   (remove-complete-add1
+    (car derivations))))
+
+(define (remove-complete-add1 a-derivation)
+  (match a-derivation
+    [(derivation `(complete-add1 ,arg1 ,arg2) _ (list child))
+     (remove-complete-add1 child)]
+    [(derivation t n children)
+     (derivation t n (map remove-complete-add1 children))]))
+
+;; this test case is from a call to `build-derivations`
+(module+ test
+  (check-equal?
+   (remove-complete-add1
+    (derivation
+     '(complete (node 0 (node 1 leaf leaf) leaf) 2)
+     "left"
+     (list
+      (derivation
+       '(complete-add1 (node 1 leaf leaf) 0)
+       #f
+       (list
+        (derivation
+         '(complete (node 1 leaf leaf) 1)
+         "right"
+         (list
+          (derivation '(perfect leaf 0) "leaf" '())
+          (derivation '(complete leaf 0) "leaf" '())))))
+      (derivation '(perfect leaf 0) "leaf" '()))))
+   (derivation
+    '(complete (node 0 (node 1 leaf leaf) leaf) 2)
+    "left"
+    (list
+     (derivation
+      '(complete (node 1 leaf leaf) 1)
+      "right"
+      (list
+       (derivation '(perfect leaf 0) "leaf" '())
+       (derivation '(complete leaf 0) "leaf" '())))
+     (derivation '(perfect leaf 0) "leaf" '())))))
 
 (define-syntax-rule (render-metas fn ...)
   (with-typesetting
