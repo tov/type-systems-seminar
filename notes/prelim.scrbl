@@ -120,11 +120,14 @@ know the property holds for all of the binary trees.
 
 Let's look at an example proof. Say we wished to prove that,
 in a binary tree of height @${h}, there are at most @${2^h}
-leaves. To do so, we have prove this fact for the two cases.
+leaves. Here is the definition of the height of a binary tree:
+@render-metas[height]
 
 @theorem{For any @term[bt] with @${l} leaves and height @${h},
  @${l ≤ 2^h}.}
 
+@proof[] We have two cases to consider, based on the two ways
+we can have elements of the set of binary trees.
 @itemlist[
  @item{ Case one: the tree is a leaf. In this case,
        we know @${l} is 1 and @${h} is 0, so specializing
@@ -375,7 +378,8 @@ comes with an inversion lemma.
 If @term[(perfect bt n)] then,
  @itemlist[
  @item{If @term[bt] is @term[leaf] then @term[z] must be 0.}
- @item{If @term[bt] is @term[(node z bt_1 bt_2)] then @term[(perfect bt_1 (meta-sub1 n))] and
+ @item{If @term[bt] is @term[(node z bt_1 bt_2)] then @term[n] must be
+  at least @term[1] and @term[(perfect bt_1 (meta-sub1 n))] and
           @term[(perfect bt_2 (meta-sub1 n))]}]
 @proof[] By inspection of the rules.
 
@@ -384,22 +388,22 @@ Equipped with the inversion lemma, we can prove the result
 about perfect binary trees.
 
 @theorem{For any binary tree @term[bt] with @${l} leaves and
- height @${h}, if @term[(perfect bt n)], then @${2^h ≤ l}.}
+ height @${h}, if @term[(perfect bt n)], then @${2^h = l}.}
 
 @proof[] By induction on the structure of the tree.
 
 @itemlist[
  @item{ Case one: the tree is a leaf. In this case,
   we know @${l} is 1 and @${h} is 0, so specializing
-  the claim, we get @${2^0 ≤ 1}, which is true.}
+  the claim, we get @${2^0 = 1}, which is true.}
  @item{Case two: the tree is a node, so there are two other
   trees @term[bt_1] and @term[bt_2] as well as an integer
   @term[z] such that @term[bt] is
   @term[(node z bt_1 bt_2)]. Let's say that the height of
   @term[bt_1] is @${h_1} and it has @${l_1} leaves; also the
   height of @term[bt_2] is @${h_2} and it has @${l_2} leaves.
-  
-  Now, as in the previous proof, we can do induction using
+
+Now, as in the previous proof, we can do induction using
   @term[bt_1] and @term[bt_2]. But, just as the theorem we are
   proving requires us to know that @term[bt_1] and @term[bt_2]
   are perfect, so too the inductive hypothesis requires us to
@@ -409,19 +413,32 @@ about perfect binary trees.
   @term[(perfect (node z bt_1 bt_2) n)] is true, by inversion
   we know that @term[(perfect bt_1 (meta-sub1 n))] and
   @term[(perfect bt_2 (meta-sub1 n))]. This lets us apply
-  induction, telling us that @${2^{h_1} ≤ l_1} and @${2^{h_2}
-   ≤ l_2}.
+  induction, telling us that @${2^{h_1} = l_1} and @${2^{h_2}
+   = l_2}.
 
-  Our original tree @term[bt] has all of the leaves of
-  @term[bt_1] and @term[bt_2] and no more, so we know that
-  @${l = l_1 + l_2}. Using the inequations we obtained by
-  induction (and transitivity of ≤ and some facts about the
-  relationship between + and ≤), we know that @$${l ≤
-   2^{h_1} + 2^{h_2}} Also, because the path length to any
+  From here, we have to do algebraic manipulations to obtain
+  the goal. Let's start by adding the left- and right-hand
+  sides of the facts we obtained from induction to get
+  @$${2^{h_1} + 2^{h_2} = l_1 + l_2}
+  Since our original tree @term[bt] has all of the leaves of
+  @term[bt_1] and @term[bt_2] and no more, we can simplify
+  the right-hand side to just @${l}:
+  @$${2^{h_1} + 2^{h_2} = l}
+  Because the path length to any
   leaf is always the same, we know that @${h_1 = h_2} and thus
-  @$${l ≤ 2^{h_1} + 2^{h_1} = 2^{h_1 + 1}}
-  Finally, @${h_1+1} is the height of the original tree @term[bt],
-  so we obtain the final result.}
+  we know that
+  @$${2^{h_1} + 2^{h_1} = l}
+  Using properties of the exponential function we
+  can simplify the left-hand side:
+  @$${2^{h_1+1} = l}
+  Furthermore, using the fact that @${h_1} and @${h_2}
+  are the same and a property of @${max}, we can adjust
+  the left-hand side to 
+  @$${2^{max(h_1,h_2)+1} = l}
+  Now, the left-hand side looks like the definition of the
+  height function, so we can replace it with @${h}:
+  @$${2^h = l}
+  which completes the proof.}
  ]
 
 QED.
@@ -430,12 +447,89 @@ QED.
  @term[bt_1] and @term[bt_2] are both perfect with the same
  @term[n], i.e., @term[(perfect bt_1 n)] and
  @term[(perfect bt_2 n)], then the heights of the two trees
- are the same. Prove this fact using induction.
+ are the same. It is possible to prove this fact using
+ induction, but a simpler fact to prove is that if
+ @term[(perfect bt n)], then the height of @term[bt] is
+ @term[n], and it implies the desired lemma. Prove it.
 }
 
-We can prove a similar result for complete trees; because
-the definition of complete trees is more complex, the proof
-requires a little more sophistication, as we shall see.
+Complete trees do not have a simple characterization for the
+exact number of leaves, but there still have to be many
+leaves compared to the example from the start of this
+section. In particular, we can bound the number of leaves in
+a complete tree from below; in a complete binary tree of
+height @${h} must be at least @${2^{h-1}} leaves.
+
+Because the definition of complete trees is more complex,
+the proof requires a little more sophistication. To start we
+need an inversion lemma.
+
+@lemma[#:name "Inversion"]
+If @term[(complete bt n)] then,
+ @itemlist[
+ @item{If @term[bt] is @term[leaf] then @term[z] must be 0.}
+ @item{If @term[bt] is @term[(node z bt_1 bt_2)] then either
+  @itemlist[
+ @item{
+    @term[n] is at least 1,
+    @term[(perfect bt_1 (meta-sub1 n))], and
+    @term[(complete bt_2 (meta-sub1 n))], or}
+ @item{
+    @term[n] is at least 2,
+    @term[(complete bt_1 (meta-sub2 n))], and
+    @term[(perfect bt_2 (meta-sub1 n))]}]}]
+@proof[] By inspection of the rules.
+
+@theorem{For any complete tree @term[bt] with @${l} leaves and
+ height @${h}, if @term[(complete bt n)], then @${2^{h-1} ≤ l}.}
+
+@proof[] By induction on the structure of the tree.
+
+@itemlist[
+ @item{ Case one: the tree is a leaf. In this case,
+  we know @${l} is 1 and @${h} is 0, so specializing
+  the claim, we get @${2^{-1} ≤ 1}, which is true.}
+ @item{ Case two: the tree is @term[(node z bt_1 bt_2)].
+  Let's say we have @term[bt_1] has height @${h_1} and @${l_1} leaves, 
+  and that @term[bt_2] has height @${h_2} and @${l_2} leaves.
+  
+  Since the addition of one in the definition
+  of the height and the subtraction of one from the theorem
+  statement cancel out, our goal is that
+  @$${2^{max(h_1,h_2)} ≤ l_1 + l_2}
+                              
+  Inversion tells us we have two subcases
+  @itemlist[
+ @item{@term[n] is at least 1,
+    @term[(perfect bt_1 (meta-sub1 n))], and
+    @term[(complete bt_2 (meta-sub1 n))].
+    In this case, we can use our earlier theorem about perfect trees to
+    conclude that @${2^{h_1} ≤ l_1} and induction to conclude that
+    @${2^{h_2-1} ≤ l_2}. Furthermore, by the proof in the exercise above and
+    the one in the exercise below, we know that the height of @term[bt_1]
+    and @term[bt_2] are both @term[n_1] and thus equal to each other, so let's
+    replace the @${h_2}s in the goal with @${h_1},
+    and we can simplify the use of @${max}. So, our
+    our goal specializes to
+    @$${2^{h_1} ≤ l_1 + l_2}
+    From the induction on @term[bt_1], and since adding @${l_2} onto
+    @${l_1} does not decrease it, we have finished this case.
+    
+    }
+ @item{In the other subcase, we know that @term[n] is at
+    least 2, @term[(complete bt_1 (meta-sub2 n))], and
+    @term[(perfect bt_2 (meta-sub1 n))] As in the previous case,
+    by the results from the two exercises, we know that the
+    @${max} expression in the goal specializes to @${h_2},
+    meaning our goal becomes @$${2^{h_2} ≤ l_1 + l_2} We can
+    also use the previous result about perfect trees to conclude
+    that @${2^{h_2} = l_2}, which gives us the overall result. }]
+  }
+ ]
+
+@exercise{Show that, if we know that @term[(complete bt n)], then
+ the height of @term[bt] is @term[n].
+}
 
 @section{Contexts and Relations that Capture Computation}
 

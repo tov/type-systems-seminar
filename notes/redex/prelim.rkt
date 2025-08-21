@@ -2,7 +2,7 @@
 (require "util.rkt"
          redex/reduction-semantics
          racket/match)
-(provide prelim perfect complete)
+(provide prelim perfect complete height)
 
 (define-language prelim
   (bt ::=
@@ -37,6 +37,10 @@
   meta-sub2 : z -> z
   (λ (x) (- x 2)))
 
+(define-lifted-metafunction prelim
+  meta-max : z_1 z_2 -> z
+  max)
+
 (define-judgment-form prelim
   #:mode (perfect I O)
   [----- "leaf"
@@ -55,11 +59,6 @@
                                       (node 1 (node 0 leaf leaf) (node 2 leaf leaf)))
                                 3)))
 
-(define-judgment-form prelim
-  #:mode (offbyone I O)
-  [-----
-   (offbyone n ,(add1 (term n)))])
-
 ;; it would be nice to replace uses of `(complete-add1 bt n)` with
 ;; `(complete bt (meta-add1 n))` but redex doesn't support that, alas
 (define-judgment-form prelim
@@ -73,13 +72,13 @@
   [----- "leaf"
    (complete leaf 0)]
 
-  [(complete-add1 bt_1 n) (perfect bt_2 n)
-   ----- "left"
-   (complete (node z bt_1 bt_2) (meta-add2 n))]
-
   [(perfect bt_1 n) (complete bt_2 n)
    ----- "right"
-   (complete (node z bt_1 bt_2) (meta-add1 n))])
+   (complete (node z bt_1 bt_2) (meta-add1 n))]
+
+  [(complete-add1 bt_1 n) (perfect bt_2 n)
+   ----- "left"
+   (complete (node z bt_1 bt_2) (meta-add2 n))])
 
 (module+ test
   (test-judgment-holds (complete leaf 0))
@@ -229,6 +228,108 @@
 
   (redex-check prelim bt #:ad-hoc
                (leaves-of-complete-trees
+                (term bt))))
+
+(define-metafunction prelim
+  height : bt -> n
+  [(height leaf) 0]
+  [(height (node z bt_1 bt_2)) (meta-add1 (meta-max (height bt_1) (height bt_2)))])
+
+(define (height-of-complete-trees bt)
+  (match (judgment-holds (complete ,bt n) n)
+    [(list n)
+     ;; bt is complete with `n`; check the height
+     (= (term (height ,bt))
+        n)]
+    [(list)
+     ;; bt is not a complete tree, vacuously true
+     #t]))
+
+(module+ test
+  (test-equal (height-of-complete-trees (term leaf)) #t)
+  (test-equal (height-of-complete-trees (term (node 0 leaf leaf))) #t)
+  (test-equal (height-of-complete-trees (term (node 0 (node 0 leaf leaf) leaf))) #t)
+  (test-equal (height-of-complete-trees (term (node 0 (node 0 leaf leaf) (node 0 leaf leaf))))
+              #t)
+  (test-equal (height-of-complete-trees
+               (term
+                (node 0
+                      (node 0 (node 0 leaf leaf) leaf)
+                      (node 0 leaf leaf))))
+              #t)
+  (test-equal (height-of-complete-trees
+               (term
+                (node 0
+                      (node 0 (node 0 leaf leaf) (node 0 leaf leaf))
+                      (node 0 leaf leaf))))
+              #t)
+  (test-equal (height-of-complete-trees
+               (term
+                (node 0
+                      (node 0 (node 0 leaf leaf) (node 0 leaf leaf))
+                      (node 0 (node 0 leaf leaf) leaf))))
+              #t)
+  (test-equal (height-of-complete-trees
+               (term
+                (node 0
+                      (node 0 (node 0 leaf leaf) (node 0 leaf leaf))
+                      (node 0 (node 0 leaf leaf) (node 0 leaf leaf)))))
+              #t)
+  (test-equal (height-of-complete-trees
+               (term
+                (node 0
+                      (node 0 (node 0 (node 0 leaf leaf) leaf) (node 0 leaf leaf))
+                      (node 0 (node 0 leaf leaf) (node 0 leaf leaf)))))
+              #t)
+  (test-equal (height-of-complete-trees
+               (term
+                (node 0
+                      (node 0
+                            (node 0 (node 0 leaf leaf) (node 0 leaf leaf))
+                            (node 0 leaf leaf))
+                      (node 0 (node 0 leaf leaf) (node 0 leaf leaf)))))
+              #t)
+  (test-equal (height-of-complete-trees
+               (term
+                (node 0
+                      (node 0
+                            (node 0 (node 0 leaf leaf) (node 0 leaf leaf))
+                            (node 0 (node 0 leaf leaf) leaf))
+                      (node 0 (node 0 leaf leaf) (node 0 leaf leaf)))))
+              #t)
+
+  (test-equal (height-of-complete-trees
+               (term
+                (node 0
+                      (node 0
+                            (node 0 (node 0 leaf leaf) (node 0 leaf leaf))
+                            (node 0 (node 0 leaf leaf) (node 0 leaf leaf)))
+                      (node 0 (node 0 leaf leaf) (node 0 leaf leaf)))))
+              #t)
+
+  (test-equal (height-of-complete-trees
+               (term
+                (node 0
+                      (node 0
+                            (node 0 (node 0 leaf leaf) (node 0 leaf leaf))
+                            (node 0 (node 0 leaf leaf) (node 0 leaf leaf)))
+                      (node 0
+                            (node 0 (node 0 leaf leaf) leaf)
+                            (node 0 leaf leaf)))))
+              #t)
+  (test-equal (height-of-complete-trees
+               (term
+                (node 0
+                      (node 0
+                            (node 0 (node 0 leaf leaf) (node 0 leaf leaf))
+                            (node 0 (node 0 leaf leaf) (node 0 leaf leaf)))
+                      (node 0
+                            (node 0 (node 0 leaf leaf) (node 0 leaf leaf))
+                            (node 0 (node 0 leaf leaf) leaf)))))
+              #t)
+
+  (redex-check prelim bt #:ad-hoc
+               (height-of-complete-trees
                 (term bt))))
   
 

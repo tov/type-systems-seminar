@@ -84,6 +84,9 @@
     ['meta-add1 (rewriter [(e_1)     "" e_1 " + 1"])]
     ['meta-sub1 (rewriter [(e_1)     "" e_1 " – 1"])]
     ['meta-add2 (rewriter [(e_1)     "" e_1 " + 2"])]
+    ['meta-sub2 (rewriter [(e_1)     "" e_1 " - 2"])]
+    ['meta-max (rewriter  [(e_1 e_2) "max(" e_1 "," e_2 ")"])]
+    ['height (rewriter [(e_1)  "height(" e_1 ")"])]
     ['non-zero?
              (rewriter [(z)          "" z " ≠ 0"])]
     ['not-a-type-variable
@@ -154,7 +157,6 @@
 
 (define (bt->pict n)
   (naive-layered
-   ;binary-tidier
    (let loop ([n n])
      (match n
        [`leaf (tree-layout #:pict (leaf-pict) #f #f)]
