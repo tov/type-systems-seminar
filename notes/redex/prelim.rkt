@@ -12,11 +12,6 @@
      hole
      (node z bt C)
      (node z C bt))
-  (E ::=
-     hole
-     (node z l-bt E)
-     (node z E bt))
-  (l-bt ::= leaf (node z leaf l-bt))
   (z ::= integer)
   (n ::= natural)
   (ℕ ::= 0 (succ ℕ)))
@@ -40,6 +35,10 @@
 (define-lifted-metafunction prelim
   meta-max : z_1 z_2 -> z
   max)
+
+(define-lifted-metafunction prelim
+  meta-+ : z_1 z_2 -> z
+  +)
 
 (define-judgment-form prelim
   #:mode (perfect I O)
@@ -120,13 +119,6 @@
                 (node 2 (node 0 leaf leaf) leaf)))
     4)))
 
-(define (complete-height bt)
-  (define jh (judgment-holds (complete bt z) z))
-  jh)
-
-(define-lifted-metafunction prelim
-  meta-+ : z_1 z_2 -> z
-  +)
 
 (define-metafunction prelim
   leaves : bt -> n
@@ -331,109 +323,121 @@
   (redex-check prelim bt #:ad-hoc
                (height-of-complete-trees
                 (term bt))))
-  
 
 (define-judgment-form prelim
-  #:mode (rotl I O)
-  [----
-   (rotl (in-hole C (node z_2 (node z_1 bt_1 bt_2) bt_3))
-         (in-hole C (node z_1 bt_1 (node z_2 bt_2 bt_3))))])
+  #:mode (sum I O)
+  [---- "two children"
+   (sum (in-hole C (node z_1 (node z_2 leaf leaf) (node z_3 leaf leaf)))
+        (in-hole C (node z_1 (node (meta-+ z_2 z_3) leaf leaf) leaf)))]
 
-(define-judgment-form prelim
-  #:mode (rotl-std I O)
-  [----
-   (rotl-std (in-hole E (node z_2 (node z_1 bt_1 bt_2) l-bt_3))
-             (in-hole E (node z_1 bt_1 (node z_2 bt_2 l-bt_3))))])
+  [---- "one child"
+   (sum (in-hole C (node z_1 (node z_2 leaf leaf) leaf))
+        (in-hole C (node (meta-+ z_1 z_2) leaf leaf)))])
 
 (module+ test
-  (test-->> rotl
-            (term (node 4
-                        (node 2
-                              (node 1 leaf leaf)
-                              (node 3 leaf leaf))
-                        (node 6
-                              (node 5 leaf leaf)
-                              (node 7 leaf leaf))))
-            (term (node
-                   1 leaf
-                   (node
-                    2 leaf
-                    (node
-                     3 leaf
-                     (node
-                      4 leaf
-                      (node
-                       5 leaf
-                       (node
-                        6 leaf
-                        (node 7 leaf leaf)))))))))
+  (test-judgment-holds (sum (node 1 (node 1 leaf leaf) (node 1 leaf leaf))
+                            (node 1 (node 2 leaf leaf) leaf)))
 
-  (test--> rotl
-           (term (node 4
-                       (node 2
-                             (node 1 leaf leaf)
-                             (node 3 leaf leaf))
-                       (node 6
-                             (node 5 leaf leaf)
-                             (node 7 leaf leaf))))
-           (term (node 4
-                       (node
-                        1 leaf
-                        (node
-                         2 leaf
-                         (node 3 leaf leaf)))
-                       (node 6
-                             (node 5 leaf leaf)
-                             (node 7 leaf leaf))))
-           (term (node 2
-                       (node 1 leaf leaf)
-                       (node 4
-                             (node 3 leaf leaf)
-                             (node 6
-                                   (node 5 leaf leaf)
-                                   (node 7 leaf leaf)))))
-           (term
-            (node
-             4
-             (node 2 (node 1 leaf leaf) (node 3 leaf leaf))
-             (node 5 leaf (node 6 leaf (node 7 leaf leaf))))))
+  (test-judgment-holds (sum (node 1 (node 2 leaf leaf) leaf)
+                            (node 3 leaf leaf))))
 
-  (test-->> rotl-std
-            (term (node 4
-                        (node 2
-                              (node 1 leaf leaf)
-                              (node 3 leaf leaf))
-                        (node 6
-                              (node 5 leaf leaf)
-                              (node 7 leaf leaf))))
-            (term (node
-                   1 leaf
-                   (node
-                    2 leaf
-                    (node
-                     3 leaf
-                     (node
-                      4 leaf
-                      (node
-                       5 leaf
-                       (node
-                        6 leaf
-                        (node 7 leaf leaf)))))))))
+(define (complete-sums-to-complete bt)
+  (match bt
+    [`leaf #t]
+    [`(node ,z leaf leaf) #t]
+    [_
+     (match (judgment-holds (complete ,bt n) n)
+       [(list n)
+        (define nexts (judgment-holds (sum ,bt bt_next) bt_next))
+        (for/or ([next (in-list nexts)])
+          (judgment-holds (complete ,next n)))]
+       [(list)
+        ;; bt is not a complete tree, vacuously true
+        #t])]))
+(module+ test
+  (test-equal (complete-sums-to-complete (term (node 1
+                                                     (node 1 leaf leaf)
+                                                     (node 1 leaf leaf))))
+              #t)
+  (test-equal (complete-sums-to-complete (term (node 1
+                                                     (node 1 leaf leaf)
+                                                     leaf)))
+              #t)
+  (test-equal (complete-sums-to-complete (term (node 1
+                                                     (node 1
+                                                           (node 1 leaf leaf)
+                                                           (node 1 leaf leaf))
+                                                     (node 1
+                                                           (node 1 leaf leaf)
+                                                           (node 1 leaf leaf)))))
+              #t)
+  (test-equal (complete-sums-to-complete (term (node 1
+                                                     (node 1
+                                                           (node 1 leaf leaf)
+                                                           (node 1 leaf leaf))
+                                                     (node 1
+                                                           (node 1 leaf leaf)
+                                                           leaf))))
+              #t)
+  (test-equal (complete-sums-to-complete (term (node 1
+                                                     (node 1
+                                                           (node 1 leaf leaf)
+                                                           (node 1 leaf leaf))
+                                                     (node 1
+                                                           leaf
+                                                           leaf))))
+              #t)
+  (test-equal (complete-sums-to-complete (term (node 1
+                                                     (node 1
+                                                           (node 1 leaf leaf)
+                                                           leaf)
+                                                     (node 1
+                                                           leaf
+                                                           leaf))))
+              #t)
+  (test-equal (complete-sums-to-complete (term (node 1
+                                                     (node 1
+                                                           leaf
+                                                           leaf)
+                                                     (node 1
+                                                           leaf
+                                                           leaf))))
+              #t)
 
-  (test--> rotl-std
-           (term (node 4
-                       (node 2
-                             (node 1 leaf leaf)
-                             (node 3 leaf leaf))
-                       (node 6
-                             (node 5 leaf leaf)
-                             (node 7 leaf leaf))))
-           (term (node 4
-                       (node
-                        1 leaf
-                        (node
-                         2 leaf
-                         (node 3 leaf leaf)))
-                       (node 6
-                             (node 5 leaf leaf)
-                             (node 7 leaf leaf))))))
+  (redex-check prelim bt #:ad-hoc
+               (complete-sums-to-complete
+                (term bt))))
+
+(module+ main
+  (require redex/gui
+           (only-in "../util.rkt" bt->pict)
+           racket/class
+           pict
+           pict/snip)
+  (default-language prelim)
+  (traces
+   #:pp
+   (λ (term op _1 _2)
+     (define pict (bt->pict term))
+     (define clr
+       (cond
+         [(judgment-holds (complete ,term any))
+          "forestgreen"]
+         [else "firebrick"]))
+     (write-special (new pict-snip% [pict (colorize pict clr)]) op))
+   sum
+   (term
+    (node 1
+          (node 1
+                (node 1
+                      (node 1 leaf leaf)
+                      (node 1 leaf leaf))
+                (node 1
+                      (node 1 leaf leaf)
+                      (node 1 leaf leaf)))
+          (node 1
+                (node 1
+                      (node 1 leaf leaf)
+                      (node 1 leaf leaf))
+                (node 1
+                      leaf leaf))))))

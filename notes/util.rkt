@@ -8,7 +8,8 @@
          render-judgment-rules/horiz
          render-nonterminals
          render-metas
-         render-derivation)
+         render-derivation
+         bt->pict)
 
 (require redex/pict
          scribble/base

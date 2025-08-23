@@ -266,76 +266,6 @@ variants of the @term[node] rule.
                  (node 3 leaf leaf))
            3)]
 
-@;{
-If says that if @term[bt_1] is related to @term[z_1] and
-@term[z_2], and if @term[bt_2] is related to
-@term[z_2] and @term[z_3], then
-@term[(node z_2 bt_1 bt_2)] is related to the integers
-@term[z_1] and @term[z_3].
-
-As when defining the sets, the rules define a relation
-recursively, specifically the smallest relation that
-satisfies all of the given rules, where satisfying the
-relation means that, for any consistent replacement of the
-variables in the rule with specific binary trees and
-integers, either the premises are not in the relation or the
-conclusion is in the relation.
-
-As an example, @term[(bounded-bst (node 1 leaf leaf) 1 2)]
-is in the relation. We can use the leaf rule to conclude that
-@term[(bounded-bst leaf 1 1)] and that @term[(bounded-bst leaf 1 2)].
-With those two triples established, we can use the node rule to
-show that @term[(bounded-bst (node 1 leaf leaf) 1 2)].
-
-It is convenient to collect the rationale for any particular
-triple's membership in the relation into a @emph{derivation},
-where the justification for each step is written above the
-it, in a shape that matches how the rules are used. For example,
-this binary tree
-@centered{
- @tree[(node 1
-             leaf
-             (node 2 leaf leaf))]
-}
-is related to the integers @term[1] and @term[2], as justified
-by this derivation
-
-@render-derivation[
- prelim
- (perfect (node 1
-                (node 0 leaf leaf)
-                (node 2 leaf leaf))
-          2)]
-
-Also note, it is impossible to build a derivation (for any integers)
-that this is a binary search tree.
-@centered{
- @tree[(node 1
-             (node 2 leaf leaf)
-             leaf)]
-}
-
-The definition of the rules for the relations can be quite
-subtle, however. For example, imagine a relation that looks
-almost the same as our binary-search tree relation, but that
-does not have the premise in the leaf rule:
-
-@render-judgment-rules[r:wrong-bst leaf node]
-
-This does @emph{not} correspond to our usual understanding
-of binary search trees. Indeed, every tree is in the relation
-with any two integers, using these rules.
-For example, here's a derivation that the bad tree shown
-earlier is in the bad relation
-
-@render-derivation[
- r:prelim
- (wrong-bst (node 1
-                  (node 2 leaf leaf)
-                  leaf)
-            0 0)]
-}
-
 @section{Proving Properties by Induction using Relations}
 
 Earlier, we showed an exponential upper bound on the number
@@ -533,8 +463,4 @@ If @term[(complete bt n)] then,
 
 @section{Contexts and Relations that Capture Computation}
 
-right rotate as a relation; reflexive-transitive closure as linearization using contexts
-
-
 @section{Contexts and Proofs}
-
