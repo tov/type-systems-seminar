@@ -5,6 +5,7 @@
           "util.rkt"
           (only-in redex/reduction-semantics default-language)
           redex/pict
+          (only-in pict htl-append)
           (only-in scribble-math/dollar $ $$))
 
 @(default-language prelim)
@@ -462,5 +463,147 @@ If @term[(complete bt n)] then,
 }
 
 @section{Contexts and Relations that Capture Computation}
+
+Beyond using relations to capture particular desirable
+subsets of the sets we have defined, we can also use
+relations to capture a form of computation, where we relate
+one element of a set to another one. The interpretation of
+these relations will be that some small amount of
+computation has occurred to transform one tree into the
+other one.
+
+For our binary trees, we'll use a relation that, step by
+step, adds up the values in nodes, removing one node at a
+time as it does so. The relation is written
+@term[(--> bt_1 bt_2)] to indicate that we can add two
+integers together in @term[bt_1] and update the tree by
+removing one of the nodes to produce @term[bt_2].
+
+Before we define the relation, we need to introduce the idea
+of a @emph{context}. In particular we will write
+@term[(in-hole C bt)], to @emph{decompose} a binary tree
+into two pieces, a @emph{context} @term[C], which is a
+binary tree with a specific spot called the @emph{hole}
+somewhere inside it, plus another binary tree that is placed
+at the hole in the context.
+
+Here is the definition of the set of contexts @term[C]; they
+use the same grammar-based definition technique as before,
+but when we define them, we ensure that the definition is
+formulated so that there is exactly one hole, written
+@term[hole], in each element of the set @term[C].
+
+@render-nonterminals[prelim C]
+
+As an example, on the left we have an element of the set
+@term[C], and on the right we have an ordinary binary tree.
+
+@centered{
+ @term[(node 4
+             (node 2
+                   (node 1 leaf leaf)
+                   (node 3 leaf leaf))
+             hole)]
+ @hspace[4]
+ @term[(node 1
+             (node 1 leaf leaf)
+             (node 1
+                   leaf
+                   leaf))]
+}
+
+Contexts can also be drawn as trees, but we just write
+@term[hole] somewhere at the bottom. Here's the same context
+and tree:
+
+@centered{
+ @tree[(node 4
+             (node 2
+                   (node 1 leaf leaf)
+                   (node 3 leaf leaf))
+             hole)]
+ @hspace[4]
+ @tree[(node 1
+             (node 1 leaf leaf)
+             (node 1
+                   leaf
+                   leaf))]
+}
+
+We can combine them by placing the tree in the hole:
+
+@centered{
+ @term[(node 4
+             (node 2
+                   (node 1 leaf leaf)
+                   (node 3 leaf leaf))
+             (node 1
+                   (node 1 leaf leaf)
+                   (node 1 leaf leaf)))]
+}
+
+Or, drawn as a tree:
+@centered{
+  @tree[(node 4
+             (node 2
+                   (node 1 leaf leaf)
+                   (node 3 leaf leaf))
+             (node 1
+                   (node 1 leaf leaf)
+                   (node 1 leaf leaf)))]
+}
+
+Contexts offer great expressiveness in defining relations
+because we can factor out the specific computational step
+from the place where it occurs inside the tree. Here is the
+the definition of the relation to illustrate the idea.
+
+@render-judgment-rules[--> two\ children one\ child]
+
+This relation has two rules. First, focus on the part inside
+the hole in the first rule. In the portion before the arrow,
+it has a node with two children that each have two leaves
+for children. In the portion after the arrow, we remove the
+right child, and update the left child's value to be the sum
+of the two values in the original children. The second rule
+is similar, but this time the outer node has one node for a
+child and a leaf, and we sum the values into the node.
+
+Because the rules are each surrounded with
+@term[(in-hole C ...)], it means that the rules can apply in
+any context in the set @term[C]. The simplest such context
+is just @term[hole], meaning that the relation relates these
+two trees by the first rule:
+@centered{
+ @(htl-append
+   40
+   @tree[(node 1
+             (node 1 leaf leaf)
+             (node 1 leaf leaf))]
+   @tree[(node 1 (node 2 leaf leaf) leaf)])
+}
+
+But because the @term[C] in the rule can be an arbitrary
+element of the set @term[C], it might also have been the
+example above, meaning that these two trees are also related
+by the relation.
+
+@centered{
+  @tree[(node 4
+             (node 2
+                   (node 1 leaf leaf)
+                   (node 3 leaf leaf))
+             (node 1
+                   (node 1 leaf leaf)
+                   (node 1 leaf leaf)))]
+   @hspace[4]
+   @tree[(node 4
+             (node 2
+                   (node 1 leaf leaf)
+                   (node 3 leaf leaf))
+             (node 1
+                   (node 2 leaf leaf)
+                   leaf))]
+}
 
 @section{Contexts and Proofs}

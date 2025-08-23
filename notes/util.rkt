@@ -150,6 +150,7 @@
        `(node ,(lw-e num) ,(lw->term left) ,(lw->term right))]
       ['leaf
        `leaf]
+      ['hole 'hole]
       [_ (error 'the-e->term "unknown thing ~s" lws)]))
   (define (lw->term an-lw) (the-e->term (lw-e an-lw)))
   (with-compound-rewriters (['node (λ (lws) (list (bt->pict (the-e->term lws))))])
@@ -160,7 +161,13 @@
   (naive-layered
    (let loop ([n n])
      (match n
-       [`leaf (tree-layout #:pict (leaf-pict) #f #f)]
+       [`hole
+        (tree-layout #:pict
+                     (term->pict (check-default-language 'util.rkt::bt->pict)
+                                 hole)
+                     #f #f)]
+       [`leaf
+        (tree-layout #:pict (leaf-pict) #f #f)]
        [`(node ,n ,l ,r) (tree-layout #:pict (add-circle (text (~a n)))
                                       (loop l)
                                       (loop r))]))))

@@ -2,7 +2,7 @@
 (require "util.rkt"
          redex/reduction-semantics
          racket/match)
-(provide prelim perfect complete height)
+(provide prelim perfect complete height -->)
 
 (define-language prelim
   (bt ::=
@@ -325,20 +325,20 @@
                 (term bt))))
 
 (define-judgment-form prelim
-  #:mode (sum I O)
+  #:mode (--> I O)
   [---- "two children"
-   (sum (in-hole C (node z_1 (node z_2 leaf leaf) (node z_3 leaf leaf)))
+   (--> (in-hole C (node z_1 (node z_2 leaf leaf) (node z_3 leaf leaf)))
         (in-hole C (node z_1 (node (meta-+ z_2 z_3) leaf leaf) leaf)))]
 
   [---- "one child"
-   (sum (in-hole C (node z_1 (node z_2 leaf leaf) leaf))
+   (--> (in-hole C (node z_1 (node z_2 leaf leaf) leaf))
         (in-hole C (node (meta-+ z_1 z_2) leaf leaf)))])
 
 (module+ test
-  (test-judgment-holds (sum (node 1 (node 1 leaf leaf) (node 1 leaf leaf))
+  (test-judgment-holds (--> (node 1 (node 1 leaf leaf) (node 1 leaf leaf))
                             (node 1 (node 2 leaf leaf) leaf)))
 
-  (test-judgment-holds (sum (node 1 (node 2 leaf leaf) leaf)
+  (test-judgment-holds (--> (node 1 (node 2 leaf leaf) leaf)
                             (node 3 leaf leaf))))
 
 (define (complete-sums-to-complete bt)
@@ -348,7 +348,7 @@
     [_
      (match (judgment-holds (complete ,bt n) n)
        [(list n)
-        (define nexts (judgment-holds (sum ,bt bt_next) bt_next))
+        (define nexts (judgment-holds (--> ,bt bt_next) bt_next))
         (for/or ([next (in-list nexts)])
           (judgment-holds (complete ,next n)))]
        [(list)
@@ -425,7 +425,7 @@
           "forestgreen"]
          [else "firebrick"]))
      (write-special (new pict-snip% [pict (colorize pict clr)]) op))
-   sum
+   -->
    (term
     (node 1
           (node 1
