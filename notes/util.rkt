@@ -124,18 +124,19 @@
    (with-atomic-rewriter 't "τ"
     (with-atomic-rewriter 'l "ℓ"
      (with-atomic-rewriter 'k "κ"
-      (parameterize
-        ([default-font-size              16]
-         [default-style                  SERIF-FONT]
-         [grammar-style                  SERIF-FONT]
-         [label-style                    SERIF-FONT]
-         [literal-style                  MONO-FONT]
-         [metafunction-style             SERIF-FONT]
-         [non-terminal-style             (cons 'italic SERIF-FONT)]
-         [non-terminal-subscript-style   (cons 'subscript SERIF-FONT)]
-         [non-terminal-superscript-style (cons 'superscript SERIF-FONT)]
-         [paren-style                    SERIF-FONT])
-        (thunk)))))))
+      (with-atomic-rewriter '--> "⟶"
+       (parameterize
+           ([default-font-size              16]
+            [default-style                  SERIF-FONT]
+            [grammar-style                  SERIF-FONT]
+            [label-style                    SERIF-FONT]
+            [literal-style                  MONO-FONT]
+            [metafunction-style             SERIF-FONT]
+            [non-terminal-style             (cons 'italic SERIF-FONT)]
+            [non-terminal-subscript-style   (cons 'subscript SERIF-FONT)]
+            [non-terminal-superscript-style (cons 'superscript SERIF-FONT)]
+            [paren-style                    SERIF-FONT])
+         (thunk))))))))
 
 (define (with-typesetting/tree/thunk thunk)
   (define (is-node? an-lw)
@@ -153,7 +154,8 @@
       ['hole 'hole]
       [_ (error 'the-e->term "unknown thing ~s" lws)]))
   (define (lw->term an-lw) (the-e->term (lw-e an-lw)))
-  (with-compound-rewriters (['node (λ (lws) (list (bt->pict (the-e->term lws))))])
+  (with-compound-rewriters (['node (λ (lws) (list ""
+                                                  (bt->pict (the-e->term lws))))])
     (with-atomic-rewriter 'leaf leaf-pict
       (with-typesetting/thunk thunk))))
 
@@ -198,12 +200,7 @@
 
 (define-syntax-parser tree
   [(_ e)
-   #'(with-typesetting/tree
-         (render-term
-          (check-default-language 'util.rkt::term) e))]
-  [(_ e #:lang L)
-   #'(with-typesetting/tree
-         (render-term L e))])
+   #'(bt->pict 'e)])
 
 (define (check-default-language name)
   (define l (default-language))

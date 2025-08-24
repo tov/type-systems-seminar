@@ -49,7 +49,7 @@ In words, this definition says that @term[bt] is the
 smallest set satisfying two conditions, one for each line of
 the definition. The first line says that @term[leaf] is a
 member of the set @term[bt]. The second line says that, for
-any natural number @term[z] and any two other binary trees,
+any integer @term[z] and any two other binary trees,
 @term[bt_1] and @term[bt_2], @term[(node z bt_1 bt_2)] is a
 member of the set @term[bt].
 
@@ -65,10 +65,12 @@ As a notational device, we will pun on the use of @term[bt]
 both as the set and as an element of the set, using the name
 of the element to indicate which set it comes from.
 
-Throughout these notes, we will write out example terms
-following the notation in the grammar, but for the specific
-case of trees, it is often easier to see what is going on when we
-visualize them like this, so we will do so, from time to time.
+Throughout this section of the notes, we will write out
+example terms following the notation in the grammar, but for
+the specific case of trees, it is often easier to see what
+is going on when we visualize them in a conventional manner,
+so we will do so, from time to time. Here is that first
+example again, but drawn conventionally.
 @centered{@tree[(node 2 (node 1 leaf leaf) leaf)]}
 
 @section{Proving Properties by Induction}
@@ -93,18 +95,19 @@ in the order are finite. For the natural numbers, the
 ordering is simply the usual less-than ordering. That is,
 given any particular natural number, there are only a finite
 number of other naturals that are less than it, so chaining
-together these lemmas will always eventually bottom out.
+together these lemmas will always eventually bottom out,
+making the proof technique sound.
 
 The way we define sets always gives us such a well-founded
 order, meaning that any of the definitions of sets we use in
 these notes are also amenable to proofs by induction.
 Putting it another way, we can imagine that the set of
 natural numbers is defined this way:
-@render-nonterminals[prelim ℕ]
-and that the usual natural-number based induction is
-actually based on the natural numbers being defined in that
-manner; we generalize this perspective to all of the
-sets that we define.
+@render-nonterminals[prelim ℕ] and that the usual
+natural-number based induction is actually based on the
+natural numbers being defined in that manner; these notes
+generalize this perspective to all of the sets that we
+define.
 
 Taking this idea to our binary tree set definition, there
 are two ways to create binary trees, either they are leaves
@@ -113,11 +116,12 @@ we want to prove some property of binary trees we can
 organize the proof into two parts: first we prove the
 property for leaves and then we assume the property holds
 for two arbitrary trees and show that it holds for the tree
-you get by combining the two together with an integer using
-@term[node]. These then become the two lemmas that can be
-chained together to obtain the proof for any particular
-binary tree; that is, if we can prove those two lemmas, we
-know the property holds for all of the binary trees.
+you get by combining the two together with an arbitrary
+integer using @term[node]. These then become the two lemmas
+that can be chained together to obtain the proof for any
+particular binary tree. In other words, if we can prove
+those two facts, we know the property holds for all of the
+binary trees.
 
 Let's look at an example proof. Say we wished to prove that,
 in a binary tree of height @${h}, there are at most @${2^h}
@@ -179,13 +183,14 @@ perfect binary tree and all the paths to leaves have length
 @term[z].
 
 We define the relation inductively, just as the sets are
-defined inductively, using rules. We write the rules are
-written as sequents, meaning we write premises (assumptions)
-above a bar and a conclusion below the bar, and a name for
-the rule beside the bar. We take this to mean that whenever
-some term satisfies the premises, then the conclusion is
-true. Just like the definitions of the sets, the relations
-are the smallest ones that satisfy the rules.
+defined inductively, using rules. We write the rules as
+sequents, meaning we write premises (assumptions) above a
+bar and a conclusion below the bar, and a name for the rule
+beside the bar. We take this to mean that whenever the
+premises hole, then the conclusion is true. Just like the
+definitions of the sets, the relations are the smallest ones
+that satisfy the rules, meaning that the only way to show
+membership in the relation is to use the rules.
 
 Let's clarify this with an example. Here are the rules for
 perfect trees:
@@ -228,8 +233,8 @@ furthermore, all of the paths of length @term[n] are to the
 left and the paths of length @term[(meta-sub1 n)] are to the
 right, when drawn out. Such trees are called complete trees.
 
-For example, the tree on the left is a complete tree of size
-four and the tree on the right is a tree of size four that
+For example, the tree on the left is a complete tree of height
+four and the tree on the right is a tree of height four that
 is not complete because the bottom row of nodes is not
 filled in from the left.
 
@@ -289,21 +294,21 @@ with with a height of 4 and 5 leaves:
 
 For perfect and complete binary trees, however, there must
 be many more leaves than the height. Let's start with
-perfect trees, where there must be at least @${2^h} leaves.
+perfect trees, where there must be exactly @${2^h} leaves.
 
 To prove this, we need to do induction again, and on the
 structure of the tree, but because we know that the tree is
-complete, we will have more information at each stage but we
-will also have more requirements to be able to use
-induction. The additional information and the additional
-requirement both comes from the definition of the
+complete, we will have more information at each stage. There
+is a catch, however: we will also have more requirements to
+be able to use induction. The additional information and the
+additional requirement both comes from the definition of the
 @term[(perfect bt z)] relation.
 
 To be able to use the relation, we first prove a result that
 connects the shape of the binary tree (i.e., which rule was
 used to construct the tree) to the definition of the
 relation. This lemma is called inversion, and each relation
-comes with an inversion lemma.
+comes with its own inversion lemma.
 
 @lemma[#:name "Inversion"]
 If @term[(perfect bt n)] then,
@@ -462,6 +467,16 @@ If @term[(complete bt n)] then,
  the height of @term[bt] is @term[n].
 }
 
+@exercise{Show that, with the specific given definitions
+ above, for any @term[bt], if @term[(perfect bt n)], then
+ @term[(complete bt n)].
+ }
+
+@exercise{The converse of the claim in the previous exercise
+ is false. Find the smallest binary tree that is a
+ counterexample and write out the derivation showing it is
+ complete.}
+
 @section{Contexts and Relations that Capture Computation}
 
 Beyond using relations to capture particular desirable
@@ -608,12 +623,64 @@ by the relation, as are many others.
 
 @section{Contexts and Proofs}
 
+As contexts allow us to pick out subtrees of binary trees,
+they also allow us to pick out subtrees of perfect and
+complete binary trees. Let's prove a lemma that says that
+such subtrees of perfect trees are themselves perfect.
+
+@theorem[] For any context @term[C] and binary tree @term[bt], if
+@term[(perfect (in-hole C bt) n)] then @term[(perfect bt n_′)] for
+some @term[n_′].
+
+@proof[] By induction on the structure of @term[C].
+@itemlist[
+ @item{If @term[C] is @term[hole], then @term[bt] is @term[bt′].
+  So we can choose @term[n_′] to be @term[n] to satisfy the goal.
+ }
+  @item{ If @term[C] is @term[(node z bt_′ C_′)] then we should
+  apply induction on the inner @term[C_′]. To do so, we have
+  to show that @term[(in-hole C_′ bt)] is perfect. For that, we
+  turn to our assumption that @term[(perfect (in-hole C bt_′) n)].
+  In this case, however, we know the outer layer of @term[C],
+  which means that @term[(in-hole (node z bt_′ C_′) bt)] is perfect.
+  Because of what it means to replace a term in the hole, this is the
+  same thing as @term[(node z bt_′ (in-hole C_′ bt))] and thus we
+  know that @term[(perfect (node z bt_′ (in-hole C_′ bt)) n)]. By
+  inversion on the definition of a perfect binary tree, we know that
+  both @term[bt_′] and @term[(in-hole C_′ bt)] are perfect binary trees,
+  setting us up to use induction, which gives us the desired result.
+ }
+ @item{The final case is that @term[C] is @term[(node z C bt_′)]. This proceeds
+  in an analogous manner to the previous case.
+  }]
+
+QED.
+
+@exercise{ The converse, namely that if
+ @term[(perfect bt n)] then
+ @term[(perfect (in-hole C bt) n_′)] for some @term[n_′] is
+ false. Give a counterexample.
+}
+
+@exercise{Prove that for any context @term[C] and binary tree @term[bt], if
+@term[(complete (in-hole C bt) n)] then @term[(complete bt n_′)] for
+some @term[n_′].
+}
+
+@section{A Preservation Proof}
+
 The two rules in the definition of the
 @term[(--> bt_1 bt_2)] relation are enough to reduce every
 binary tree that has any numbers to one that contains just a
 single number. Additionally, it is even possible to reduce
 every complete tree to another complete tree. Let us attempt
-a proof.
+a proof. Let's try to prove this.
+
+Although this proof differs in specific ways from the kinds
+of proofs we will be doing for type systems, it is
+illustrative of the general kind of thinking we need to be
+equipped for when doing those proofs. 
+
 
 @theorem[]
  For every binary tree @term[bt], if @term[(complete bt n)], then
@@ -672,3 +739,137 @@ induction. Let's see what goes wrong.
   more information from induction, but also means we have to
   establish harder-to-prove goals.
   }]
+
+To make this proof work out, we can look more critically at
+the “for some @term[n_′]” aspect of the theorem statement.
+This does not tell us anything about the @term[n_′], which
+is why we got stuck. But we know something about @term[n_′].
+Let's look at a few examples. There are two situations;
+first there is a situation like this one, where we are
+summing up elements along the bottom row but we have not yet
+reached the leftmost spot on the bottom row:
+@centered{
+ @tree[(node 1
+             (node 1
+                   (node 1 leaf leaf)
+                   (node 1 leaf leaf))
+             (node 1
+                   leaf
+                   leaf))]
+}
+In that case, a single step gives us another complete tree with the same height.
+@centered{
+ @tree[(node 1
+             (node 1
+                   (node 2 leaf leaf)
+                   leaf)
+             (node 1
+                   leaf
+                   leaf))]
+}
+
+The next step after, however, demonstrates the other
+situation. It gives us a complete tree with a height that's
+one smaller. And, when that happens, we will actually always
+get a tree that's not just complete, but also perfect:
+
+@centered{
+ @tree[(node 1
+             (node 3
+                   leaf
+                   leaf)
+             (node 1
+                   leaf
+                   leaf))]
+}
+
+Let's turn this observation into a more precise statement we can use
+a lemma to prove the original theorem.
+
+@lemma[]
+ For every binary tree @term[bt], if @term[(complete bt n)], then
+ either
+ @itemlist[
+ @item{ @term[bt] is @term[leaf] }
+ @item{ @term[bt] is @term[(node z leaf leaf)] for some @term[z], }
+ @item{ there is a @term[bt_′] such that @term[(complete bt_′ n)] and
+  @term[(--> bt bt_′)], or}
+ @item{ there is a @term[bt_′] such that @term[(perfect bt_′ (meta-sub1 n))] and
+  @term[(--> bt bt_′)], or}
+ ]
+
+@proof[] By induction on @term[bt].
+
+@itemlist[
+ #:style 'ordered
+ @item{
+  @term[bt] is @term[leaf], which is one of the cases in the conclusion.
+ }
+ @item{ @term[bt] is @term[(node z bt_1 bt_2)] for some
+  @term[z], @term[bt_1], and @term[bt_2].
+  Since @term[(complete bt n)], by inversion we know that
+  there are two subcases.
+  @itemlist[
+ #:style 'ordered
+ @item{ In the first subcase from inversion, we know that
+    @term[n] is at least 1,
+    @term[(perfect bt_1 (meta-sub1 n))], and
+    @term[(complete bt_2 (meta-sub1 n))]. Since we know that
+    @term[bt_2] is complete, we can apply induction, which gives us
+    four possibilities.
+    @itemlist[
+ #:style 'ordered
+ @item{
+      The first case is that
+      @term[bt_2] is @term[leaf], which means that the original @term[bt] is
+     @term[(node z bt_1 leaf)]. We can examine the rules for the definition of
+     complete and this tells us that @term[bt_1] must have height at most 1, meaning
+     there are just a two possibilities:
+     @itemlist[
+ @item{@term[bt_1] is @term[leaf]; and this satisfies the second condition
+       of the lemma's statement.}
+ @item{@term[bt_1] is @term[(node z_1 leaf leaf)] and thus @term[bt] is
+       @term[(node z (node z_1 leaf leaf) leaf)], which reduces to
+       the perfect tree @term[(node (meta-+ z z_1) leaf leaf)].}
+ ]
+     }
+ @item{The second case from induction is
+       that @term[bt_2] is @term[(node z_2 leaf leaf)]. This case is
+       similar to the previous case, except there are more
+       trees that @term[bt_1] can be. In each of them, we can
+       find a @term[bt_′] that satisfies the goal.
+       }
+ @item{
+      In the third situation that induction gives us, we know
+      that there is a @term[bt_2′] such that
+      @term[(complete bt_2′ n)] and
+      @term[(--> bt_2 bt_2′)]. The @term[bt_′] that
+      satisfies the lemma is
+      @term[(node z bt_1 bt_2′)] and it does so via the third
+      alternative in the lemma statement. To prove that, we have to show that
+      @term[(complete bt_′ n)] and @term[(--> bt bt_′)]. For the first,
+      we can use the @rulename[right] rule in the definition of complete binary trees.
+      For the second, we can add the context @term[(node z bt_1 C)] around
+      both @term[bt_2] and @term[bt_2′].}
+ @item{In the fourth situation that induction gives us, we
+      know that there is a @term[bt_2′] that is perfect with
+      height @term[(meta-sub2 n)] such that
+      @term[(--> bt_2 bt_2′)]. The @term[bt_′] that satisfies the
+      lemma in this case is @term[(node z bt_1 bt_2′)]. We can
+      conclude that @term[(--> bt bt_′)] by adding the context
+      @term[(node z bt_1 C)] around both @term[bt_2] and @term[bt_2′].
+
+      To show that @term[bt_′] is complete, let's remind
+      ourselves what we know about the subtrees of @term[bt_′].
+      From inversion at the start of this case, we know that
+      @term[(perfect bt_1 (meta-sub1 n))]. We also learned, from induction,
+      that @term[(perfect bt_2′ (meta-sub2 n))]. We can use these facts
+      together with the @rulename[left] rule to conclude that @term[(complete bt_′ n)],
+      which satisfies the third clause of the goal of the lemma.
+      }]}]}]
+
+@exercise{The proof above is missing about half of itself,
+ specifically the case 2b (the second case of inversion in
+ the case that @term[bt] is @term[(node z bt_1 bt_2)].
+ Complete the proof.
+ }

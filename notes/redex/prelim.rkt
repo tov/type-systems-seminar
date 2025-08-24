@@ -324,6 +324,82 @@
                (height-of-complete-trees
                 (term bt))))
 
+(define (complete-decomposes-into-complete bt)
+  (cond
+    [(judgment-holds (complete ,bt n))
+     (define binds (redex-match prelim (in-hole C bt_2) bt))
+     (for/and ([mtch (in-list binds)])
+       (define binds (match-bindings mtch))
+       (define bt2 (for/or ([bind (in-list binds)])
+                     (and (equal? (bind-name bind) 'bt_2)
+                          (bind-exp bind))))
+       (judgment-holds (complete ,bt2 n)))]
+    [else #t]))
+
+(module+ test
+  (test-equal (complete-decomposes-into-complete (term leaf))
+              #t)
+  (test-equal (complete-decomposes-into-complete (term (node 1 leaf leaf)))
+              #t)
+  (test-equal (complete-decomposes-into-complete (term (node 1
+                                                             (node 1 leaf leaf)
+                                                             leaf)))
+              #t)
+  (test-equal (complete-decomposes-into-complete (term (node 1
+                                                             (node 1 leaf leaf)
+                                                             (node 1 leaf leaf))))
+              #t)
+  (test-equal (complete-decomposes-into-complete
+               (term (node 1
+                           (node 1
+                                 (node 1 leaf leaf)
+                                 (node 1 leaf leaf))
+                           (node 1
+                                 (node 1 leaf leaf)
+                                 (node 1 leaf leaf)))))
+              #t)
+  (redex-check prelim bt #:ad-hoc
+               (complete-decomposes-into-complete
+                (term bt))))
+
+(define (perfect-decomposes-into-perfect bt)
+  (cond
+    [(judgment-holds (perfect ,bt n))
+     (define binds (redex-match prelim (in-hole C bt_2) bt))
+     (for/and ([mtch (in-list binds)])
+       (define binds (match-bindings mtch))
+       (define bt2 (for/or ([bind (in-list binds)])
+                     (and (equal? (bind-name bind) 'bt_2)
+                          (bind-exp bind))))
+       (judgment-holds (perfect ,bt2 n)))]
+    [else #t]))
+
+(module+ test
+  (test-equal (perfect-decomposes-into-perfect (term leaf))
+              #t)
+  (test-equal (perfect-decomposes-into-perfect (term (node 1 leaf leaf)))
+              #t)
+  (test-equal (perfect-decomposes-into-perfect (term (node 1
+                                                           (node 1 leaf leaf)
+                                                           leaf)))
+              #t)
+  (test-equal (perfect-decomposes-into-perfect (term (node 1
+                                                           (node 1 leaf leaf)
+                                                           (node 1 leaf leaf))))
+              #t)
+  (test-equal (perfect-decomposes-into-perfect
+               (term (node 1
+                           (node 1
+                                 (node 1 leaf leaf)
+                                 (node 1 leaf leaf))
+                           (node 1
+                                 (node 1 leaf leaf)
+                                 (node 1 leaf leaf)))))
+              #t)
+  (redex-check prelim bt #:ad-hoc
+               (perfect-decomposes-into-perfect
+                (term bt))))
+
 (define-judgment-form prelim
   #:mode (--> I O)
   [---- "two children"
