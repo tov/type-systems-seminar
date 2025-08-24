@@ -449,7 +449,7 @@ If @term[(complete bt n)] then,
     }
  @item{In the other subcase, we know that @term[n] is at
     least 2, @term[(complete bt_1 (meta-sub2 n))], and
-    @term[(perfect bt_2 (meta-sub1 n))] As in the previous case,
+    @term[(perfect bt_2 (meta-sub1 n))]. As in the previous case,
     by the results from the two exercises, we know that the
     @${max} expression in the goal specializes to @${h_2},
     meaning our goal becomes @$${2^{h_2} ≤ l_1 + l_2} We can
@@ -586,7 +586,7 @@ two trees by the first rule:
 But because the @term[C] in the rule can be an arbitrary
 element of the set @term[C], it might also have been the
 example above, meaning that these two trees are also related
-by the relation.
+by the relation, as are many others.
 
 @centered{
   @tree[(node 4
@@ -607,3 +607,68 @@ by the relation.
 }
 
 @section{Contexts and Proofs}
+
+The two rules in the definition of the
+@term[(--> bt_1 bt_2)] relation are enough to reduce every
+binary tree that has any numbers to one that contains just a
+single number. Additionally, it is even possible to reduce
+every complete tree to another complete tree. Let us attempt
+a proof.
+
+@theorem[]
+ For every binary tree @term[bt], if @term[(complete bt n)], then
+ either
+ @itemlist[
+ @item{ @term[bt] is @term[leaf] }
+ @item{ @term[bt] is @term[(node z leaf leaf)] for some @term[z], or }
+ @item{ There is a @term[bt_′] and @term[(complete bt n_′)] for some
+   @term[n_′] and @term[(--> bt bt_′)].}
+ ]
+
+As stated, this theorem is true, but not amenable to
+induction. Let's see what goes wrong.
+
+@not-proof[] By induction on @term[bt].
+@itemlist[
+ @item{
+  @term[bt] is @term[leaf], which is one of the cases in the conclusion.
+ }
+ @item{ @term[bt] is @term[(node z bt_1 bt_2)] for some
+  @term[z], @term[bt_1], and @term[bt_2].
+  Since @term[(complete bt n)], by inversion we know that
+  there are two subcases. Let's focus on the first one
+  to see where the proof goes wrong. It says that
+  @term[n] is at least 1,
+  @term[(perfect bt_1 (meta-sub1 n))], and
+  @term[(complete bt_2 (meta-sub1 n))]. Since we know that
+  @term[bt_2] is complete, we can apply induction, which gives us
+  three possibilities. The first one is that
+  @term[bt_2] is @term[leaf] and the second one is that
+  @term[bt_2] is @term[(node z_2 leaf leaf)], and these are not problematic.
+
+  In the third situation that induction gives us, we know
+  that there is a @term[bt_2′] such that
+  @term[(complete bt_2′ n_2)] for some @term[n_2], and
+  @term[(--> bt_2 bt_2′)]. At this point, we might wish to say
+  that binary tree @term[(node z bt_1 bt_2′)] is complete to
+  finish this case. Unfortunately, all we know is that
+  @term[(complete bt_2′ n_2)] and we need to know that
+  @term[(complete bt_2′ n)]. In particular, we do not know
+  that @term[n] is the same as @term[n_2]. And, in fact, it
+  might not be! For example, the tree
+  @centered{@tree[(node 1 (node 1 leaf leaf) leaf)]} is
+  complete with height 2, and it is related to
+  @centered{@tree[(node 2 leaf leaf)]} by the
+  @rulename[one\ child] rule, but that binary tree has height 1.
+
+  This does not make the theorem false, however. What has
+  gone wrong is that our inductive hypothesis is not strong
+  enough. That is, the information we learn from induction is
+  weaker than what is actually true. This is one of the
+  essential truths when working with proofs by induction:
+  sometimes we have to prove state a stronger result to be
+  able to get useful facts from induction. Indeed, this
+  becomes a balancing act, as stating a strong result gives us
+  more information from induction, but also means we have to
+  establish harder-to-prove goals.
+  }]

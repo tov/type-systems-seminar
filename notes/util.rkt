@@ -2,7 +2,7 @@
 
 (provide with-typesetting
          term tree langname rulename
-         theorem lemma exercise proof
+         theorem lemma exercise proof not-proof
          render-reduction-rules
          render-judgment-rules
          render-judgment-rules/horiz
@@ -346,3 +346,4 @@
 (define-theorem-like lemma Lemma)
 (define-theorem-like exercise Exercise #:numbered)
 (define-theorem-like proof Proof)
+(define-theorem-like not-proof |(Not a) Proof|)
