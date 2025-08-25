@@ -319,6 +319,20 @@ If @term[(perfect bt n)] then,
           @term[(perfect bt_2 (meta-sub1 n))]}]
 @proof[] By inspection of the rules.
 
+We can also connect the size of the natural number in the
+perfect binary tree relation to the possible tree shapes in
+a similar manner.
+
+@lemma[#:name "Inversion"]
+If @term[(perfect bt n)] then,
+ @itemlist[
+ @item{If @term[n] is 0 then @term[bt] must be @term[leaf].}
+ @item{If @term[n] is at least 1, then
+  @term[bt] must be @term[(node z bt_1 bt_2)] for some @term[z], @term[bt_1],
+  and @term[bt_2]. Furthermore, 
+  we know that @term[(perfect bt_1 (meta-sub1 n))] and
+          @term[(perfect bt_2 (meta-sub1 n))]}]
+@proof[] By inspection of the rules.
 
 Equipped with the inversion lemma, we can prove the result
 about perfect binary trees.
@@ -412,8 +426,8 @@ If @term[(complete bt n)] then,
     @term[(complete bt_2 (meta-sub1 n))], or}
  @item{
     @term[n] is at least 2,
-    @term[(complete bt_1 (meta-sub2 n))], and
-    @term[(perfect bt_2 (meta-sub1 n))]}]}]
+    @term[(complete bt_1 (meta-sub1 n))], and
+    @term[(perfect bt_2 (meta-sub2 n))]}]}]
 @proof[] By inspection of the rules.
 
 @theorem{For any complete tree @term[bt] with @${l} leaves and
@@ -453,8 +467,8 @@ If @term[(complete bt n)] then,
     
     }
  @item{In the other subcase, we know that @term[n] is at
-    least 2, @term[(complete bt_1 (meta-sub2 n))], and
-    @term[(perfect bt_2 (meta-sub1 n))]. As in the previous case,
+    least 2, @term[(complete bt_1 (meta-sub1 n))], and
+    @term[(perfect bt_2 (meta-sub2 n))]. As in the previous case,
     by the results from the two exercises, we know that the
     @${max} expression in the goal specializes to @${h_2},
     meaning our goal becomes @$${2^{h_2} ≤ l_1 + l_2} We can
@@ -820,25 +834,22 @@ a lemma to prove the original theorem.
     @itemlist[
  #:style 'ordered
  @item{
-      The first case is that
-      @term[bt_2] is @term[leaf], which means that the original @term[bt] is
-     @term[(node z bt_1 leaf)]. We can examine the rules for the definition of
-     complete and this tells us that @term[bt_1] must have height at most 1, meaning
-     there are just a two possibilities:
-     @itemlist[
- @item{@term[bt_1] is @term[leaf]; and this satisfies the second condition
-       of the lemma's statement.}
- @item{@term[bt_1] is @term[(node z_1 leaf leaf)] and thus @term[bt] is
-       @term[(node z (node z_1 leaf leaf) leaf)], which reduces to
-       the perfect tree @term[(node (meta-+ z z_1) leaf leaf)].}
- ]
+      The first case is that @term[bt_2] is @term[leaf]. We can use
+      inversion on the fact that @term[(complete bt_2 (meta-sub1 n))] to
+      learn that @term[(meta-sub1 n)] is zero, and thus @term[n] must be 1.
+      Therefore, we know that @term[(perfect bt_1 0)] which, from
+      inversion tells us that @term[bt_1] must be @term[leaf].
+      Therefore, this case satisfies the second clause in the lemma
+      statement.
      }
- @item{The second case from induction is
-       that @term[bt_2] is @term[(node z_2 leaf leaf)]. This case is
-       similar to the previous case, except there are more
-       trees that @term[bt_1] can be. In each of them, we can
-       find a @term[bt_′] that satisfies the goal.
-       }
+ @item{
+      The second case from induction is that @term[bt_2]
+      is @term[(node z_2 leaf leaf)]. This case is similar to the
+      previous case, except that the binary tree is larger; as
+      before, examining the definition of complete binary trees
+      gives us enough information to establish this case; it uses
+      the third case in the lemma statement.
+     }
  @item{
       In the third situation that induction gives us, we know
       that there is a @term[bt_2′] such that
@@ -864,12 +875,26 @@ a lemma to prove the original theorem.
       From inversion at the start of this case, we know that
       @term[(perfect bt_1 (meta-sub1 n))]. We also learned, from induction,
       that @term[(perfect bt_2′ (meta-sub2 n))]. We can use these facts
-      together with the @rulename[left] rule to conclude that @term[(complete bt_′ n)],
-      which satisfies the third clause of the goal of the lemma.
-      }]}]}]
+      together with the @rulename[right] rule to conclude that
+      @term[(complete bt_′ n)], which satisfies the third clause of the
+      goal of the lemma.
+      }]}
+ @item{
+    In the second subcase from inversion,
+    we know that @term[n] is at
+    least 2, @term[(complete bt_1 (meta-sub1 n))], and
+    @term[(perfect bt_2 (meta-sub2 n))]. This time, we can do
+    induction on @term[bt_1], giving us four more subcases:
+    @itemlist[
+ #:style 'ordered
+ @item{In the first subcase, we know that @term[bt_1] is @term[leaf].
+     By inversion of @term[(complete bt_1 (meta-sub1 n))] we know that
+     @term[(meta-sub1 n)] must be zero. But this is impossible and thus
+     @term[bt_1] could not actually have been @term[leaf] in this situation.}
+ ]}]}]
 
-@exercise{The proof above is missing about half of itself,
- specifically the case 2b (the second case of inversion in
- the case that @term[bt] is @term[(node z bt_1 bt_2)].
+@exercise{Around half of the the proof above is missing,
+ specifically the last three subcases of 2b (the second case of inversion in
+ the case that @term[bt] is @term[(node z bt_1 bt_2)]).
  Complete the proof.
  }
