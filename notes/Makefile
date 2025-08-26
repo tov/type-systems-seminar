@@ -33,4 +33,7 @@ upload: $(HTML) $(PDF)
 	  $(HTMLDIR) $(PDF) \
 	  web1.cs.northwestern.edu:public_html/course/type-systems-wi18/
 
+dist: $(HTML)
+	cp -r $(HTMLDIR)/* ~/public_html/courses/496-2025-fall/
+
 .PHONY: html one pdf upload
