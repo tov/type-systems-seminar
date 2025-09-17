@@ -313,7 +313,7 @@ comes with its own inversion lemma.
 @lemma[#:name "Inversion"]
 If @term[(perfect bt n)] then,
  @itemlist[
- @item{If @term[bt] is @term[leaf] then @term[z] must be 0.}
+ @item{If @term[bt] is @term[leaf] then @term[n] must be 0.}
  @item{If @term[bt] is @term[(node z bt_1 bt_2)] then @term[n] must be
   at least @term[1] and @term[(perfect bt_1 (meta-sub1 n))] and
           @term[(perfect bt_2 (meta-sub1 n))]}]
@@ -408,7 +408,7 @@ exact number of leaves, but there still have to be many
 leaves compared to the example from the start of this
 section. In particular, we can bound the number of leaves in
 a complete tree from below; in a complete binary tree of
-height @${h} must be at least @${2^{h-1}} leaves.
+height @${h}, there must be at least @${2^{h-1}} leaves.
 
 Because the definition of complete trees is more complex,
 the proof requires a little more sophistication. To start we
@@ -487,8 +487,9 @@ If @term[(complete bt n)] then,
  }
 
 @exercise{The converse of the claim in the previous exercise
- is false. Find the smallest binary tree that is a
- counterexample and write out the derivation showing it is
+ is false. That is, it is not true that if @term[(complete bt n)]
+ then @term[(perfect bt n)]. Find the smallest binary tree that is
+ complete but not perfect and write out the derivation showing it is
  complete.}
 
 @section{Contexts and Relations that Capture Computation}
@@ -687,13 +688,13 @@ The two rules in the definition of the
 @term[(--> bt_1 bt_2)] relation are enough to reduce every
 binary tree that has any numbers to one that contains just a
 single number. Additionally, it is even possible to reduce
-every complete tree to another complete tree. Let us attempt
-a proof. Let's try to prove this.
+every complete tree to another complete tree. Let's try to
+prove this.
 
 Although this proof differs in specific ways from the kinds
 of proofs we will be doing for type systems, it is
-illustrative of the general kind of thinking we need to be
-equipped for when doing those proofs. 
+illustrative of the general kind of thinking we need when
+doing those proofs.
 
 
 @theorem[]
