@@ -335,10 +335,18 @@ If @term[(perfect bt n)] then,
 @proof[] By inspection of the rules.
 
 Equipped with the inversion lemma, we can prove the result
-about perfect binary trees.
+about perfect binary trees. There is one subtle point here,
+however, that comes up in the second case. Specifically, bear
+in mind that the property we are trying to prove is itself
+an implication.
 
 @theorem{For any binary tree @term[bt] with @${l} leaves and
  height @${h}, if @term[(perfect bt n)], then @${2^h = l}.}
+
+This “if @term[(perfect bt n)] ...” plays a role as an
+assumption (we get to assume that about the given tree) but
+it also plays the role of an obligation, when we try to use
+the inductive hypothesis.
 
 @proof[] By induction on the structure of the tree.
 
@@ -364,7 +372,12 @@ Now, as in the previous proof, we can do induction using
   we know that @term[(perfect bt_1 (meta-sub1 n))] and
   @term[(perfect bt_2 (meta-sub1 n))]. This lets us apply
   induction, telling us that @${2^{h_1} = l_1} and @${2^{h_2}
-   = l_2}.
+   = l_2}. Take care when using induction in settings like this!
+  the inductive hypothesis matches the entire proof and that
+  proof has an implication in it; we must discharge that assumption
+  in order to use the inductive hypothesis. In this case, it is
+  straightforward, as get can satisfy the assumption directly
+  from inversion, but that won't always be the case.
 
   From here, we have to do algebraic manipulations to obtain
   the goal. Let's start by adding the left- and right-hand
