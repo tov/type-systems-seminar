@@ -501,31 +501,18 @@ If @term[(complete bt n)] then,
 
 @exercise{The converse of the claim in the previous exercise
  is false. That is, it is not true that if @term[(complete bt n)]
- then @term[(perfect bt n)]. Find the smallest binary tree that is
+ then @term[(perfect bt n)]. Find one of the smallest possible binary trees that is
  complete but not perfect and write out the derivation showing it is
  complete.}
 
-@section{Contexts and Relations that Capture Computation}
+@section{Contexts}
 
-Beyond using relations to capture particular desirable
-subsets of the sets we have defined, we can also use
-relations to capture a form of computation, where we relate
-one element of a set to another one. The interpretation of
-these relations will be that some small amount of
-computation has occurred to transform one tree into the
-other one.
+A very powerful concept for defining relations is the idea
+of a context, which we'll focus on for this section, returning
+to how the context is actually useful in later sections.
 
-For our binary trees, we'll use a relation that, step by
-step, adds up the values in nodes, removing one node at a
-time as it does so. The relation is written
-@term[(--> bt_1 bt_2)] to indicate that we can add two
-integers together in @term[bt_1] and update the tree by
-removing one of the nodes to produce @term[bt_2].
-
-Before we define the relation, we need to introduce the idea
-of a @emph{context}. In particular we will write
-@term[(in-hole C bt)], to @emph{decompose} a binary tree
-into two pieces, a @emph{context} @term[C], which is a
+We write @term[(in-hole C bt)], to @emph{decompose} a binary
+tree into two pieces, a @emph{context} @term[C], which is a
 binary tree with a specific spot called the @emph{hole}
 somewhere inside it, plus another binary tree that is placed
 at the hole in the context.
@@ -596,10 +583,74 @@ Or, drawn as a tree:
                    (node 1 leaf leaf)))]
 }
 
-Contexts offer great expressiveness in defining relations
-because we can factor out the specific computational step
-from the place where it occurs inside the tree. Here is the
-the definition of the relation to illustrate the idea.
+As contexts allow us to pick out subtrees of binary trees,
+they also allow us to pick out subtrees of perfect and
+complete binary trees. Let's prove a lemma that says that
+such subtrees of perfect trees are themselves perfect.
+
+@theorem[] For any context @term[C] and binary tree @term[bt], if
+@term[(perfect (in-hole C bt) n)] then @term[(perfect bt n_′)] for
+some @term[n_′].
+
+@proof[] By induction on the structure of @term[C].
+@itemlist[
+ @item{If @term[C] is @term[hole], then @term[bt] is @term[bt′].
+  So we can choose @term[n_′] to be @term[n] to satisfy the goal.
+ }
+  @item{ If @term[C] is @term[(node z bt_′ C_′)] then we should
+  apply induction on the inner @term[C_′]. To do so, we have
+  to show that @term[(in-hole C_′ bt)] is perfect. For that, we
+  turn to our assumption that @term[(perfect (in-hole C bt_′) n)].
+  In this case, however, we know the outer layer of @term[C],
+  which means that @term[(in-hole (node z bt_′ C_′) bt)] is perfect.
+  Because of what it means to replace a term in the hole, this is the
+  same thing as @term[(node z bt_′ (in-hole C_′ bt))] and thus we
+  know that @term[(perfect (node z bt_′ (in-hole C_′ bt)) n)]. By
+  inversion on the definition of a perfect binary tree, we know that
+  both @term[bt_′] and @term[(in-hole C_′ bt)] are perfect binary trees
+  (with height @term[(meta-sub1 n)]),
+  setting us up to use induction, which gives us the desired result.
+ }
+ @item{The final case is that @term[C] is @term[(node z C bt_′)]. This proceeds
+  in an analogous manner to the previous case.
+  }]
+
+QED.
+
+@exercise{ The converse, namely that if
+ @term[(perfect bt n)] then
+ @term[(perfect (in-hole C bt) n_′)] for some @term[n_′] is
+ false. Give a counterexample.
+}
+
+@exercise{Prove that for any context @term[C] and binary tree @term[bt], if
+@term[(complete (in-hole C bt) n)] then @term[(complete bt n_′)] for
+some @term[n_′].
+}
+
+@section{Relations as Computation}
+
+Beyond using relations to capture particular desirable
+subsets of the sets we have defined, we can also use
+relations to capture a form of computation, where we relate
+one element of a set to another one.
+
+The interpretation of these relations will be that some
+small amount of computation has occurred to transform one
+tree into the other one.
+
+For our binary trees, we'll use a relation that, step by
+step, adds up the values in nodes, removing one node at a
+time as it does so. The relation is written
+@term[(--> bt_1 bt_2)] to indicate that we can add two
+integers together in @term[bt_1] and update the tree by
+removing one of the nodes to produce @term[bt_2].
+
+Contexts offer great expressiveness in defining these
+relations because we can factor out the specific
+computational step from the place where it occurs inside the
+tree. Here is the the definition of the relation to
+illustrate the idea.
 
 @render-judgment-rules[--> two\ children one\ child]
 
@@ -649,51 +700,6 @@ by the relation, as are many others.
                    leaf))]
 }
 
-@section{Contexts and Proofs}
-
-As contexts allow us to pick out subtrees of binary trees,
-they also allow us to pick out subtrees of perfect and
-complete binary trees. Let's prove a lemma that says that
-such subtrees of perfect trees are themselves perfect.
-
-@theorem[] For any context @term[C] and binary tree @term[bt], if
-@term[(perfect (in-hole C bt) n)] then @term[(perfect bt n_′)] for
-some @term[n_′].
-
-@proof[] By induction on the structure of @term[C].
-@itemlist[
- @item{If @term[C] is @term[hole], then @term[bt] is @term[bt′].
-  So we can choose @term[n_′] to be @term[n] to satisfy the goal.
- }
-  @item{ If @term[C] is @term[(node z bt_′ C_′)] then we should
-  apply induction on the inner @term[C_′]. To do so, we have
-  to show that @term[(in-hole C_′ bt)] is perfect. For that, we
-  turn to our assumption that @term[(perfect (in-hole C bt_′) n)].
-  In this case, however, we know the outer layer of @term[C],
-  which means that @term[(in-hole (node z bt_′ C_′) bt)] is perfect.
-  Because of what it means to replace a term in the hole, this is the
-  same thing as @term[(node z bt_′ (in-hole C_′ bt))] and thus we
-  know that @term[(perfect (node z bt_′ (in-hole C_′ bt)) n)]. By
-  inversion on the definition of a perfect binary tree, we know that
-  both @term[bt_′] and @term[(in-hole C_′ bt)] are perfect binary trees,
-  setting us up to use induction, which gives us the desired result.
- }
- @item{The final case is that @term[C] is @term[(node z C bt_′)]. This proceeds
-  in an analogous manner to the previous case.
-  }]
-
-QED.
-
-@exercise{ The converse, namely that if
- @term[(perfect bt n)] then
- @term[(perfect (in-hole C bt) n_′)] for some @term[n_′] is
- false. Give a counterexample.
-}
-
-@exercise{Prove that for any context @term[C] and binary tree @term[bt], if
-@term[(complete (in-hole C bt) n)] then @term[(complete bt n_′)] for
-some @term[n_′].
-}
 
 @section{A Preservation Proof}
 
@@ -716,7 +722,7 @@ doing those proofs.
  @itemlist[
  @item{ @term[bt] is @term[leaf] }
  @item{ @term[bt] is @term[(node z leaf leaf)] for some @term[z], or }
- @item{ There is a @term[bt_′] and @term[(complete bt n_′)] for some
+ @item{ There is a @term[bt_′] such that @term[(complete bt_′ n_′)] for some
    @term[n_′] and @term[(--> bt bt_′)].}
  ]
 
