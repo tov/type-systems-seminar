@@ -121,22 +121,24 @@
     ['W      (rewriter [(Γ e S t)   "W(" Γ "; " e ") = (" S "; " t ")"]
                        [(Γ e S t P) "W(" Γ "; " e ") = ("
                                          S "; " t "; " P ")"])])
-   (with-atomic-rewriter 't "τ"
-    (with-atomic-rewriter 'l "ℓ"
-     (with-atomic-rewriter 'k "κ"
-      (with-atomic-rewriter '--> "⟶"
-       (parameterize
-           ([default-font-size              16]
-            [default-style                  SERIF-FONT]
-            [grammar-style                  SERIF-FONT]
-            [label-style                    SERIF-FONT]
-            [literal-style                  MONO-FONT]
-            [metafunction-style             SERIF-FONT]
-            [non-terminal-style             (cons 'italic SERIF-FONT)]
-            [non-terminal-subscript-style   (cons 'subscript SERIF-FONT)]
-            [non-terminal-superscript-style (cons 'superscript SERIF-FONT)]
-            [paren-style                    SERIF-FONT])
-         (thunk))))))))
+   (with-atomic-rewriters
+       (['t "τ"]
+        ['l "ℓ"]
+        ['k "κ"]
+        ['--> "⟶"]
+        ['-->* "⟶*"])
+     (parameterize
+         ([default-font-size              16]
+          [default-style                  SERIF-FONT]
+          [grammar-style                  SERIF-FONT]
+          [label-style                    SERIF-FONT]
+          [literal-style                  MONO-FONT]
+          [metafunction-style             SERIF-FONT]
+          [non-terminal-style             (cons 'italic SERIF-FONT)]
+          [non-terminal-subscript-style   (cons 'subscript SERIF-FONT)]
+          [non-terminal-superscript-style (cons 'superscript SERIF-FONT)]
+          [paren-style                    SERIF-FONT])
+       (thunk)))))
 
 (define (with-typesetting/tree/thunk thunk)
   (define (is-node? an-lw)

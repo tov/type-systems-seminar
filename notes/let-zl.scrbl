@@ -92,7 +92,7 @@ we decompose into the evaluation context @term[hole] and the redex
 @term[(* 3 7)], which converts to @term[21].
 
 We define @term[-->*] to be the reflexive, transitive closure of @term[-->].
-That is, @term[(-->* e_1 _e2)] means that @term[e_1] reduces to @term[e_2] in
+That is, @term[(-->* e_1 e_2)] means that @term[e_1] reduces to @term[e_2] in
 zero or more steps.
 
 The dynamic semantics of @let-zl is now given by the evaluation function
