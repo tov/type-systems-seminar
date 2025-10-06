@@ -880,15 +880,17 @@ a lemma to prove the original theorem.
       alternative in the lemma statement. To prove that, we have to show that
       @term[(complete bt_′ n)] and @term[(--> bt bt_′)]. For the first,
       we can use the @rulename[right] rule in the definition of complete binary trees.
-      For the second, we can add the context @term[(node z bt_1 C)] around
-      both @term[bt_2] and @term[bt_2′].}
+      For the second, consider the @term[C] that was used to conclude
+      @term[(--> bt_2 bt_2′)]. We can extend it to @term[(node z bt_1 C)] and then
+      use that to conclude that @term[(--> bt bt_′)].}
  @item{In the fourth situation that induction gives us, we
       know that there is a @term[bt_2′] that is perfect with
       height @term[(meta-sub2 n)] such that
       @term[(--> bt_2 bt_2′)]. The @term[bt_′] that satisfies the
       lemma in this case is @term[(node z bt_1 bt_2′)]. We can
-      conclude that @term[(--> bt bt_′)] by adding the context
-      @term[(node z bt_1 C)] around both @term[bt_2] and @term[bt_2′].
+      conclude that @term[(--> bt bt_′)] by extending the context
+      as we did in the previous case, but this time to
+      @term[(node z bt_1 C)].
 
       To show that @term[bt_′] is complete, let's remind
       ourselves what we know about the subtrees of @term[bt_′].

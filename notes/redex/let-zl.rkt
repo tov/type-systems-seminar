@@ -85,10 +85,10 @@
    (meta-+ 1 (meta-+ (size e_1) (size e_2)))]
   [(size (* e_1 e_2))
    (meta-+ 1 (meta-+ (size e_1) (size e_2)))]
-  [(size (car e_1))
-   (meta-+ 1 (size e_1))]
-  [(size (cdr e_1))
-   (meta-+ 1 (size e_1))]
+  [(size (car e))
+   (meta-+ 1 (size e))]
+  [(size (cdr e))
+   (meta-+ 1 (size e))]
   [(size x) 0]
   [(size (let x e_1 e_2))
    (meta-+ 1 (meta-+ (size e_1) (size e_2)))])
@@ -143,7 +143,7 @@
 
 (module+ test
   (default-language let-zl/eval)
-
+  
   (test-->> ->val
             (term 4)
             (term 4))
@@ -180,7 +180,10 @@
   (test-->> ->val
             (term (let x (cons (cons 4 nil) 7)
                     (* (car (car x)) (cdr x))))
-            (term 28)))
+            (term 28))
+
+  (test-equal (term (size (cons (cons 1 nil) (cons (cons x nil) nil)))) 0)
+  (test-equal (term (size (+ (car (cons 1 nil)) (let x 2 x)))) 3))
 
 ; fully-reduce : e -> (or/c v #false)
 ; Uses the reduction relation to evaluate `e`, returning #false if reduction

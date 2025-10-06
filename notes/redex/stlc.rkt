@@ -70,8 +70,7 @@
    ---- abs
    (types Γ (λ x t_1 e) (-> t_1 t_2))]
   
-  [(types Γ e_1 (-> t_2 t))
-   (types Γ e_2 t_2)
+  [(types Γ e_1 (-> t_2 t)) (types Γ e_2 t_2)
    ---- app
    (types Γ (ap e_1 e_2) t)])
 
@@ -136,9 +135,7 @@
   #:mode (types/alt I I O)
   #:contract (types/alt Γ e t)
   
-  [(types/alt Γ e nat)
-   (types/alt Γ e_z t)
-   (types/alt (extend (extend Γ x_pre nat) y_rec t) e_s t)
+  [(types/alt Γ e nat) (types/alt Γ e_z t) (types/alt (extend (extend Γ x_pre nat) y_rec t) e_s t)
    ---- rec
    (types/alt Γ (rec e [e_z] [x_pre y_rec e_s]) t)]
 

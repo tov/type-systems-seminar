@@ -163,7 +163,8 @@ to @term[WRONG], thus flagging them as errors.
 @render-reduction-rules[r:->val car-nil cdr-nil]
 @;
 This approach is equivalent to adding errors or exceptions to our programming
-language.
+language. Note that the right-hand side of these two rules does not have
+a context on it. This is what makes these like (uncatchable) exceptions.
 
 We now update our evaluation function @emph{eval} to take these errors into
 account:
