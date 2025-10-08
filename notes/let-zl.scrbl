@@ -337,7 +337,7 @@ such that @term[(types • e_2 t_e)], it is the case that
            @term[t_e], and furthermore, for any term @term[e_2] that also
            has type @term[t_e], we have that
            @term[(types • (in-hole E_1 e_2) int)]. Then by applying rule
-           @rulename[list], we have that
+           @rulename[cons], we have that
            @term[(types • (in-hole (cons E_1 e_22) e_2) list)].}
   @item{If @term[(cons e_11 E_2)], then as in the previous case, the only typing
            rule that applies is @rulename[cons], which means that @term[t]
