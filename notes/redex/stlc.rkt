@@ -87,8 +87,7 @@
   [---- nil
    (satisfies • •)]
 
-  [(SN t v)
-   (satisfies γ Γ)
+  [(SN t v) (satisfies γ Γ)
    ---- cons
    (satisfies (extend-subst γ x v) (extend Γ x t))])
 

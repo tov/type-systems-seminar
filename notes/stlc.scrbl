@@ -80,15 +80,22 @@ of the operand:
 @exercise{Extend @stlc with a product type @term[(* t_1 t_2)].
  You will need a form for
  constructing products and projections for getting the components out. Add the
- necessary reduction and typing rules.}
+ necessary evaluation contexts, reduction rules, and typing rules.}
 
-@exercise{Extend @stlc with a sum type @term[(+ t_1 t_2)]. You will need two
- injection forms @term[(inl e)] and @term[(inr e)] to create sums, and one
- case analysis form to eliminate them,
- @term[(match e [x e_l] [y e_r])]. The case analysis form takes a step once
+@exercise{Extend @stlc with a sum type @term[(+ t_1 t_2)]. The idea is that
+ a value of type @term[(+ t_1 t_2)] might be a value of type @term[t_1], or
+ it might be a term of type @term[t_2]. So, a producer of such a value can choose
+ if they are going to make a @term[t_1] or make a @term[t_2]. A consumer of
+ such a value has to be prepared to deal with either possibility.
+
+ Concretely, you will need two
+ injection forms @term[(inl e)] and @term[(inr e)] that create sums, and one
+ case analysis form that eliminates them,
+ @term[(match e [x e_l] [y e_r])]. The injection forms are values (when their arguments
+ are) and the case analysis form takes a step once
  @term[e] reduces to a sum value:
  @term[(--> (match (inl v) [x e_l] [y e_r]) (substitute e_l x v))],
- and similarly for @term[(inr v)]. Add the necessary reduction and typing
+ and similarly for @term[(inr v)]. Add the necessary evaluation contexts, reduction rules, and typing
  rules.}
 
 @subsection[#:tag "stlc-type-safety"]{Type safety}
@@ -325,13 +332,14 @@ Suppose that @term[(types* e_1 t)] and @term[(--> e_1 e_2)]. Then:
 @itemlist[
  @item{@term[nat]: If @term[e_2] normalizes then @term[e_1] normalizes
         by the same sequence because @term[e_1] takes a step to @term[e_2],
-        which then normalizes. We know this because our formulation of @stlc
-        is determistic, and there is no other way to reduce the term. (We could
-        prove this but haven’t.) Since it has type @term[t], we have
+        which then normalizes. Since it has type @term[t], we have
         @term[(SN nat e_1)]
 
         If @term[e_1] normalizes then it does so via
-        @term[e_2], so @term[e_2] normalizes as well and by preservation it has
+        @term[e_2]. (We could prove this, but we haven't. The critical lemma
+        is something like: if @term[e_1] steps to @term[e_2] and @term[e_1]
+        also steps to @term[e_3], then @term[e_2] equals @term[e_3].)
+        Thus @term[e_2] normalizes as well and by preservation it has
         the same type, so @term[(SN nat e_2)].}
  @item{@term[(-> t_1 t_2)]: If @term[(SN (-> t_1 t_2) e_2)] then we know that
         @term[e_2] normalizes and when applied to a good term, that normalizes
@@ -411,7 +419,7 @@ But that is @term[(apply-substitution e γ)].
  @item{@term[(types Γ (s e_1) nat)]: By inversion, we know that
         @term[(types Γ e_1 nat)]. Then by induction, we have that
         @term[(SN nat (apply-substitution e_1 γ))].
-        By the definition of NT for @term[nat],
+        By the definition of SN for @term[nat],
         we have that @term[(apply-substitution e_1 γ)]
         types in the empty context and reduces
         to a natural number. Then @term[(apply-substitution (s e_1) γ)]
