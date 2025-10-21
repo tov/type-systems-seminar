@@ -407,16 +407,16 @@ But that is @term[(apply-substitution e γ)].
 @lemma[#:name "Every typed term is good"]{If @term[(types Γ e t)]
  and @term[(satisfies γ Γ)] then @term[(SN t (apply-substitution e γ))].}
 
-@proof[] By induction on the typing derivation:
+@proof[] By induction on @term[e]:
 
 @itemlist[
- @item{@term[(types Γ x (lookup Γ x))]: Appling @term[γ] to @term[x]
+ @item{@term[e] = @term[x] and thus @term[(types Γ x (lookup Γ x))]: Applying @term[γ] to @term[x]
         gets us a @term[v] such that @term[(SN (lookup Γ x) v)].}
- @item{@term[(types Γ z nat)]: Since @term[z] =
+ @item{@term[e] = @term[z]: Since @term[z] =
   @term[(apply-substitution z γ)], and
         @term[(types • z nat)] and @term[(⇓ z)], we have that
         @term[(SN nat z)].}
- @item{@term[(types Γ (s e_1) nat)]: By inversion, we know that
+ @item{@term[e] = @term[(s e_1)] and thus @term[(types Γ (s e_1) nat)]: By inversion, we know that
         @term[(types Γ e_1 nat)]. Then by induction, we have that
         @term[(SN nat (apply-substitution e_1 γ))].
         By the definition of SN for @term[nat],
@@ -424,14 +424,15 @@ But that is @term[(apply-substitution e γ)].
         types in the empty context and reduces
         to a natural number. Then @term[(apply-substitution (s e_1) γ)]
         does as well.}
- @item{@term[(types Γ (ap e_1 e_2) t)]: By inversion, we know that
+ @item{@term[e] = @term[(ap e_1 e_2)] and thus @term[(types Γ (ap e_1 e_2) t)]: By inversion, we know that
         @term[(types Γ e_1 (-> t_2 t))] and
         @term[(types Γ e_2 t_2)]. By induction, we know that
-        @term[(SN (-> t_2 t) e_1)] and @term[(SN t_2 e_2)].
+        @term[(SN (-> t_2 t) (apply-substitution e_1 γ))] and @term[(SN t_2 (apply-substitution e_2 γ))].
         The former means that for any @term[e_arb] such that
-        @term[(SN t_2 e_arb)], we have @term[(SN t (ap e_1 e_arb))].
-        Let @term[e_arb] be @term[e_2]. Then @term[(SN t (ap e_1 e_2))].}
- @item{@term[(types Γ (λ x t_1 e_2) (-> t_1 t_2))]:
+        @term[(SN t_2 e_arb)], we have @term[(SN t (ap (apply-substitution e_1 γ) e_arb))].
+        Let @term[e_arb] be @term[(apply-substitution e_2 γ)]. Then @term[(SN t (ap (apply-substitution e_1 γ) (apply-substitution e_2 γ)))]. Since
+        @term[(ap (apply-substitution e_1 γ) (apply-substitution e_2 γ))] = @term[(apply-substitution (ap e_1 e_2) γ)], we are done.}
+ @item{@term[e] = @term[(λ x t_1 e_2)] and thus @term[(types Γ (λ x t_1 e_2) (-> t_1 t_2))]:
         Without loss of generality, let @term[x] be fresh for @term[γ].
         So then that term equals @term[(λ x t_1 (apply-substitution e_1 γ))].
         We need to show that
@@ -449,20 +450,18 @@ But that is @term[(apply-substitution e γ)].
     @item{To show that for any @term[e_1] such that @term[(SN t_1 e_1)],
           @term[(SN t_2 (ap (λ x t_1 (apply-substitution e_2 γ)) e_1))]. By the definition of
           SN, we know that @term[(-->* e_1 v_1)] for some value @term[v_1].
-          Then we can take an additional step,
-          @term[(--> (ap (λ x t_1 (apply-substitution e_2 γ)) v_1) (substitute (apply-substitution e_2 γ) x v_1))].
-          Because SN is preserved by backward conversion, it suffices to show
-          that this term is SN for @term[t_2].
-          
           By the lemma that SN is preserved by forward conversion, we know that
           @term[(SN t_1 v_1)]. So then we can say that
           @term[(satisfies (extend-subst γ x v_1) (extend Γ x t_1))].
-          Now consider inverting the judgment that
-          @term[(types Γ (λ x t_1 e_2) (-> t_1 t_2))]. From this, we know that
-          @term[(types (extend Γ x t_1) e_2 t_2)]. Then applying the induction
-          hypothesis, we have that
+          From the assumptions of the overall lemma, @term[(types Γ (λ x t_1 e_2) (-> t_1 t_2))] and
+          thus, by inversion @term[(types (extend Γ x t_1) e_2 t_2)].
+          Now we have enough to use induction, which gives us
           @term[(SN t_2 (apply-substitution e_2 (extend-subst γ x v_1)))].
-          This is what we sought to show.}
+          By the fact that SN is preserved when stepping backwards,
+          we know @term[(SN t_2 (ap (λ x t_1 (apply-substitution e_2 γ)) v_1))].
+          Because of context substitution and also that SN is preserved when stepping
+          backwards, we know  @term[(SN t_2 (ap (λ x t_1 (apply-substitution e_2 γ)) e_1))], which
+          is our goal.}
    ]}
 ]
 
