@@ -96,7 +96,9 @@
   [e ::= ....
      (rec e [e_z] [x_pre y_rec e_s])]
   [E ::= ....
-     (rec E [e_z] [x_pre y_rec e_s])])
+     (rec E [e_z] [x_pre y_rec e_s])]
+  #:binding-forms
+  (rec e [e_z] [x_pre y_rec e_s #:refers-to (shadow x_pre y_rec)]))
 
 ; This is actually call-by-name, because call-by-value requires a dirty hack
 ; or extra syntax, so far as I can tell.
