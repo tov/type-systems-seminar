@@ -472,7 +472,139 @@ Strong normalization follows as a corollary.
 @exercise{Extend the normalization proof to cover products and/or sums.}
 
 @exercise{Show that @stlc with the recursor still enjoys normalization.}
+@;{
 
+Solution
+
+e ::= ... | (rec e [e] [xpre yrec e])
+two new evaluation rules:
+new typing rule:
+
+Add a new case to γ:
+
+ γ ::= ... | γ[x := (rec e1 [e2] [xpre yrec e])]
+
+ and a new case to |=, namely:
+
+ γ |= Γ   SN(τ, (rec e1 [e2] [xpre yrec e]))
+ -------------------------------------------------- [rec]
+ γ[x := (rec e1 [e2] [xpre yrec e])]   |=  Γ, x:τ
+
+proof that SN is preserved by conversion still works as is.
+
+==================================================
+
+Need a new lemma:
+
+for all v, e2, e3 such that
+   Γ |- v : nat, Γ |- e2 : tau, Γ+{xpre:nat,yrec:tau} |- e2 : tau,
+if Γ |= γ, then SN(tau, (rec v1 [e2] [xpre yrec e3])γ)
+
+Proof by induction on v.
+
+(rec v1 [e2] [xpre yrec e3])γ   =     by substitution
+(rec v1γ [e2γ] [xpre yrec e3γ]) =     by the fact that values have no variables
+(rec v1 [e2γ] [xpre yrec e3γ])
+
+By canonical forms, v=z or v=(s v′).
+
+Case 1, v = z
+
+(rec v1γ [e2γ] [xpre yrec e3γ]) --> e2γ
+
+By "every typed term is good", we have SN(tau, e2γ).
+.... is there some concern about using these lemmas mutually here? not sure!
+
+By conversion (backwards) we have the goal.
+
+Case 2, v = (s v′)
+
+(rec (s v′) [e2] [xpre yrec e3]) --> e3{xpre=v′}{yrec=(rec v′ [e2] [xpre yrec e3])}
+
+by induction (v got smaller), we have SN(tau, (rec v′ [e2] [xpre yrec e3])γ).
+
+we can construct γ′ and Γ′
+
+ γ′ = γ+{xpre=v′}{yrec=(rec v′ [e2] [xpre yrec e3])γ}
+ Γ′ = Γ{xpre : nat}{yrec : τ}
+ 
+ and we can prove γ′ |= Γ′, because we have the types and the SNs.
+
+ Now we can use "every typed term is good" with Γ′ γ′ and e3, giving us SN(tau, e3γ′).
+
+ e3γ′ = e3{xpre=v′}{yrec=(rec v′ [e2] [xpre yrec e3])}γ
+
+ by backwards conversion we can get
+
+ SN(tau,(rec (s v′) [e2] [xpre yrec e3])γ)
+
+ which is the goal.
+
+==================================================
+
+proof that every typed term is "good":
+
+Only two cases need adjusting:
+
+case: e = x
+  We can use the same logic, as the rec case fro |= also has the desired SN in it.
+
+case: e = (rec e1 [e2] [xpre yrec e3])
+By inversion:
+
+. |- e1 : nat
+. |- e2 : tau
+{xpre:nat,yrec:tau} |- e2 : tau
+
+by induction:
+ SN(nat,e1γ)
+
+By SN(tau,e2γ)
+
+we can get v1 st e2y -->* v1
+
+By canonical forms, we know v1 is z or (s n1).
+Case 1, v1 = z.
+
+Then, we know that
+
+  (rec e1 [e2] [xpre yrec e3])
+  -->*
+  (rec z [e2] [xpre yrec e3])
+  -->
+  e2
+
+By induction, we get SN(tau, e2). By conversion preservation of SN, we can
+work that backwards to (rec e1 [e2] [xpre yrec e3]).
+
+Case 2, v1 = (s n1)
+
+Then, we know that
+
+  (rec e1 [e2] [xpre yrec e3])
+  -->*
+  (rec (s n1) [e2] [xpre yrec e3])
+  -->
+  e3{xpre:=n1}{yrec:=(rec n1 [e2] [xpre yrec e3])}
+
+We know that SN(nat,n1) just be definition.
+
+From the new lemma we can get SN(tau,(rec n1 [e2] [xpre yrec e3])γ)
+  
+consider
+  γ′ = γ+{xpre=n1}{yrec=(rec n1 [e2] [xpre yrec e3])γ}
+  Γ′ = Γ+{xpre:nat}{yrec:tau}
+
+ We know:
+  γ′ |= Γ′
+
+by the definition of |= and the SN facts above. Now we can do induction on e3, giving
+us SN(tau,e3γ′)
+
+Since e3γ′ = e3{xpre:=n1}{yrec:=(rec n1 [e2] [xpre yrec e3])}γ, we can use
+backwards stepping to get us back to SN of the original goal.
+
+}
 @section[#:tag "stlc-fix"]{Adding nontermination}
 
 We can add unrestricted recursion to @stlc by adding a fixed-point operator.
