@@ -17,10 +17,12 @@ the syntax of types and terms, using @term[l] for record field labels:
 @;
 @render-nonterminals[r:λsub t e l m]
 
-A record type
-lists field names with their types; assume the field names are not repeated
-within a record. A record expression lists field names with expressions
-whose values will fill the fields. A projection expression projects the
+A record type lists field names with their types; assume the
+field names are not repeated within a record and they are
+always in a canonical order (imagine the parser sorts them
+so we do not need to consider out-of-order fields). A record
+expression lists field names with expressions whose values
+will fill the fields. A projection expression projects the
 value of the named field from a record.
 
 @section[#:tag "λsub-dynamics"]{Dynamic semantics}
@@ -29,7 +31,7 @@ The dynamics are straightforward. We extend values to include records where
 every field contains a value. We extend evaluation contexts to evaluate
 the fields of a record from left to right.
 @;
-@render-nonterminals[r:λsub v E].
+@render-nonterminals[r:λsub v E]
 
 Then we add one reduction rule, for projecting the field from a record:
 @;
@@ -130,9 +132,9 @@ as follows:
   @term[(<: t_2 t_1^†)]. This means that we can reform the application
   @term[(types • (ap (in-hole E_1 e_new) e_2) t_2^†)], which has a subtype of
   @term[t].}
- @item{If @term[E] is @term[(ap e_1 E_2)], then the whole term has a type
+ @item{If @term[E] is @term[(ap v E_2)], then the whole term has a type
   @term[t] only if there are some types @term[t_1] and @term[t_2] such that
-  @term[(types • e_1 (-> t_1 t))] and
+  @term[(types • v (-> t_1 t))] and
   @term[(types • (in-hole E_2 e) t_2)] where
   @term[(<: t_2 t_1)].
   Then by induction, @term[e] has a type, and if we replace @term[e] with

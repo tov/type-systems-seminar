@@ -46,8 +46,7 @@
   [---- nat
    (<: nat nat)]
 
-  [(<: t_21 t_11)
-   (<: t_12 t_22)
+  [(<: t_21 t_11) (<: t_12 t_22)
    ---- arr
    (<: (-> t_11 t_12) (-> t_21 t_22))]
 
@@ -58,10 +57,9 @@
    ---- rec-width
    (<: (Record [l t] [m_i t_i] ...) (Record [m_j t_j] ...))]
 
-  [(<: t_l t_r)
-   (<: (Record [m_i t_i] ...) (Record [m_j t_j] ... [m_k t_k] ...))
+  [(<: t_l t_2) (<: (Record [m_i t_i] ...) (Record [m_j t_j] ...))
    ---- rec-depth
-   (<: (Record [l t_l] [m_i t_i] ...) (Record [m_j t_j] ... [l t_r] [m_k t_k] ...))]
+   (<: (Record [l t_l] [m_i t_i] ...) (Record [l t_2] [m_j t_j] ...))]
 
   #;
   [(<: t_l t_r)
@@ -81,9 +79,7 @@
    ---- project
    (types Γ (project e l) t)]
   
-  [(types Γ e_1 (-> t_1 t))
-   (types Γ e_2 t_2)
-   (<: t_2 t_1)
+  [(types Γ e_1 (-> t_1 t)) (types Γ e_2 t_2) (<: t_2 t_1)
    ---- app
    (types Γ (ap e_1 e_2) t)])
 
@@ -94,27 +90,27 @@
   [---- nat
    (<:~> nat nat (λ n nat n))]
 
-  [(<:~> t_21 t_11 e_1)
-   (<:~> t_12 t_22 e_2)
+  [(<:~> t_21 t_11 e_1) (<:~> t_12 t_22 e_2)
    ---- arr
-   (<:~> (-> t_11 t_12) (-> t_21 t_22) (λ h (-> t_11 t_12) (λ n t_21 (ap e_2 (ap h (ap e_1 n))))))]
+   (<:~> (-> t_11 t_12) (-> t_21 t_22) (λ f (-> t_11 t_12) (λ n t_21 (ap e_2 (ap f (ap e_1 n))))))]
 
   [---- rec-empty
    (<:~> (Record) (Record) (λ r (Record) r))]
 
   [(<:~> (Record [m_i t_i] ...) (Record [m_j t_j] ...) e)
    ---- rec-width
-   (<:~> (Record [l t] [m_i t_i] ...) (Record [m_j t_j] ...) (λ r (Record [l t] [m_i t_i] ...) (ap e (record [m_i (project r m_i)] ...))))]
+   (<:~> (Record [l t] [m_i t_i] ...) (Record [m_j t_j] ...)
+         (λ r (Record [l t] [m_i t_i] ...) (ap e (record [m_i (project r m_i)] ...))))]
 
-  [(<:~> t_l t_r e_1)
-   (<:~> (Record [m_i t_i] ...) (Record [m_j t_j] ... [m_k t_k] ...) e_2)
+  [(<:~> t_l t_r e_1) (<:~> (Record [m_i t_i] ...) (Record [m_j t_j] ... [m_k t_k] ...) e_2)
    ---- rec-depth
-   (<:~> (Record [l t_l] [m_i t_i] ...) (Record [m_j t_j] ... [l t_r] [m_k t_k] ...) (λ r (Record [l t_r] [m_i t_i] ...)
-                                                                                        (ap (λ s (Record [m_j t_j] ... [m_k t_k] ...)
-                                                                                               (record [m_j (project s m_j)] ...
-                                                                                                       [l   (ap e_1 (project r l))]
-                                                                                                       [m_k (project s m_k)] ...))
-                                                                                            (ap e_2 (record [m_i (project r m_i)] ...)))))])
+   (<:~> (Record [l t_l] [m_i t_i] ...) (Record [m_j t_j] ... [l t_r] [m_k t_k] ...)
+         (λ r (Record [l t_r] [m_i t_i] ...)
+           (ap (λ s (Record [m_j t_j] ... [m_k t_k] ...)
+                 (record [m_j (project s m_j)] ...
+                         [l   (ap e_1 (project r l))]
+                         [m_k (project s m_k)] ...))
+               (ap e_2 (record [m_i (project r m_i)] ...)))))])
 
 (define-judgment-form λsub
   #:mode (types~> I I O O)
@@ -142,8 +138,6 @@
    ---- abs
    (types~> Γ (λ x t_1 e) (-> t_1 t_2) (λ x t_1 e_1))]
 
-  [(types~> Γ e_1 (-> t_1 t) e_11)
-   (types~> Γ e_2 t_2 e_21)
-   (<:~> t_2 t_1 e_c)
+  [(types~> Γ e_1 (-> t_1 t) e_11) (types~> Γ e_2 t_2 e_21) (<:~> t_2 t_1 e_c)
    ---- app
    (types~> Γ (ap e_1 e_2) t (ap e_11 (ap e_c e_21)))])
