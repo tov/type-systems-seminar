@@ -480,15 +480,13 @@ e ::= ... | (rec e [e] [xpre yrec e])
 two new evaluation rules:
 new typing rule:
 
-Add a new case to γ:
+Change γ so that it accepts arbitrary expressions
 
- γ ::= ... | γ[x := (rec e1 [e2] [xpre yrec e])]
+ γ ::= · | γ[x := e]
 
- and a new case to |=, namely:
-
- γ |= Γ   SN(τ, (rec e1 [e2] [xpre yrec e]))
- -------------------------------------------------- [rec]
- γ[x := (rec e1 [e2] [xpre yrec e])]   |=  Γ, x:τ
+ γ |= Γ   SN(τ, e)
+ ----------------------- [cons]
+ γ[x := e]   |=  Γ, x:τ
 
 proof that SN is preserved by conversion still works as is.
 
@@ -497,57 +495,42 @@ proof that SN is preserved by conversion still works as is.
 Need a new lemma:
 
 for all v, e2, e3 such that
-   Γ |- v : nat, Γ |- e2 : tau, Γ+{xpre:nat,yrec:tau} |- e2 : tau,
-if Γ |= γ, then SN(tau, (rec v1 [e2] [xpre yrec e3])γ)
+ if  · |- v : nat,
+     SN(tau, e2), and
+     {xpre:nat}{yrec:tau} |- e3
+     and, for any v, e4 such that SN(tau,e4), and . |- v : nat, SN(e3{xpre:=v}{yrec:=e4}),
+ then
+   SN(tau,rec v [e2][xpre yrec e3])
 
-Proof by induction on v.
+by induction on v. From canonical forms, there are two cases:
 
-(rec v1 [e2] [xpre yrec e3])γ   =     by substitution
-(rec v1γ [e2γ] [xpre yrec e3γ]) =     by the fact that values have no variables
-(rec v1 [e2γ] [xpre yrec e3γ])
+Case 1. v = z. In this case, we have
 
-By canonical forms, v=z or v=(s v′).
+  (rec v [e2][xpre yrec e3]) -> e2
 
-Case 1, v = z
+From the assumptions we have SN(tau,e2) and by backwards conversion,
+we get SN(tau,rec v [e2][xpre yrec e3])
 
-(rec v1γ [e2γ] [xpre yrec e3γ]) --> e2γ
+Case 2. v = s v′. In this case, we have
 
-By "every typed term is good", we have SN(tau, e2γ).
-.... is there some concern about using these lemmas mutually here? not sure!
+  (rec v [e2][xpre yrec e3]) -> e3{xpre:=v′}{yrec:=(rec v′ [e2][xpre yrec e3])}
 
-By conversion (backwards) we have the goal.
+Let's apply induction with v replaced by v′ but e2 and e3 the same. By
+inversion we have Γ |- v′ : nat. The other three premises are the same
+as the ones we're given, since they deal only with e2 and e3. Thus, we get
+SN(tau,rec v′ [e2][xpre yrec e3]). Now, let's use that expression as e4 and v′ as v
+with the last assumption.
+Thus, we get SN(e3{xpre:=v′}{yrec:=(rec v′ [e2][xpre yrec e3])}).
+By backwards conversion, that gets us the goal, SN(rec v [e2][xpre yrec e3])
 
-Case 2, v = (s v′)
-
-(rec (s v′) [e2] [xpre yrec e3]) --> e3{xpre=v′}{yrec=(rec v′ [e2] [xpre yrec e3])}
-
-by induction (v got smaller), we have SN(tau, (rec v′ [e2] [xpre yrec e3])γ).
-
-we can construct γ′ and Γ′
-
- γ′ = γ+{xpre=v′}{yrec=(rec v′ [e2] [xpre yrec e3])γ}
- Γ′ = Γ{xpre : nat}{yrec : τ}
- 
- and we can prove γ′ |= Γ′, because we have the types and the SNs.
-
- Now we can use "every typed term is good" with Γ′ γ′ and e3, giving us SN(tau, e3γ′).
-
- e3γ′ = e3{xpre=v′}{yrec=(rec v′ [e2] [xpre yrec e3])}γ
-
- by backwards conversion we can get
-
- SN(tau,(rec (s v′) [e2] [xpre yrec e3])γ)
-
- which is the goal.
-
-==================================================
+============================================================
 
 proof that every typed term is "good":
 
 Only two cases need adjusting:
 
 case: e = x
-  We can use the same logic, as the rec case fro |= also has the desired SN in it.
+  We can use the same logic, as the cons case for |= still has the desired SN in it.
 
 case: e = (rec e1 [e2] [xpre yrec e3])
 By inversion:
@@ -559,50 +542,30 @@ By inversion:
 by induction:
  SN(nat,e1γ)
 
-By SN(tau,e2γ)
+ So, let v be the value that e1γ reduces to. Now
+ we want to use the new lemma with v, e2γ and e3γ. If we can do that,
+ we will get SN(tau,rec v [e2γ][xpre yrec e3γ]).
+ Then we can, by backwards stepping in the context
+ (rec [] [e2γ][xpre yrec e3γ]) we can get
+ SN(tau, rec e1γ [e2γ][xpre yrec e3γ]), which
+ is the same as
+ SN(tau, (rec e1 [e2][xpre yrec e3])γ), which
+ is the goal.
 
-we can get v1 st e2y -->* v1
+ So, to apply the lemma we need 
+ Γ |- v : nat, which we have by preservation,
+ we need SN(tau, e2γ), which we can get by induction,
+ we need {xpre:nat}{yrec:tau} |- e3γ which we can get by
+ inversion and the substitution lemma, which leaves this
+ to prove:
+ 
+ for any v, e4 such that SN(tau,e4), and . |- v : nat, SN(e3γ{xpre:=v}{yrec:=e4})
 
-By canonical forms, we know v1 is z or (s n1).
-Case 1, v1 = z.
-
-Then, we know that
-
-  (rec e1 [e2] [xpre yrec e3])
-  -->*
-  (rec z [e2] [xpre yrec e3])
-  -->
-  e2
-
-By induction, we get SN(tau, e2). By conversion preservation of SN, we can
-work that backwards to (rec e1 [e2] [xpre yrec e3]).
-
-Case 2, v1 = (s n1)
-
-Then, we know that
-
-  (rec e1 [e2] [xpre yrec e3])
-  -->*
-  (rec (s n1) [e2] [xpre yrec e3])
-  -->
-  e3{xpre:=n1}{yrec:=(rec n1 [e2] [xpre yrec e3])}
-
-We know that SN(nat,n1) just be definition.
-
-From the new lemma we can get SN(tau,(rec n1 [e2] [xpre yrec e3])γ)
-  
-consider
-  γ′ = γ+{xpre=n1}{yrec=(rec n1 [e2] [xpre yrec e3])γ}
-  Γ′ = Γ+{xpre:nat}{yrec:tau}
-
- We know:
-  γ′ |= Γ′
-
-by the definition of |= and the SN facts above. Now we can do induction on e3, giving
-us SN(tau,e3γ′)
-
-Since e3γ′ = e3{xpre:=n1}{yrec:=(rec n1 [e2] [xpre yrec e3])}γ, we can use
-backwards stepping to get us back to SN of the original goal.
+ So, let some v such that · |- v:nat be given, and some e4 such that SN(tau,e4).
+ We can construct γ′ = γ{xpre:=v}{yrec:=e4}, and a corresponding Γ′ = Γ{xpre : nat}{yrec:tau}.
+ We have γ |= Γ because SN(nat,v) and SN(tau,e4). Then, by induction we can get
+ SN(e3γ{xpre:=v}{yrec:=e4}), which is the goal to apply the lemma and
+ which completes the proof.
 
 }
 @section[#:tag "stlc-fix"]{Adding nontermination}
