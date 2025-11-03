@@ -66,7 +66,8 @@ arguments:
 @;
 @render-judgment-rules[r:<: arr]
 
-@exercise{Suppose that @term[(<: Int Real)]. Consider the types
+@exercise{Suppose that @term[(<: Int Real)] (and @term[(<: Int Int)] and @term[(<: Real Real)]).
+ Consider the types
  @term[(-> Int Int)], @term[(-> Real Real)], @term[(-> Int Real)], and
  @term[(-> Real Int)]. Which of these are subtypes of which others? Does
  this make sense?}
