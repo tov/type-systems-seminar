@@ -102,14 +102,13 @@
    (<:~> (Record [l t] [m_i t_i] ...) (Record [m_j t_j] ...)
          (λ r (Record [l t] [m_i t_i] ...) (ap e (record [m_i (project r m_i)] ...))))]
 
-  [(<:~> t_l t_r e_1) (<:~> (Record [m_i t_i] ...) (Record [m_j t_j] ... [m_k t_k] ...) e_2)
+  [(<:~> t_l t_r e_1) (<:~> (Record [m_i t_i] ...) (Record [m_k t_k] ...) e_2)
    ---- rec-depth
-   (<:~> (Record [l t_l] [m_i t_i] ...) (Record [m_j t_j] ... [l t_r] [m_k t_k] ...)
+   (<:~> (Record [l t_l] [m_i t_i] ...) (Record [l t_r] [m_k t_k] ...)
          (λ r (Record [l t_r] [m_i t_i] ...)
-           (ap (λ s (Record [m_j t_j] ... [m_k t_k] ...)
-                 (record [m_j (project s m_j)] ...
-                         [l   (ap e_1 (project r l))]
-                         [m_k (project s m_k)] ...))
+           (ap (λ r (Record [m_k t_k] ...)
+                 (record [l   (ap e_1 (project r l))]
+                         [m_k (project r m_k)] ...))
                (ap e_2 (record [m_i (project r m_i)] ...)))))])
 
 (define-judgment-form λsub
