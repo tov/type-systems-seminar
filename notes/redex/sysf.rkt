@@ -78,8 +78,7 @@
    ---- var
    (kinds Δ a)]
 
-  [(kinds Δ t_1)
-   (kinds Δ t_2)
+  [(kinds Δ t_1) (kinds Δ t_2)
    ---- arr
    (kinds Δ (-> t_1 t_2))]
 
@@ -94,8 +93,7 @@
   [---- nil
    (kinds/env Δ •)]
 
-  [(kinds Δ t)
-   (kinds/env Δ Γ)
+  [(kinds Δ t) (kinds/env Δ Γ)
    ---- cons
    (kinds/env Δ (extend Γ x t))])
 
@@ -107,13 +105,11 @@
    ---- var
    (types Δ Γ x (lookup Γ x))]
   
-   [(kinds Δ t_1)
-    (types Δ (extend Γ x t_1) e t_2)
+   [(kinds Δ t_1) (types Δ (extend Γ x t_1) e t_2)
    ---- abs
    (types Δ Γ (λ x t_1 e) (-> t_1 t_2))]
   
-  [(types Δ Γ e_1 (-> t_2 t))
-   (types Δ Γ e_2 t_2)
+  [(types Δ Γ e_1 (-> t_2 t)) (types Δ Γ e_2 t_2)
    ---- app
    (types Δ Γ (ap e_1 e_2) t)]
 
@@ -121,7 +117,6 @@
    ---- t-abs
    (types Δ Γ (Λ a e) (all a t))]
 
-  [(kinds Δ t)
-   (types Δ Γ e (all a t_1))
+  [(kinds Δ t) (types Δ Γ e (all a t_1))
    ---- t-app
    (types Δ Γ (Ap e t) (substitute t_1 a t))])

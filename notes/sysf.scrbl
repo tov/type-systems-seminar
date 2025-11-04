@@ -17,7 +17,10 @@ of the functions. We can compose two @term[(-> nat nat)] functions with this:
 @;
 @centered[
  (parameterize ([default-language stlc:stlc])
-   @term[(λ x_1 (-> nat nat) (λ x_2 (-> nat nat) (λ y nat (ap x_1 (ap x_2 y)))))])
+   @term[(λ x_1 (-> nat nat)
+           (λ x_2 (-> nat nat)
+             (λ y nat
+               (ap x_1 (ap x_2 y)))))])
 ]
 @;
 But if the functions have different types, we will need to define a
@@ -27,7 +30,13 @@ Polymorphism lets us write one composition function that works for any types.
 We introduce type variables @term[a_i] and abstract over them with @term[Λ]:
 @;
 @centered[
-    @term[(Λ a_1 (Λ a_2 (Λ a_3 (λ x_1 (-> a_2 a_3) (λ x_2 (-> a_1 a_2) (λ y a_1 (ap x_1 (ap x_2 y))))))))]
+    @term[(Λ a_1
+             (Λ a_2
+                (Λ a_3
+                   (λ x_1 (-> a_2 a_3)
+                     (λ x_2 (-> a_1 a_2)
+                       (λ y a_1
+                         (ap x_1 (ap x_2 y))))))))]
 ]
 @;
 We model polymorphism with @λ-2, also known as System F.
@@ -118,7 +127,7 @@ In particular, define type @term[Nat] to be
 @exercise[#:name "hard"]{Define the predecessor function.}
 
 Once we have predecessor we can define subtraction, equality, less-than,
-and more, but we need a bit more technology before we can define predecessor.
+and more, but the predecessor is easier to write with a bit more technology.
 
 @subsection[#:tag "system-f-cbools"]{Booleans}
 
@@ -140,7 +149,7 @@ There’s no need for if-then-else—just apply the Boolean.
 
 In general, we can represent datatypes by their elimination principles.
 For example, we represent the product @term[(* t_1 t_2)] as
-a function of type @term[(all a (-> t_1 (-> t_2 a)) a)]. That is, a pair of
+a function of type @term[(all a (-> (-> t_1 (-> t_2 a)) a))]. That is, a pair of
 a @term[t_1] and a @term[t_2] is a function that, for any type @term[a], you
 can give it a function that turns a @term[t_1] and @term[t_2] into an @term[a],
 and it gives back that @term[a].
@@ -169,11 +178,22 @@ We can represent a list using its elimination rule, in particular, the type of
 its fold. Let @term[(List t)] =
 @term[(all a (-> a (-> (-> t (-> a a)) a)))].
 
-@exercise{Define cons.}
+The idea is that when you have a list, you can supply two
+arguments, one that is an initial value of an accumulator
+one that adapts the accumulator based on an element of the
+list. When the list is empty, you just get the initial value
+back. If the list is not empty, then your
+@term[(-> t (-> a a))] function is called with the element
+of the list and the current value of the accumulator; then
+the process repeats.
+
+@exercise{Define empty and cons.}
+
+@exercise{Define empty? and first. Have first accept an
+ extra argument saying what to return if the given list is
+ empty.}
 
 @exercise{Define @term[(types* sum (-> (List Nat) Nat))].}
-
-@exercise{Define empty?, first, and rest.}
 
 @subsection[#:tag "system-f-existentials"]{Existentials}
 
