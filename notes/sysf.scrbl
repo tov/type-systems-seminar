@@ -179,12 +179,13 @@ its fold. Let @term[(List t)] =
 @term[(all a (-> a (-> (-> t (-> a a)) a)))].
 
 The idea is that when you have a list, you can supply two
-arguments, one that is an initial value of an accumulator
-one that adapts the accumulator based on an element of the
-list. When the list is empty, you just get the initial value
-back. If the list is not empty, then your
+arguments, one argument that is an initial value of an
+accumulator and a second argument that adapts the
+accumulator based on an element of the list. When the list
+is empty, you just get the initial value of the accumulator
+back. If the list is not empty, then the supplied
 @term[(-> t (-> a a))] function is called with the element
-of the list and the current value of the accumulator; then
+of the list and the current value of the accumulator. Then,
 the process repeats.
 
 @exercise{Define empty and cons.}
