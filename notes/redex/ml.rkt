@@ -182,16 +182,14 @@
    ---- var-left
    (unify a t (extend-subst • a t))]
   
-  [(not-a-type-variable t)
-   (unify a t S)
+  [(not-a-type-variable t) (unify a t S)
    ---- var-right
    (unify t a S)]
 
   [---- bool
    (unify bool bool •)]
   
-  [(unify t_11 t_21 S_1)
-   (unify (apply-subst S_1 t_12) (apply-subst S_1 t_22) S_2)
+  [(unify t_11 t_21 S_1) (unify (apply-subst S_1 t_12) (apply-subst S_1 t_22) S_2)
    ---- arr
    (unify (-> t_11 t_12) (-> t_21 t_22) (compose-subst S_2 S_1))])
 
@@ -225,14 +223,11 @@
    ---- app
    (W Γ (ap e_1 e_2) (compose-subst S_3 (compose-subst S_2 S_1)) (apply-subst S_3 a))]
 
-  [(where a (fresh α Γ))
-   (W (extend Γ x a) e S t)
+  [(where a (fresh α Γ)) (W (extend Γ x a) e S t)
    ---- abs
    (W Γ (λ x e) S (-> (apply-subst S a) t))]
 
-  [(W Γ e_1 S_1 t_1)
-   (where σ (gen (\\ (ftv t_1) (ftv (apply-subst S_1 Γ))) t_1))
-   (W (extend (apply-subst S_1 Γ) x σ) e_2 S_2 t_2)
+  [(W Γ e_1 S_1 t_1) (where σ (gen (\\ (ftv t_1) (ftv (apply-subst S_1 Γ))) t_1)) (W (extend (apply-subst S_1 Γ) x σ) e_2 S_2 t_2)
    ---- let
    (W Γ (let x e_1 e_2) (compose-subst S_2 S_1) t_2)]
 
@@ -274,14 +269,12 @@
    ---- abs
    (types Γ (λ x e) (-> t_1 t_2))]
 
-  [(types Γ e_1 (-> t_2 t))
-   (types Γ e_2 t_2)
+  [(types Γ e_1 (-> t_2 t)) (types Γ e_2 t_2)
    ---- app
    (types Γ (ap e_1 e_2) t)]
 
   ;; And we add let, still with mono-types:
-  [(types Γ e_1 t_1)
-   (types (extend Γ x t_1) e_2 t_2)
+  [(types Γ e_1 t_1) (types (extend Γ x t_1) e_2 t_2)
    ---- let
    (types Γ (let x e_1 e_2) t_2)]
 
@@ -290,25 +283,21 @@
    ---- let-copy/wrong
    (types Γ (let x e_1 e_2) t_2)]
 
-  [(types Γ e_1 t_1)
-   (types Γ (substitute e_2 x e_1) t_2)
+  [(types Γ e_1 t_1) (types Γ (substitute e_2 x e_1) t_2)
    ---- let-copy
    (types Γ (let x e_1 e_2) t_2)]
   
   ;; The logical type system uses explicit inst and gen rules that can happen
   ;; anywhere, and let is modified to allow binding a type scheme σ:
-  [(types Γ e (all a σ))
-   (where/hidden t fake-type)
+  [(types Γ e (all a σ)) (where/hidden t fake-type)
    ---- inst
    (types Γ e (substitute σ a t))]
 
-  [(types Γ e σ)
-   (where a (fresh α Γ))
+  [(types Γ e σ) (where a (fresh α Γ))
    ---- gen
    (types Γ e (all a σ))]
 
-  [(types Γ e_1 σ_1)
-   (types (extend Γ x σ_1) e_2 σ_2)
+  [(types Γ e_1 σ_1) (types (extend Γ x σ_1) e_2 σ_2)
    ---- let-poly
    (types Γ (let x e_1 e_2) σ_2)]
 
@@ -318,9 +307,7 @@
    ---- var-inst
    (types Γ x t)]
 
-  [(types Γ e_1 t_1)
-   (where σ_1 (gen (\\ (ftv t_1) (ftv Γ)) t_1))
-   (types (extend Γ x σ_1) e_2 t)
+  [(types Γ e_1 t_1) (where σ_1 (gen (\\ (ftv t_1) (ftv Γ)) t_1)) (types (extend Γ x σ_1) e_2 t)
    ---- let-gen
    (types Γ (let x e_1 e_2) t)]
 
@@ -331,9 +318,7 @@
   [---- false
    (types Γ false bool)]
 
-  [(types Γ e_1 bool)
-   (types Γ e_2 t)
-   (types Γ e_3 t)
+  [(types Γ e_1 bool) (types Γ e_2 t) (types Γ e_3 t)
    ---- if
    (types Γ (if e_1 e_2 e_3) t)])
 
@@ -344,8 +329,7 @@
   [---- true
    (solve-constraint ⊤ •)]
 
-  [(solve-constraint C_1 S_1)
-   (solve-constraint (apply-subst S_1 C_2) S_2)
+  [(solve-constraint C_1 S_1) (solve-constraint (apply-subst S_1 C_2) S_2)
    ---- and
    (solve-constraint (∧ C_1 C_2) (compose-subst S_2 S_1))]
 
@@ -353,8 +337,7 @@
    ---- equals
    (solve-constraint (= t_1 t_2) S)]
 
-  [(where b (fresh a C))
-   (solve-constraint (substitute C a b) S)
+  [(where b (fresh a C)) (solve-constraint (substitute C a b) S)
    ---- exists
    (solve-constraint (∃ a C) S)])
 

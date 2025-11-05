@@ -1,6 +1,7 @@
 #lang scribble/base
 
 @(require (prefix-in r: "redex/ml.rkt")
+          (only-in "redex/ml.rkt" generate)
           "util.rkt"
           (only-in redex default-language)
           redex/pict)
@@ -410,7 +411,7 @@ given term. We do that with the metafunction @term[(generate Γ e t)],
 which, given an environment, a term, and a type, generates the
 constraints required for the typing judgment @term[(types Γ e t)] to hold:
 @;
-@render-metas[r:generate]
+@render-metas[generate]
 
 How can we use this to type a term if we don’t know its type to begin with?
 Suppose we want to type a term @term[e] in the empty environment. Then we choose

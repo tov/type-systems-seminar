@@ -126,7 +126,8 @@
         ['l "ℓ"]
         ['k "κ"]
         ['--> "⟶"]
-        ['-->* "⟶*"])
+        ['-->* "⟶*"]
+        ['generate "⟦ · ⊢ · : · ⟧"])
      (parameterize
          ([default-font-size              16]
           [default-style                  SERIF-FONT]
