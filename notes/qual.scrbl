@@ -411,7 +411,7 @@ Note that if difference evidence appears for the same repeated
 predicate, then the behavior can be incoherent.
 
 The evidence translation uses two more auxiliary judgments. The first is
-for applying a term that expect evidence to its expected evidence:
+for applying a term that expects evidence to its expected evidence:
 @;
 @render-judgment-rules[r:app-evidence nil cons]
 
@@ -439,4 +439,4 @@ The let form, as above, generalizes, by abstracting the right-hand side
 @exercise{Rust uses monomorphization to implement generics and traits.
 It does this by duplicating polymorphic code, specializing it at each
 required type. Write a relation that formalizes monomorphization for
-describes @|λ-qual|.}
+@|λ-qual|.}

@@ -10,10 +10,6 @@ module Main where
 import Test.QuickCheck
 import Numeric.Natural
 
-instance Arbitrary Natural where
-  arbitrary = arbitrarySizedNatural
-  shrink    = shrinkIntegral
-
 class XEnum a where
   into  :: a -> Natural
   outof :: Natural -> a

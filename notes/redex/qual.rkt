@@ -378,25 +378,19 @@
    ---- abs
    (qtypes P Γ (λ x e) (-> t_1 t_2))]
 
-  [(qtypes P_1 Γ e_1 (-> t_2 t))
-   (qtypes P_2 Γ e_2 t_2)
+  [(qtypes P_1 Γ e_1 (-> t_2 t)) (qtypes P_2 Γ e_2 t_2)
    ---- app
    (qtypes [qjoin P_1 P_2] Γ (ap e_1 e_2) t)]
 
-  [(qtypes P_1 Γ e_1 Int)
-   (qtypes P_2 Γ e_2 t)
-   (qtypes P_3 Γ e_3 t)
+  [(qtypes P_1 Γ e_1 Int) (qtypes P_2 Γ e_2 t) (qtypes P_3 Γ e_3 t)
    --- if0
    (qtypes (qjoin P_1 (qjoin P_2 P_3)) Γ (if0 e_1 e_2 e_3) t)]
 
-  [(qtypes P_1 Γ e_1 t_1)
-   (qtypes P_2 Γ e_2 t_2)
+  [(qtypes P_1 Γ e_1 t_1) (qtypes P_2 Γ e_2 t_2)
    ---- pair
    (qtypes (qjoin P_1 P_2) Γ (pair e_1 e_2) (Prod t_1 t_2))]
 
-  [(qtypes P_1 Γ e_1 t_1)
-   (where/hidden P fake-P)
-   (qimplies P P_1)
+  [(qtypes P_1 Γ e_1 t_1) (where/hidden P fake-P) (qimplies P P_1)
    (where σ (all (parens (\\ (parens (∪ (ftv P) (ftv t_1))) (ftv Γ))) (=> P t_1)))
    (qtypes P_2 (extend Γ x σ) e_2 t)
    ---- let-gen
@@ -413,8 +407,7 @@
    ---- ord-int
    (get-evidence Δ </int (Ord Int))]
 
-  [(get-evidence Δ e_1 (Eq t_1))
-   (get-evidence Δ e_2 (Eq t_2))
+  [(get-evidence Δ e_1 (Eq t_1)) (get-evidence Δ e_2 (Eq t_2))
    (where e_out (λ p (if0 (ap e_1 (pair (ap fst (ap fst p)) (ap fst (ap snd p))))
                           (ap e_2 (pair (ap snd (ap fst p)) (ap snd (ap snd p))))
                           1)))
@@ -431,8 +424,7 @@
   [---- nil
    (app-evidence Δ [] e e)]
 
-  [(get-evidence Δ e_ev π)
-   (app-evidence Δ [π_i ...] (ap e e_ev) e_out)
+  [(get-evidence Δ e_ev π) (app-evidence Δ [π_i ...] (ap e e_ev) e_out)
    ---- cons
    (app-evidence Δ [π π_i ...] e e_out)])
 
@@ -451,40 +443,32 @@
   #:mode (qtranslates I I I O O)
   #:contract (qtranslates Δ Γ e e t)
 
-  [(> (lookup Γ x) (=> P t))
-   (app-evidence Δ P x e)
+  [(> (lookup Γ x) (=> P t)) (app-evidence Δ P x e)
    ---- var
    (qtranslates Δ Γ x e t)]
 
-  [(> (type-of c) (=> P t))
-   (app-evidence Δ P c e)
+  [(> (type-of c) (=> P t)) (app-evidence Δ P c e)
    ---- const
    (qtranslates Δ Γ c e t)]
 
   [(where/hidden t_1 guess-type)
    (qtranslates Δ (extend Γ x t_1) e e_^† t_2)
    ---- abs
-   (qtranslates Δ Γ (λ x e) e_^† (-> t_1 t_2))]
+   (qtranslates Δ Γ (λ x e) (λ x e_^†) (-> t_1 t_2))]
 
-  [(qtranslates Δ Γ e_1 e_1^† (-> t_2 t))
-   (qtranslates Δ Γ e_2 e_2^† t_2)
+  [(qtranslates Δ Γ e_1 e_1^† (-> t_2 t)) (qtranslates Δ Γ e_2 e_2^† t_2)
    ---- app
    (qtranslates Δ Γ (ap e_1 e_2) (ap e_1^† e_2^†) t)]
 
-  [(qtranslates Δ Γ e_1 e_1^† Int)
-   (qtranslates Δ Γ e_2 e_2^† t)
-   (qtranslates Δ Γ e_3 e_3^† t)
+  [(qtranslates Δ Γ e_1 e_1^† Int) (qtranslates Δ Γ e_2 e_2^† t) (qtranslates Δ Γ e_3 e_3^† t)
    --- if0
    (qtranslates Δ Γ (if0 e_1 e_2 e_3) (if0 e_1^† e_2^† e_3^†) t)]
 
-  [(qtranslates Δ Γ e_1 e_1^† t_1)
-   (qtranslates Δ Γ e_2 e_2^† t_2)
+  [(qtranslates Δ Γ e_1 e_1^† t_1) (qtranslates Δ Γ e_2 e_2^† t_2)
    ---- pair
    (qtranslates Δ Γ (pair e_1 e_2) (pair e_1^† e_2^†) (Prod t_1 t_2))]
 
-  [(where/hidden Δ_1 fake-Δ)
-   (qtranslates Δ_1 Γ e_1 e_1^† t_1)
-   (abs-evidence Δ_1 e_1^† P e_1^‡)
+  [(where/hidden Δ_1 fake-Δ) (qtranslates Δ_1 Γ e_1 e_1^† t_1) (abs-evidence Δ_1 e_1^† P e_1^‡)
    (where σ (all (parens (\\ (parens (∪ (ftv P) (ftv t_1))) (ftv Γ))) (=> P t_1)))
    (qtranslates Δ_2 (extend Γ x σ) e_2 e_2^† t)
    ---- let
